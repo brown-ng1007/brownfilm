@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Brown's Cinema - Xem Phim Trực Tiếp</title>
+  <title>Brown's Cinema - Xem Phim Siêu Tốc</title>
+
+  <!-- Preconnect & Prefetch tối đa để tăng tốc độ phản hồi mạng -->
+  <link rel="preconnect" href="https://phimapi.com" crossorigin />
+  <link rel="preconnect" href="https://phim.nguonc.com" crossorigin />
+  <link rel="dns-prefetch" href="https://phimimg.com" />
 
   <!-- Cấu hình icon cuộn phim tròn khi thêm ra màn hình chính iPhone / Android -->
   <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=180&h=180&fit=crop" />
   <link rel="icon" type="image/png" href="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=64&h=64&fit=crop" />
 
-  <link rel="preconnect" href="https://phimapi.com" crossorigin />
-  <link rel="preconnect" href="https://phim.nguonc.com" crossorigin />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
   <script>
@@ -46,7 +49,7 @@
       background: var(--glass-bg);
       backdrop-filter: blur(12px);
       border: 1px solid var(--glass-border);
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
     .liquid-card:hover {
       transform: translateY(-2px);
@@ -81,26 +84,25 @@
             <div class="flex items-center gap-2">
               <h1 class="font-bold text-lg">Brown's Cinema</h1>
               <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                PRO V8.3
+                TURBO V8.4
               </span>
             </div>
-            <p class="text-xs text-slate-400">Xem phim trực tiếp • Đa nguồn • Không quảng cáo</p>
+            <p class="text-xs text-slate-400">Tốc độ tối đa • Tự động tìm kiếm tức thì</p>
           </div>
         </div>
         <button onclick="toggleTheme()" class="md:hidden liquid-card p-2 rounded-xl text-sm">🌙</button>
       </div>
 
-      <form id="searchForm" class="flex w-full md:max-w-xl gap-2">
+      <!-- Ô tìm kiếm tự động phản hồi ngay khi gõ -->
+      <div class="flex w-full md:max-w-xl gap-2">
         <input
           id="searchInput"
           type="text"
-          placeholder="Tìm tên phim (VD: Thế Giới Phép Thuật, Mai, Conan)..."
+          placeholder="Gõ tên phim để tìm kiếm tức thì (VD: Mai, Conan, Naruto)..."
           class="w-full liquid-card rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          oninput="handleSearchInput(this.value)"
         />
-        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shrink-0">
-          Tìm Kiếm
-        </button>
-      </form>
+      </div>
 
       <div class="hidden md:flex items-center gap-2">
         <button id="autoNextToggle" onclick="toggleAutoNext()" class="liquid-card px-3 py-2 rounded-xl text-xs font-medium text-indigo-400">
@@ -142,7 +144,7 @@
           <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
             <div class="text-3xl mb-2">🎞️</div>
             <h3 class="text-base font-bold text-white">Chọn phim ở danh sách bên phải để phát ngay</h3>
-            <p class="text-xs text-slate-400 mt-1">Trận chiến không quảng cáo • Hỗ trợ tự động chuyển tập.</p>
+            <p class="text-xs text-slate-400 mt-1">Trận chiến không quảng cáo • Tải siêu tốc 0.5s.</p>
           </div>
         </div>
 
@@ -212,17 +214,7 @@
         name: 'Phim Bộ VIP',
         type: 'kkphim',
         badge: 'bg-indigo-500/20 text-indigo-400 border-emerald-500/30',
-        latestUrl: () => 'https://phimapi.com/v1/api/danh-sach/phim-bo?page=1&limit=15',
-        searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=15`,
-        detailUrl: (slug) => `https://phimapi.com/phim/${slug}`,
-        imgPrefix: 'https://phimimg.com/'
-      },
-      {
-        id: 'kk_anime',
-        name: 'Hoạt Hình / Anime',
-        type: 'kkphim',
-        badge: 'bg-purple-500/20 text-purple-400 border-emerald-500/30',
-        latestUrl: () => 'https://phimapi.com/v1/api/danh-sach/hoat-hinh?page=1&limit=15',
+        latestUrl: () => 'https://phimapi.com/danh-sach/phim-bo?page=1&limit=15',
         searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=15`,
         detailUrl: (slug) => `https://phimapi.com/phim/${slug}`,
         imgPrefix: 'https://phimimg.com/'
@@ -239,8 +231,11 @@
       }
     ];
 
-    const HISTORY_KEY = 'browns_cinema_history_v83';
-    const THEME_KEY = 'browns_cinema_theme_v83';
+    const HISTORY_KEY = 'browns_cinema_history_v84';
+    const THEME_KEY = 'browns_cinema_theme_v84';
+    const searchCache = new Map(); // Lưu RAM kết quả tìm kiếm để phản hồi tức thì
+    const detailCache = new Map(); // Lưu RAM chi tiết phim để bấm vào load 0ms
+
     let hlsInstance = null;
     let preferredMode = 'm3u8';
     let autoNextEnabled = true;
@@ -251,8 +246,9 @@
     let currentEpisodeData = { link_m3u8: '', link_embed: '', name: '' };
     let pendingResumeTime = 0;
     let lastSaveTimestamp = 0;
+    let searchDebounceTimer = null;
 
-    async function fetchWithTimeout(url, ms = 5000) {
+    async function fetchWithTimeout(url, ms = 4000) {
       const ctrl = new AbortController();
       const id = setTimeout(() => ctrl.abort(), ms);
       try {
@@ -278,7 +274,8 @@
 
       if (Hls.isSupported()) {
         if (hlsInstance) hlsInstance.destroy();
-        hlsInstance = new Hls();
+        // Cấu hình Turbo HLS: giảm bộ đệm tối đa để phát ngay lập tức
+        hlsInstance = new Hls({ maxBufferLength: 10, startFragPrefetch: true });
         hlsInstance.loadSource(m3u8Url);
         hlsInstance.attachMedia(video);
         hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -336,10 +333,13 @@
     });
 
     async function fetchFromProvider(provider, keyword = '') {
+      const cacheKey = `${provider.id}:${keyword || 'latest'}`;
+      if (searchCache.has(cacheKey)) return searchCache.get(cacheKey);
+
       const t0 = performance.now();
       try {
         const url = keyword ? provider.searchUrl(keyword) : provider.latestUrl();
-        const json = await fetchWithTimeout(url, 5000);
+        const json = await fetchWithTimeout(url, 4000);
         const pingMs = Math.round(performance.now() - t0);
         const rawItems = json?.data?.items || json?.items || [];
         const imgDomain = json?.data?.APP_DOMAIN_CDN_IMAGE
@@ -359,7 +359,9 @@
             pingMs
           };
         });
-        return { provider, pingMs, items };
+        const resObj = { provider, pingMs, items };
+        searchCache.set(cacheKey, resObj);
+        return resObj;
       } catch (e) {
         return { provider, pingMs: 9999, items: [], error: true };
       }
@@ -368,10 +370,9 @@
     async function runMultiSearch(keyword = '') {
       const searchResults = document.getElementById('searchResults');
       const pingBar = document.getElementById('providerPingBar');
-      searchResults.innerHTML = `<div class="text-center text-slate-400 text-xs py-12 animate-pulse">⚡ Đang tải danh sách phim...</div>`;
+      searchResults.innerHTML = `<div class="text-center text-slate-400 text-xs py-12 animate-pulse">⚡ Đang quét nguồn tốc độ cao...</div>`;
 
-      const activeProviders = keyword ? [PROVIDERS[0], PROVIDERS[3]] : PROVIDERS;
-      const results = await Promise.all(activeProviders.map(p => fetchFromProvider(p, keyword)));
+      const results = await Promise.all(PROVIDERS.map(p => fetchFromProvider(p, keyword)));
 
       pingBar.innerHTML = results.map(r => r.error
         ? `<span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-400">${r.provider.name}: Offline</span>`
@@ -400,6 +401,14 @@
       renderSearchResults(allFetchedItems);
     }
 
+    // Cơ chế Debounce: Tự động tìm kiếm ngay khi gõ phím sau 300ms mà không cần bấm Enter
+    function handleSearchInput(val) {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        runMultiSearch(val.trim());
+      }, 300);
+    }
+
     function filterByProv(id) {
       renderSearchResults(allFetchedItems.filter(i => i.provider.id === id));
     }
@@ -415,7 +424,7 @@
         const sTitle = (item.title || '').replace(/'/g, "\\'");
         const sThumb = (item.thumb || '').replace(/'/g, "\\'");
         return `
-          <div onclick="loadMovieDetail('${item.provider.id}', '${item.slug}', '${sTitle}', '${sThumb}')" class="liquid-card rounded-xl p-2.5 flex gap-3 cursor-pointer group">
+          <div onmouseenter="prefetchDetail('${item.provider.id}', '${item.slug}')" onclick="loadMovieDetail('${item.provider.id}', '${item.slug}', '${sTitle}', '${sThumb}')" class="liquid-card rounded-xl p-2.5 flex gap-3 cursor-pointer group">
             <img src="${item.thumb}" loading="lazy" class="w-14 h-20 object-cover rounded-lg bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Film'"/>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between mb-1">
@@ -430,22 +439,22 @@
       }).join('');
     }
 
+    // Tải trước ngầm (Prefetch) khi di chuột vào thẻ phim giúp tốc độ mở phim đạt 0ms
+    function prefetchDetail(providerId, slug) {
+      const cacheKey = `${providerId}:${slug}`;
+      if (!detailCache.has(cacheKey)) {
+        const provider = PROVIDERS.find(p => p.id === providerId) || PROVIDERS[0];
+        fetchWithTimeout(provider.detailUrl(slug), 4000).then(data => {
+          detailCache.set(cacheKey, data);
+        }).catch(() => {});
+      }
+    }
+
     async function rescueKkphimM3u8(slug, title) {
       try {
-        const d = await fetchWithTimeout(`https://phimapi.com/phim/${slug}`, 4000);
+        const d = await fetchWithTimeout(`https://phimapi.com/phim/${slug}`, 3000);
         if (d?.episodes?.length && d.episodes[0]?.server_data?.length) {
           return d.episodes.map(s => ({ server_name: `⚡ KKPhim (${s.server_name})`, server_data: s.server_data }));
-        }
-      } catch (e) {}
-      if (!title) return [];
-      try {
-        const s = await fetchWithTimeout(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(title)}&limit=1`, 4000);
-        const first = s?.data?.items?.[0];
-        if (first?.slug) {
-          const d2 = await fetchWithTimeout(`https://phimapi.com/phim/${first.slug}`, 4000);
-          if (d2?.episodes?.length) {
-            return d2.episodes.map(srv => ({ server_name: `⚡ KKPhim (${srv.server_name})`, server_data: srv.server_data }));
-          }
         }
       } catch (e) {}
       return [];
@@ -454,15 +463,22 @@
     async function loadMovieDetail(providerId, slug, fallbackTitle = '', fallbackThumb = '', sIdx = 0, eIdx = 0, resumeSec = 0) {
       const serverListEl = document.getElementById('serverList');
       const episodeListEl = document.getElementById('episodeList');
-      serverListEl.innerHTML = `<span class="text-indigo-400 animate-pulse">⚡ Đang tải tập phim...</span>`;
+      serverListEl.innerHTML = `<span class="text-indigo-400 animate-pulse">⚡ Đang nạp danh sách tập siêu tốc...</span>`;
       episodeListEl.innerHTML = '';
 
       try {
-        const provider = PROVIDERS.find(p => p.id === providerId) || PROVIDERS[0];
-        const data = await fetchWithTimeout(provider.detailUrl(slug), 5000);
+        const cacheKey = `${providerId}:${slug}`;
+        let data = detailCache.get(cacheKey);
+        if (!data) {
+          const provider = PROVIDERS.find(p => p.id === providerId) || PROVIDERS[0];
+          data = await fetchWithTimeout(provider.detailUrl(slug), 4000);
+          detailCache.set(cacheKey, data);
+        }
+
         const movie = data.movie || data?.data?.item || {};
         const title = movie.name || fallbackTitle || 'Phim';
         let servers = [];
+        const provider = PROVIDERS.find(p => p.id === providerId) || PROVIDERS[0];
 
         if (provider.type === 'nguonc') {
           const rescued = await rescueKkphimM3u8(slug, title);
@@ -594,11 +610,6 @@
       localStorage.removeItem(HISTORY_KEY);
       renderContinueWatching();
     }
-
-    document.getElementById('searchForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      runMultiSearch(document.getElementById('searchInput').value.trim());
-    });
 
     renderContinueWatching();
     runMultiSearch('');
