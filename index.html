@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Brown's Cinema - Sticky Player & Episode Pop-up</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Brown's Cinema - Gesture Fullscreen</title>
 
   <link rel="preconnect" href="https://phimapi.com" crossorigin />
   <link rel="preconnect" href="https://phim.nguonc.com" crossorigin />
@@ -19,45 +19,47 @@
   </script>
   <style>
     :root {
-      --glass-bg: rgba(255, 255, 255, 0.78);
-      --glass-border: rgba(255, 255, 255, 0.8);
-      --page-bg: #f2f2f7;
-      --text-main: #000000;
-      --text-sub: #3c3c43;
-      --ios-blue: #007aff;
+      --glass-bg: rgba(255, 255, 255, 0.82);
+      --glass-border: rgba(255, 255, 255, 0.9);
+      --page-bg: #f8f9fa;
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --yt-red: #ff0000;
     }
     html.dark {
-      --glass-bg: rgba(28, 28, 30, 0.85);
-      --glass-border: rgba(255, 255, 255, 0.12);
-      --page-bg: #000000;
-      --text-main: #ffffff;
-      --text-sub: #ebebf5;
-      --ios-blue: #0a84ff;
+      --glass-bg: rgba(24, 24, 27, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --page-bg: #0f0f0f;
+      --text-main: #f1f1f1;
+      --text-sub: #aaa;
+      --yt-red: #ff0000;
     }
-    body {
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
       background-color: var(--page-bg);
       color: var(--text-main);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      overflow-x: hidden;
       -webkit-tap-highlight-color: transparent;
     }
     .ios-glass {
       background: var(--glass-bg);
-      backdrop-filter: blur(30px) saturate(200%);
-      -webkit-backdrop-filter: blur(30px) saturate(200%);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
       border: 0.5px solid var(--glass-border);
-      box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     }
     html.dark .ios-glass {
-      box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.5);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
     }
     .ios-card {
       background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
       border: 0.5px solid var(--glass-border);
-      transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+      transition: all 0.15s ease;
     }
     .ios-card:active {
       transform: scale(0.97);
@@ -65,63 +67,86 @@
     .ambient-orb {
       position: fixed;
       border-radius: 9999px;
-      filter: blur(100px);
-      opacity: 0.22;
+      filter: blur(120px);
+      opacity: 0.15;
       pointer-events: none;
       z-index: -1;
     }
-    html.dark .ambient-orb { opacity: 0.3; }
+    #playerContainer:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    #playerContainer:-webkit-full-screen {
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-thumb { background: rgba(120, 120, 128, 0.3); border-radius: 9999px; }
   </style>
 </head>
 
-<body class="min-h-screen pb-6">
-  <div class="ambient-orb w-[30rem] h-[30rem] bg-indigo-500/40 -top-20 -left-20"></div>
-  <div class="ambient-orb w-[30rem] h-[30rem] bg-rose-500/30 top-1/3 -right-24"></div>
+<body class="flex flex-col h-screen overflow-hidden p-2 md:p-3">
+  <div class="ambient-orb w-[25rem] h-[25rem] bg-red-600/30 -top-20 -left-20"></div>
+  <div class="ambient-orb w-[25rem] h-[25rem] bg-indigo-600/30 bottom-0 -right-20"></div>
 
-  <!-- Header nhỏ gọn -->
-  <header class="sticky top-3 z-50 max-w-7xl mx-auto px-4 mb-3">
-    <div class="ios-glass rounded-3xl px-5 py-2.5 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md shrink-0">
-          🎞️
+  <!-- Header -->
+  <header class="shrink-0 max-w-7xl w-full mx-auto mb-2">
+    <div class="ios-glass rounded-2xl px-4 py-2 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-[var(--yt-red)] flex items-center justify-center text-white font-bold shadow-md shrink-0 text-sm">
+          ▶
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="font-semibold text-sm md:text-base tracking-tight">Brown's Cinema</h1>
-            <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400">
-              V9.0
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-bold text-sm md:text-base tracking-tight">Brown's Cinema</h1>
+            <span class="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-[var(--yt-red)] text-white">
+              GESTURE V9.3
             </span>
           </div>
         </div>
       </div>
 
-      <button onclick="toggleTheme()" class="ios-card px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shrink-0">
-        <span id="themeText">🌙 Tối</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button onclick="toggleTheme()" class="ios-card px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1">
+          <span id="themeText">🌙 Tối</span>
+        </button>
+      </div>
     </div>
   </header>
 
   <!-- Xem tiếp phim đang xem dở -->
-  <section id="continueWatchingSection" class="max-w-7xl mx-auto px-4 mb-3 hidden">
-    <div class="ios-glass rounded-3xl p-3">
-      <div class="flex items-center justify-between mb-2">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">● Đang Xem Dở • Tiếp Tục</h2>
-        <button onclick="clearWatchHistory()" class="text-xs font-semibold text-rose-500 hover:underline">Xóa lịch sử</button>
+  <section id="continueWatchingSection" class="shrink-0 max-w-7xl w-full mx-auto mb-2 hidden">
+    <div class="ios-glass rounded-2xl p-2.5">
+      <div class="flex items-center justify-between mb-1.5">
+        <h2 class="text-[11px] font-bold uppercase tracking-wider text-emerald-500">● Đang Xem Dở • Tiếp Tục</h2>
+        <button onclick="clearWatchHistory()" class="text-[11px] font-semibold text-rose-500 hover:underline">Xóa</button>
       </div>
-      <div id="continueWatchingList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5"></div>
+      <div id="continueWatchingList" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
     </div>
   </section>
 
-  <!-- Main Layout: Player Cố định Trái & Kho Phim Mở Rộng Phải -->
-  <main class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+  <!-- Main Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0 overflow-hidden">
     
-    <!-- Cột Trái: Trình phát cố định & Nút gọi Pop-up Tập Phim (chiếm nhiều không gian hơn) -->
-    <div class="lg:col-span-6 xl:col-span-7 space-y-3 lg:sticky lg:top-20">
-      <div class="ios-glass rounded-3xl p-2.5">
-        <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
-          <video id="hlsVideo" class="w-full h-full hidden" controls playsinline autoplay></video>
+    <!-- Cột Trái: Trình phát (Hỗ trợ cử chỉ Vuốt Lên/Xuống Fullscreen) -->
+    <div class="lg:col-span-7 xl:col-span-8 flex flex-col min-h-0 space-y-2">
+      <div id="playerContainer" class="ios-glass rounded-2xl p-2 shrink-0 flex flex-col relative overflow-hidden">
+        
+        <!-- Khung Player chuẩn -->
+        <div id="videoWrapper" class="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl group">
+          <video id="hlsVideo" class="w-full h-full hidden" controls playsinline></video>
           <iframe
             id="embedIframe"
             class="w-full h-full hidden"
@@ -130,109 +155,112 @@
             allowfullscreen
           ></iframe>
 
-          <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-white">
-            <div class="text-4xl mb-2">🎞️</div>
-            <h3 class="text-base font-semibold">Chọn phim để bắt đầu trải nghiệm</h3>
-            <p class="text-xs text-white/60 mt-1">Phát trực tiếp đa nguồn • Không quảng cáo</p>
+          <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-white">
+            <div class="w-12 h-12 rounded-full bg-[var(--yt-red)]/20 border border-[var(--yt-red)] flex items-center justify-center text-xl mb-2 text-[var(--yt-red)] font-bold">▶</div>
+            <h3 class="text-sm font-semibold">Chọn phim để bắt đầu phát</h3>
+            <p class="text-[11px] text-white/60 mt-0.5">Vuốt lên để chọn tập • Vuốt xuống để thoát Fullscreen</p>
+          </div>
+
+          <!-- NGĂN KÉO CHỌN TẬP PHIM KHI Ở CHẾ ĐỘ FULLSCREEN -->
+          <div id="fullscreenEpisodeDrawer" class="absolute inset-x-0 bottom-0 bg-black/80 backdrop-blur-md rounded-t-3xl p-4 transform translate-y-full transition-transform duration-300 z-40 max-h-[60vh] flex flex-col border-t border-white/20">
+            <div class="flex items-center justify-between mb-2 pb-1 border-b border-white/10">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">📂 Danh Sách Tập Phim (Vuốt xuống để đóng)</span>
+              <button onclick="closeFullscreenDrawer()" class="text-xs text-white bg-white/20 px-2 py-0.5 rounded-full">✕</button>
+            </div>
+            <div id="fullscreenDrawerList" class="grid grid-cols-5 sm:grid-cols-8 gap-2 overflow-y-auto pr-1"></div>
           </div>
         </div>
 
-        <div class="mt-2.5 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
+        <!-- Thanh điều khiển -->
+        <div class="mt-2 px-1 flex flex-wrap items-center justify-between gap-2">
           <div class="min-w-0 flex-1">
-            <h2 id="currentMovieTitle" class="font-semibold text-sm md:text-base truncate">Chưa chọn phim</h2>
-            <p id="currentStreamStatus" class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 truncate">Sẵn sàng phát</p>
+            <h2 id="currentMovieTitle" class="font-bold text-xs md:text-sm truncate">Chưa chọn phim</h2>
+            <p id="currentStreamStatus" class="text-[10px] font-medium text-emerald-500 truncate">Sẵn sàng phát</p>
           </div>
 
-          <div class="flex flex-wrap items-center gap-1.5">
-            <!-- Nút mở Pop-up danh sách tập dạng thu gọn -->
-            <button onclick="toggleEpisodePopup()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm flex items-center gap-1">
-              📂 Chọn Tập <span id="currentEpBadge" class="bg-black/30 px-1.5 py-0.5 rounded text-[10px]">--</span>
+          <div class="flex flex-wrap items-center gap-1">
+            <button onclick="toggleEpisodePopup()" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[var(--yt-red)] text-white shadow-sm flex items-center gap-1">
+              📂 Chọn Tập <span id="currentEpBadge" class="bg-black/30 px-1 rounded text-[9px]">--</span>
             </button>
-            <button onclick="seekRelative(-10)" class="ios-card px-2 py-1.5 rounded-xl text-xs font-medium">↺ 10s</button>
-            <button onclick="seekRelative(10)" class="ios-card px-2 py-1.5 rounded-xl text-xs font-medium">10s ↻</button>
-            <button onclick="seekRelative(85)" class="ios-card px-2 py-1.5 rounded-xl text-xs font-medium text-amber-600 dark:text-amber-400">⏭ Intro</button>
-            <select id="playbackSpeed" onchange="changeSpeed(this.value)" class="ios-card rounded-xl px-2 py-1.5 text-xs font-medium bg-transparent">
+            <button onclick="seekRelative(-10)" class="ios-card px-2 py-1 rounded-lg text-[11px]">↺ 10s</button>
+            <button onclick="seekRelative(10)" class="ios-card px-2 py-1 rounded-lg text-[11px]">10s ↻</button>
+            <select id="playbackSpeed" onchange="changeSpeed(this.value)" class="ios-card rounded-lg px-1.5 py-1 text-[11px] bg-transparent">
               <option value="1">1.0x</option>
               <option value="1.25">1.25x</option>
               <option value="1.5">1.5x</option>
               <option value="2">2.0x</option>
             </select>
-            <button id="btnModeM3u8" onclick="switchPlayerMode('m3u8')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-[var(--ios-blue)] text-white shadow-sm">
-              M3U8
-            </button>
-            <button id="btnModeEmbed" onclick="switchPlayerMode('embed')" class="ios-card px-3 py-1.5 rounded-xl text-xs font-medium">
-              VIP
-            </button>
+            <button id="btnModeM3u8" onclick="switchPlayerMode('m3u8')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-600 text-white">M3U8</button>
+            <button id="btnModeEmbed" onclick="switchPlayerMode('embed')" class="ios-card px-2.5 py-1 rounded-lg text-[11px]">VIP</button>
+            <button onclick="triggerAutoRotateFullscreen()" class="ios-card px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-600 text-white shadow-sm">⛶ Toàn Màn Hình</button>
           </div>
         </div>
       </div>
 
       <!-- Server nhanh -->
-      <div class="ios-glass rounded-3xl p-3 flex items-center justify-between gap-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] opacity-80">Server:</span>
-        <div id="serverList" class="flex flex-wrap gap-1.5 text-xs font-medium text-[var(--text-sub)]">Chưa chọn phim</div>
+      <div class="ios-glass rounded-2xl px-3 py-2 flex items-center justify-between gap-2 shrink-0">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-sub)]">Server:</span>
+        <div id="serverList" class="flex flex-wrap gap-1 text-[11px] font-medium text-[var(--text-sub)]">Chưa chọn phim</div>
       </div>
     </div>
 
-    <!-- Cột Phải: Kho Phim Mở Rộng & Tìm Kiếm (Chiếm không gian rộng hơn) -->
-    <div class="lg:col-span-6 xl:col-span-5 ios-glass rounded-3xl p-3.5 flex flex-col h-[650px] lg:h-[calc(100vh-90px)] lg:sticky lg:top-20">
+    <!-- Cột Phải: Kho Phim & Trang Chủ -->
+    <div class="lg:col-span-5 xl:col-span-4 ios-glass rounded-2xl p-3 flex flex-col min-h-0 overflow-hidden">
       
-      <!-- Thanh Tabs iOS -->
-      <div class="grid grid-cols-2 gap-1 p-1 ios-card rounded-2xl mb-3 shrink-0">
-        <button id="tabHomeBtn" onclick="switchTab('home')" class="py-2 rounded-xl text-xs font-semibold transition bg-[var(--ios-blue)] text-white shadow-sm">
+      <div class="grid grid-cols-2 gap-1 p-1 ios-card rounded-xl mb-2 shrink-0">
+        <button id="tabHomeBtn" onclick="switchTab('home')" class="py-1.5 rounded-lg text-xs font-bold transition bg-[var(--yt-red)] text-white shadow-sm">
           🏠 Trang Chủ
         </button>
-        <button id="tabSearchBtn" onclick="switchTab('search')" class="py-2 rounded-xl text-xs font-semibold transition text-[var(--text-sub)]">
+        <button id="tabSearchBtn" onclick="switchTab('search')" class="py-1.5 rounded-lg text-xs font-semibold transition text-[var(--text-sub)]">
           🔍 Kho Phim
         </button>
       </div>
 
-      <!-- TAB 1: TRANG CHỦ ĐỀ XUẤT -->
-      <div id="contentHome" class="flex-1 overflow-y-auto space-y-2.5 pr-1">
+      <!-- TAB 1 -->
+      <div id="contentHome" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-0">
         <div class="flex items-center justify-between mb-1">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] opacity-80">🔥 Đề Xuất Mới Nhất</h3>
-          <span class="text-[10px] text-[var(--text-sub)] opacity-60">Cập nhật liên tục</span>
+          <h3 class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-sub)] opacity-80">🔥 Đề Xuất Mới Nhất</h3>
         </div>
         <div id="homeRecommendationsList" class="space-y-2">
-          <div class="text-center text-[var(--text-sub)] text-xs py-16 animate-pulse font-medium">⚡ Đang quét đề xuất nóng...</div>
+          <div class="text-center text-[var(--text-sub)] text-xs py-12 animate-pulse font-medium">⚡ Đang quét đề xuất nóng...</div>
         </div>
       </div>
 
-      <!-- TAB 2: TÌM KIẾM & KHO PHIM -->
-      <div id="contentSearch" class="flex-1 flex-col hidden overflow-hidden">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] opacity-80">Tra Cứu Kho Phim</h3>
-          <span id="resultCount" class="text-xs font-bold px-2 py-0.5 rounded-full ios-card">0 phim</span>
+      <!-- TAB 2 -->
+      <div id="contentSearch" class="flex-1 flex-col hidden overflow-hidden min-h-0">
+        <div class="flex items-center justify-between mb-1.5 shrink-0">
+          <h3 class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-sub)] opacity-80">Tra Cứu Kho Phim</h3>
+          <span id="resultCount" class="text-[10px] font-bold px-2 py-0.2 rounded-full ios-card">0 phim</span>
         </div>
 
-        <div class="relative mb-3 shrink-0">
+        <div class="relative mb-2 shrink-0">
           <input
             id="searchInput"
             type="text"
             placeholder="Tìm kiếm phim tức thì..."
-            class="w-full ios-card rounded-2xl pl-3.5 pr-9 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)] placeholder:text-gray-400"
+            class="w-full ios-card rounded-xl pl-3 pr-8 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[var(--yt-red)] placeholder:text-gray-400"
             oninput="handleSearchInput(this.value)"
           />
-          <div id="searchSpinner" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-[var(--ios-blue)] border-t-transparent rounded-full animate-spin"></div>
-          <span id="searchIcon" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">🔍</span>
+          <div id="searchSpinner" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-[var(--yt-red)] border-t-transparent rounded-full animate-spin"></div>
+          <span id="searchIcon" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">🔍</span>
         </div>
 
-        <div id="providerPingBar" class="flex flex-wrap gap-1.5 mb-2 shrink-0"></div>
-        <div id="providerFilterTabs" class="flex gap-1.5 mb-3 overflow-x-auto pb-1 shrink-0"></div>
+        <div id="providerPingBar" class="flex flex-wrap gap-1 mb-1.5 shrink-0"></div>
+        <div id="providerFilterTabs" class="flex gap-1 mb-2 overflow-x-auto pb-1 shrink-0"></div>
         
-        <div id="searchResults" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+        <div id="searchResults" class="flex-1 overflow-y-auto space-y-1.5 pr-1 min-h-0"></div>
       </div>
 
     </div>
 
   </main>
 
-  <!-- POP-UP LIQUID GLASS CHỌN TẬP PHIM (Thu gọn, bấm là hiện/tắt) -->
-  <div id="episodePopupModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="ios-glass rounded-3xl p-5 max-w-lg w-full max-h-[80vh] flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
+  <!-- POP-UP CHỌN TẬP PHIM -->
+  <div id="episodePopupModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="ios-glass rounded-3xl p-4 max-w-md w-full max-h-[75vh] flex flex-col shadow-2xl">
       <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-500/20">
-        <h3 class="font-bold text-sm">📂 Danh Sách Tập Phim</h3>
-        <button onclick="toggleEpisodePopup()" class="w-7 h-7 rounded-full ios-card flex items-center justify-center text-xs font-bold">✕</button>
+        <h3 class="font-bold text-xs uppercase tracking-wider">📂 Danh Sách Tập Phim</h3>
+        <button onclick="toggleEpisodePopup()" class="w-6 h-6 rounded-full ios-card flex items-center justify-center text-xs font-bold">✕</button>
       </div>
       <div id="popupEpisodeList" class="grid grid-cols-4 sm:grid-cols-6 gap-2 overflow-y-auto pr-1">
         <div class="col-span-full text-center text-xs text-gray-400 py-6">Chưa chọn phim nào.</div>
@@ -257,7 +285,7 @@
         name: 'Phim Bộ VIP',
         type: 'kkphim',
         badge: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 font-semibold',
-        latestUrl: () => 'https://phimapi.com/danh-sach/phim-bo?page=1&limit=15',
+        latestUrl: () => 'https://phimapi.com/v1/api/danh-sach/phim-bo?page=1&limit=15',
         searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=15`,
         detailUrl: (slug) => `https://phimapi.com/phim/${slug}`,
         imgPrefix: 'https://phimimg.com/'
@@ -274,9 +302,9 @@
       }
     ];
 
-    const HISTORY_KEY = 'browns_cinema_history_v90';
-    const THEME_KEY = 'browns_cinema_theme_v90';
-    const CACHE_KEY = 'browns_cinema_instant_cache_v90';
+    const HISTORY_KEY = 'browns_cinema_history_v93';
+    const THEME_KEY = 'browns_cinema_theme_v93';
+    const CACHE_KEY = 'browns_cinema_instant_cache_v93';
 
     const searchCache = new Map();
     const detailCache = new Map();
@@ -293,6 +321,65 @@
     let lastSaveTimestamp = 0;
     let searchDebounceTimer = null;
     let activeTab = 'home';
+
+    // Xử lý Cử chỉ Cảm ứng Vuốt Lên / Vuốt Xuống khi ở chế độ Fullscreen
+    let touchStartY = 0;
+    const videoWrapper = document.getElementById('videoWrapper');
+
+    videoWrapper.addEventListener('touchstart', (e) => {
+      if (document.fullscreenElement) {
+        touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    videoWrapper.addEventListener('touchend', (e) => {
+      if (!document.fullscreenElement) return;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diffY = touchStartY - touchEndY;
+
+      // Vuốt lên (diffY > 60px): Mở ngăn kéo chọn tập
+      if (diffY > 60) {
+        openFullscreenDrawer();
+      }
+      // Vuốt xuống (diffY < -60px): Thoát chế độ toàn màn hình
+      else if (diffY < -60) {
+        exitFullscreenMode();
+      }
+    }, { passive: true });
+
+    function openFullscreenDrawer() {
+      const drawer = document.getElementById('fullscreenEpisodeDrawer');
+      renderFullscreenDrawerEpisodes();
+      drawer.classList.remove('translate-y-full');
+    }
+
+    function closeFullscreenDrawer() {
+      const drawer = document.getElementById('fullscreenEpisodeDrawer');
+      drawer.classList.add('translate-y-full');
+    }
+
+    async function exitFullscreenMode() {
+      try {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+      } catch (e) {}
+    }
+
+    function renderFullscreenDrawerEpisodes() {
+      const servers = window._currentServers || [];
+      const activeServer = servers[currentServerIdx];
+      const epList = activeServer ? activeServer.server_data || [] : [];
+      const listEl = document.getElementById('fullscreenDrawerList');
+
+      if (!epList.length) {
+        listEl.innerHTML = `<div class="col-span-full text-center text-xs text-gray-400 py-4">Không có tập phim.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = epList.map((ep, i) => `
+        <button onclick="selectAndPlayEpisode(${i}); closeFullscreenDrawer();" class="py-2 rounded-xl text-xs font-bold truncate ${i === currentEpisodeIdx ? 'bg-[var(--yt-red)] text-white shadow-sm' : 'bg-white/10 text-white'}">Tập ${ep.name}</button>
+      `).join('');
+    }
 
     (function initSystemTheme() {
       const saved = localStorage.getItem(THEME_KEY);
@@ -316,6 +403,22 @@
       document.getElementById('themeText').textContent = isDark ? '☀️ Sáng' : '🌙 Tối';
     }
 
+    async function triggerAutoRotateFullscreen() {
+      const container = document.getElementById('playerContainer');
+      try {
+        if (!document.fullscreenElement) {
+          if (container.requestFullscreen) await container.requestFullscreen();
+          else if (container.webkitRequestFullscreen) await container.webkitRequestFullscreen();
+          if (screen.orientation && screen.orientation.lock) {
+            await screen.orientation.lock('landscape').catch(() => {});
+          }
+        } else {
+          exitFullscreenMode();
+          if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+        }
+      } catch (err) {}
+    }
+
     function switchTab(tab) {
       activeTab = tab;
       const btnHome = document.getElementById('tabHomeBtn');
@@ -324,15 +427,15 @@
       const contentSearch = document.getElementById('contentSearch');
 
       if (tab === 'home') {
-        btnHome.className = 'py-2 rounded-xl text-xs font-semibold transition bg-[var(--ios-blue)] text-white shadow-sm';
-        btnSearch.className = 'py-2 rounded-xl text-xs font-semibold transition text-[var(--text-sub)]';
+        btnHome.className = 'py-1.5 rounded-lg text-xs font-semibold transition bg-[var(--yt-red)] text-white shadow-sm';
+        btnSearch.className = 'py-1.5 rounded-lg text-xs font-semibold transition text-[var(--text-sub)]';
         contentHome.classList.remove('hidden');
         contentHome.classList.add('flex');
         contentSearch.classList.add('hidden');
         contentSearch.classList.remove('flex');
       } else {
-        btnSearch.className = 'py-2 rounded-xl text-xs font-semibold transition bg-[var(--ios-blue)] text-white shadow-sm';
-        btnHome.className = 'py-2 rounded-xl text-xs font-semibold transition text-[var(--text-sub)]';
+        btnSearch.className = 'py-1.5 rounded-lg text-xs font-semibold transition bg-[var(--yt-red)] text-white shadow-sm';
+        btnHome.className = 'py-1.5 rounded-lg text-xs font-semibold transition text-[var(--text-sub)]';
         contentSearch.classList.remove('hidden');
         contentSearch.classList.add('flex');
         contentHome.classList.add('hidden');
@@ -378,9 +481,9 @@
       iframe.classList.add('hidden');
       video.classList.remove('hidden');
 
-      document.getElementById('btnModeM3u8').className = 'px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[var(--ios-blue)] text-white shadow-sm';
-      document.getElementById('btnModeEmbed').className = 'ios-card px-3.5 py-1.5 rounded-xl text-xs font-medium';
-      document.getElementById('currentStreamStatus').textContent = `⚡ Phát M3U8 • Tập ${currentEpisodeData.name}`;
+      document.getElementById('btnModeM3u8').className = 'px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-600 text-white';
+      document.getElementById('btnModeEmbed').className = 'ios-card px-2.5 py-1 rounded-lg text-[11px]';
+      document.getElementById('currentStreamStatus').textContent = `⚡ M3U8 • Tập ${currentEpisodeData.name}`;
 
       if (Hls.isSupported()) {
         if (hlsInstance) hlsInstance.destroy();
@@ -418,9 +521,9 @@
 
       iframe.classList.remove('hidden');
       iframe.src = finalUrl;
-      document.getElementById('btnModeM3u8').className = 'ios-card px-3.5 py-1.5 rounded-xl text-xs font-medium';
-      document.getElementById('btnModeEmbed').className = 'px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[var(--ios-blue)] text-white shadow-sm';
-      document.getElementById('currentStreamStatus').textContent = `🎬 Phát VIP • Tập ${currentEpisodeData.name}`;
+      document.getElementById('btnModeM3u8').className = 'ios-card px-2.5 py-1 rounded-lg text-[11px]';
+      document.getElementById('btnModeEmbed').className = 'px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-600 text-white';
+      document.getElementById('currentStreamStatus').textContent = `🎬 VIP • Tập ${currentEpisodeData.name}`;
     }
 
     const videoEl = document.getElementById('hlsVideo');
@@ -466,18 +569,8 @@
     }
 
     async function runMultiSearch(keyword = '') {
-      const searchResults = document.getElementById('searchResults');
-      const spinner = document.getElementById('searchSpinner');
-      const icon = document.getElementById('searchIcon');
-
-      spinner.classList.remove('hidden');
-      icon.classList.add('hidden');
-
       const results = await Promise.all(PROVIDERS.map(p => fetchFromProvider(p, keyword)));
       
-      spinner.classList.add('hidden');
-      icon.classList.remove('hidden');
-
       allFetchedItems = [];
       const seen = new Set();
       results.forEach(r => {
@@ -501,22 +594,22 @@
     function renderHomeRecommendations(items) {
       const el = document.getElementById('homeRecommendationsList');
       if (!items.length) {
-        el.innerHTML = `<div class="text-center text-[var(--text-sub)] text-xs py-12 font-medium">Chưa có đề xuất phim mới.</div>`;
+        el.innerHTML = `<div class="text-center text-[var(--text-sub)] text-xs py-10 font-medium">Chưa có đề xuất phim mới.</div>`;
         return;
       }
       el.innerHTML = items.slice(0, 20).map(item => {
         const sTitle = (item.title || '').replace(/'/g, "\\'");
         const sThumb = (item.thumb || '').replace(/'/g, "\\'");
         return `
-          <div onmouseenter="prefetchDetail('${item.provider.id}', '${item.slug}')" onclick="loadMovieDetail('${item.provider.id}', '${item.slug}', '${sTitle}', '${sThumb}')" class="ios-card rounded-2xl p-2 flex gap-2.5 cursor-pointer group shadow-sm">
-            <img src="${item.thumb}" loading="lazy" class="w-12 h-16 object-cover rounded-xl bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Film'"/>
+          <div onmouseenter="prefetchDetail('${item.provider.id}', '${item.slug}')" onclick="loadMovieDetail('${item.provider.id}', '${item.slug}', '${sTitle}', '${sThumb}')" class="ios-card rounded-xl p-2 flex gap-2 cursor-pointer group shadow-sm">
+            <img src="${item.thumb}" loading="lazy" class="w-10 h-14 object-cover rounded-lg bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Film'"/>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between mb-0.5">
-                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-md ${item.provider.badge}">${item.provider.name}</span>
-                <span class="text-[10px] font-bold text-rose-500">🔥 Hot</span>
+                <span class="text-[8px] font-bold px-1.5 py-0.1 rounded ${item.provider.badge}">${item.provider.name}</span>
+                <span class="text-[9px] font-bold text-[var(--yt-red)]">🔥 Hot</span>
               </div>
-              <h4 class="text-xs font-semibold text-[var(--text-main)] truncate group-hover:text-[var(--ios-blue)]">${item.title}</h4>
-              <p class="text-[10px] text-[var(--text-sub)] opacity-80 truncate">${item.originTitle} ${item.year ? `(${item.year})` : ''}</p>
+              <h4 class="text-[11px] font-semibold text-[var(--text-main)] truncate group-hover:text-[var(--yt-red)]">${item.title}</h4>
+              <p class="text-[9px] text-[var(--text-sub)] opacity-80 truncate">${item.originTitle} ${item.year ? `(${item.year})` : ''}</p>
             </div>
           </div>
         `;
@@ -534,21 +627,21 @@
       const el = document.getElementById('searchResults');
       document.getElementById('resultCount').textContent = `${items.length} phim`;
       if (!items.length) {
-        el.innerHTML = `<div class="text-center text-[var(--text-sub)] text-xs py-12 font-medium">Không tìm thấy phim phù hợp.</div>`;
+        el.innerHTML = `<div class="text-center text-[var(--text-sub)] text-xs py-10 font-medium">Không tìm thấy phim phù hợp.</div>`;
         return;
       }
       el.innerHTML = items.map(item => {
         const sTitle = (item.title || '').replace(/'/g, "\\'");
         const sThumb = (item.thumb || '').replace(/'/g, "\\'");
         return `
-          <div onmouseenter="prefetchDetail('${item.provider.id}', '${item.slug}')" onclick="loadMovieDetail('${item.provider.id}', '${item.slug}', '${sTitle}', '${sThumb}')" class="ios-card rounded-2xl p-2 flex gap-2.5 cursor-pointer group shadow-sm">
-            <img src="${item.thumb}" loading="lazy" class="w-12 h-16 object-cover rounded-xl bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Film'"/>
+          <div onmouseenter="prefetchDetail('${item.provider.id}', '${item.slug}')" onclick="loadMovieDetail('${item.provider.id}', '${item.slug}', '${sTitle}', '${sThumb}')" class="ios-card rounded-xl p-2 flex gap-2 cursor-pointer group shadow-sm">
+            <img src="${item.thumb}" loading="lazy" class="w-10 h-14 object-cover rounded-lg bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Film'"/>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between mb-0.5">
-                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-md ${item.provider.badge}">${item.provider.name}</span>
+                <span class="text-[8px] font-bold px-1.5 py-0.1 rounded ${item.provider.badge}">${item.provider.name}</span>
               </div>
-              <h4 class="text-xs font-semibold text-[var(--text-main)] truncate group-hover:text-[var(--ios-blue)]">${item.title}</h4>
-              <p class="text-[10px] text-[var(--text-sub)] opacity-80 truncate">${item.originTitle} ${item.year ? `(${item.year})` : ''}</p>
+              <h4 class="text-[11px] font-semibold text-[var(--text-main)] truncate group-hover:text-[var(--yt-red)]">${item.title}</h4>
+              <p class="text-[9px] text-[var(--text-sub)] opacity-80 truncate">${item.originTitle} ${item.year ? `(${item.year})` : ''}</p>
             </div>
           </div>
         `;
@@ -577,7 +670,7 @@
 
     async function loadMovieDetail(providerId, slug, fallbackTitle = '', fallbackThumb = '', sIdx = 0, eIdx = 0, resumeSec = 0) {
       const serverListEl = document.getElementById('serverList');
-      serverListEl.innerHTML = `<span class="text-[var(--ios-blue)] font-semibold animate-pulse">⚡ Đang nạp tập siêu tốc...</span>`;
+      serverListEl.innerHTML = `<span class="text-[var(--yt-red)] font-semibold animate-pulse text-xs">⚡ Đang nạp tập siêu tốc...</span>`;
 
       try {
         const cacheKey = `${providerId}:${slug}`;
@@ -609,7 +702,7 @@
         document.getElementById('currentMovieTitle').textContent = title;
 
         if (!servers.length || !servers[0].server_data?.length) {
-          serverListEl.innerHTML = `<span class="text-rose-500 font-semibold">Chưa có tập phát.</span>`;
+          serverListEl.innerHTML = `<span class="text-rose-500 font-semibold text-xs">Chưa có tập phát.</span>`;
           return;
         }
 
@@ -617,7 +710,7 @@
         pendingResumeTime = resumeSec;
         renderServers(sIdx, eIdx);
       } catch (e) {
-        serverListEl.innerHTML = `<span class="text-rose-500 font-semibold">Lỗi tải dữ liệu phim.</span>`;
+        serverListEl.innerHTML = `<span class="text-rose-500 font-semibold text-xs">Lỗi tải dữ liệu phim.</span>`;
       }
     }
 
@@ -625,7 +718,7 @@
       const servers = window._currentServers || [];
       currentServerIdx = sIdx < servers.length ? sIdx : 0;
       document.getElementById('serverList').innerHTML = servers.map((s, i) => `
-        <button onclick="renderServers(${i}, 0)" class="px-2.5 py-1 rounded-lg text-xs font-semibold ${i === currentServerIdx ? 'bg-[var(--ios-blue)] text-white shadow-sm' : 'ios-card'}">${s.server_name}</button>
+        <button onclick="renderServers(${i}, 0)" class="px-2 py-0.5 rounded-lg text-[10px] font-bold ${i === currentServerIdx ? 'bg-[var(--yt-red)] text-white shadow-sm' : 'ios-card'}">${s.server_name}</button>
       `).join('');
 
       renderPopupEpisodes();
@@ -644,7 +737,7 @@
       }
 
       popupList.innerHTML = epList.map((ep, i) => `
-        <button onclick="selectAndPlayEpisode(${i}); toggleEpisodePopup();" class="py-2.5 rounded-xl text-xs font-bold truncate ${i === currentEpisodeIdx ? 'bg-[var(--ios-blue)] text-white shadow-sm' : 'ios-card'}">Tập ${ep.name}</button>
+        <button onclick="selectAndPlayEpisode(${i}); toggleEpisodePopup();" class="py-2 rounded-xl text-xs font-bold truncate ${i === currentEpisodeIdx ? 'bg-[var(--yt-red)] text-white shadow-sm' : 'ios-card'}">Tập ${ep.name}</button>
       `).join('');
     }
 
@@ -706,11 +799,11 @@
         const sTitle = (item.title || '').replace(/'/g, "\\'");
         const sThumb = (item.thumb || '').replace(/'/g, "\\'");
         return `
-          <div onclick="loadMovieDetail('${item.providerId}', '${item.slug}', '${sTitle}', '${sThumb}', ${item.sIdx || 0}, ${item.eIdx || 0}, ${item.time || 0})" class="ios-card rounded-2xl p-2 flex items-center gap-2.5 cursor-pointer shadow-sm">
-            <img src="${item.thumb}" class="w-10 h-14 object-cover rounded-xl bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Play'"/>
+          <div onclick="loadMovieDetail('${item.providerId}', '${item.slug}', '${sTitle}', '${sThumb}', ${item.sIdx || 0}, ${item.eIdx || 0}, ${item.time || 0})" class="ios-card rounded-xl p-1.5 flex items-center gap-2 cursor-pointer shadow-sm">
+            <img src="${item.thumb}" class="w-8 h-12 object-cover rounded-lg bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Play'"/>
             <div class="min-w-0 flex-1">
-              <h4 class="text-xs font-semibold text-[var(--text-main)] truncate">${item.title}</h4>
-              <p class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">▶ Tập ${item.epName} • ${Math.floor((item.time || 0) / 60)}p${(item.time || 0) % 60}s</p>
+              <h4 class="text-[11px] font-semibold text-[var(--text-main)] truncate">${item.title}</h4>
+              <p class="text-[9px] font-bold text-emerald-500">▶ Tập ${item.epName}</p>
             </div>
           </div>
         `;
