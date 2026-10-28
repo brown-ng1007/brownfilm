@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="vi" class="dark">
+<html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brown's Cinema - Xem Phim Siêu Tốc</title>
 
-  <!-- Preconnect & Prefetch tối đa để tăng tốc độ phản hồi mạng -->
+  <!-- Preconnect & Prefetch tối ưu tốc độ -->
   <link rel="preconnect" href="https://phimapi.com" crossorigin />
   <link rel="preconnect" href="https://phim.nguonc.com" crossorigin />
   <link rel="dns-prefetch" href="https://phimimg.com" />
@@ -21,29 +21,34 @@
   </script>
   <style>
     :root {
-      --glass-bg: rgba(255, 255, 255, 0.7);
-      --glass-border: rgba(255, 255, 255, 0.6);
-      --page-bg: #eef2ff;
-      --text-main: #0f172a;
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(203, 213, 225, 0.8);
+      --page-bg: #f1f5f9;
+      --text-main: #090d16; /* Tăng độ tương phản cực đại cho giao diện sáng */
+      --text-sub: #334155;
     }
     html.dark {
-      --glass-bg: rgba(17, 24, 39, 0.68);
+      --glass-bg: rgba(15, 23, 42, 0.78);
       --glass-border: rgba(255, 255, 255, 0.12);
-      --page-bg: #050811;
+      --page-bg: #030712;
       --text-main: #f8fafc;
+      --text-sub: #94a3b8;
     }
     body {
       background-color: var(--page-bg);
       color: var(--text-main);
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition: background-color 0.25s ease, color 0.25s ease;
       overflow-x: hidden;
     }
     .liquid-glass {
       background: var(--glass-bg);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(190%);
+      -webkit-backdrop-filter: blur(20px) saturate(190%);
       border: 1px solid var(--glass-border);
-      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.1);
+    }
+    html.dark .liquid-glass {
+      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6);
     }
     .liquid-card {
       background: var(--glass-bg);
@@ -59,12 +64,13 @@
       position: fixed;
       border-radius: 9999px;
       filter: blur(90px);
-      opacity: 0.35;
+      opacity: 0.25;
       pointer-events: none;
       z-index: -1;
     }
+    html.dark .ambient-orb { opacity: 0.35; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 9999px; }
   </style>
 </head>
 
@@ -83,14 +89,14 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="font-bold text-lg">Brown's Cinema</h1>
-              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                TURBO V8.4
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                AUTO V8.5
               </span>
             </div>
-            <p class="text-xs text-slate-400">Tốc độ tối đa • Tự động tìm kiếm tức thì</p>
+            <p class="text-xs font-medium text-[var(--text-sub)]">Tương phản cao • Tự động theo thiết bị</p>
           </div>
         </div>
-        <button onclick="toggleTheme()" class="md:hidden liquid-card p-2 rounded-xl text-sm">🌙</button>
+        <button onclick="toggleTheme()" class="md:hidden liquid-card p-2 rounded-xl text-sm font-bold"><span id="themeIconMobile">🌙</span></button>
       </div>
 
       <!-- Ô tìm kiếm tự động phản hồi ngay khi gõ -->
@@ -99,17 +105,17 @@
           id="searchInput"
           type="text"
           placeholder="Gõ tên phim để tìm kiếm tức thì (VD: Mai, Conan, Naruto)..."
-          class="w-full liquid-card rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          class="w-full liquid-card rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-500 dark:placeholder:text-slate-400"
           oninput="handleSearchInput(this.value)"
         />
       </div>
 
       <div class="hidden md:flex items-center gap-2">
-        <button id="autoNextToggle" onclick="toggleAutoNext()" class="liquid-card px-3 py-2 rounded-xl text-xs font-medium text-indigo-400">
+        <button id="autoNextToggle" onclick="toggleAutoNext()" class="liquid-card px-3 py-2 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-400">
           ⏭️ <span id="autoNextLabel">Auto-Next: BẬT</span>
         </button>
-        <button onclick="toggleTheme()" class="liquid-card px-3 py-2 rounded-xl text-xs font-medium">
-          <span id="themeText">🌙 Tối</span>
+        <button onclick="toggleTheme()" class="liquid-card px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5">
+          <span id="themeText">🌙 Chế độ Tối</span>
         </button>
       </div>
     </div>
@@ -119,8 +125,8 @@
   <section id="continueWatchingSection" class="max-w-7xl mx-auto px-4 mt-5 hidden">
     <div class="liquid-glass rounded-2xl p-4">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-emerald-400">● Đang Xem Dở • Bấm Để Xem Tiếp</h2>
-        <button onclick="clearWatchHistory()" class="text-xs text-rose-400 hover:underline">Xóa lịch sử</button>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">● Đang Xem Dở • Bấm Để Xem Tiếp</h2>
+        <button onclick="clearWatchHistory()" class="text-xs font-bold text-rose-500 hover:underline">Xóa lịch sử</button>
       </div>
       <div id="continueWatchingList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
     </div>
@@ -144,30 +150,30 @@
           <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
             <div class="text-3xl mb-2">🎞️</div>
             <h3 class="text-base font-bold text-white">Chọn phim ở danh sách bên phải để phát ngay</h3>
-            <p class="text-xs text-slate-400 mt-1">Trận chiến không quảng cáo • Tải siêu tốc 0.5s.</p>
+            <p class="text-xs text-slate-300 mt-1">Trận chiến không quảng cáo • Tải siêu tốc 0.5s.</p>
           </div>
         </div>
 
         <div class="mt-2.5 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
           <div class="min-w-0 flex-1">
             <h2 id="currentMovieTitle" class="font-bold text-base truncate">Chưa chọn phim</h2>
-            <p id="currentStreamStatus" class="text-xs text-emerald-400 truncate">Sẵn sàng phát trực tiếp</p>
+            <p id="currentStreamStatus" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 truncate">Sẵn sàng phát trực tiếp</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-1.5">
-            <button onclick="seekRelative(-10)" class="liquid-card px-2.5 py-1.5 rounded-lg text-xs">↺ 10s</button>
-            <button onclick="seekRelative(10)" class="liquid-card px-2.5 py-1.5 rounded-lg text-xs">10s ↻</button>
-            <button onclick="seekRelative(85)" class="liquid-card px-2.5 py-1.5 rounded-lg text-xs text-amber-400">⏭ Intro</button>
-            <select id="playbackSpeed" onchange="changeSpeed(this.value)" class="liquid-card rounded-lg px-2 py-1.5 text-xs bg-transparent">
-              <option value="1" class="bg-slate-900">1.0x</option>
-              <option value="1.25" class="bg-slate-900">1.25x</option>
-              <option value="1.5" class="bg-slate-900">1.5x</option>
-              <option value="2" class="bg-slate-900">2.0x</option>
+            <button onclick="seekRelative(-10)" class="liquid-card px-2.5 py-1.5 rounded-lg text-xs font-semibold">↺ 10s</button>
+            <button onclick="seekRelative(10)" class="liquid-card px-2.5 py-1.5 rounded-lg text-xs font-semibold">10s ↻</button>
+            <button onclick="seekRelative(85)" class="liquid-card px-2.5 py-1.5 rounded-lg text-xs font-semibold text-amber-600 dark:text-amber-400">⏭ Intro</button>
+            <select id="playbackSpeed" onchange="changeSpeed(this.value)" class="liquid-card rounded-lg px-2 py-1.5 text-xs font-semibold bg-transparent">
+              <option value="1">1.0x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2.0x</option>
             </select>
             <button id="btnModeM3u8" onclick="switchPlayerMode('m3u8')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white">
               M3U8
             </button>
-            <button id="btnModeEmbed" onclick="switchPlayerMode('embed')" class="liquid-card px-3 py-1.5 rounded-lg text-xs font-medium">
+            <button id="btnModeEmbed" onclick="switchPlayerMode('embed')" class="liquid-card px-3 py-1.5 rounded-lg text-xs font-semibold">
               VIP Iframe
             </button>
           </div>
@@ -177,10 +183,10 @@
       <!-- Danh sách Server & Tập -->
       <div class="liquid-glass rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Danh Sách Server & Tập Phim</h3>
-          <span class="text-[11px] text-emerald-400">⚡ Chọn Server KKPhim để có tốc độ tốt nhất</span>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)]">Danh Sách Server & Tập Phim</h3>
+          <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">⚡ Chọn Server KKPhim để có tốc độ tốt nhất</span>
         </div>
-        <div id="serverList" class="flex flex-wrap gap-2 text-xs text-slate-400">Hãy chọn một bộ phim bên phải.</div>
+        <div id="serverList" class="flex flex-wrap gap-2 text-xs font-medium text-[var(--text-sub)]">Hãy chọn một bộ phim bên phải.</div>
         <div id="episodeList" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-52 overflow-y-auto pt-1"></div>
       </div>
     </div>
@@ -188,8 +194,8 @@
     <!-- Cột Phải: Danh sách phim -->
     <div class="liquid-glass rounded-2xl p-4 flex flex-col h-[720px]">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Kho Phim Đa Nguồn</h3>
-        <span id="resultCount" class="text-xs font-semibold px-2.5 py-1 rounded-full liquid-card">Đang tải...</span>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-main)]">Kho Phim Đa Nguồn</h3>
+        <span id="resultCount" class="text-xs font-bold px-2.5 py-1 rounded-full liquid-card">Đang tải...</span>
       </div>
       <div id="providerPingBar" class="flex flex-wrap gap-1.5 mb-2"></div>
       <div id="providerFilterTabs" class="flex gap-1.5 mb-3 overflow-x-auto pb-1"></div>
@@ -203,7 +209,7 @@
         id: 'kkphim',
         name: 'KKPhim Mới',
         type: 'kkphim',
-        badge: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+        badge: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/40 font-semibold',
         latestUrl: () => 'https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1',
         searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=15`,
         detailUrl: (slug) => `https://phimapi.com/phim/${slug}`,
@@ -213,8 +219,8 @@
         id: 'kk_bo',
         name: 'Phim Bộ VIP',
         type: 'kkphim',
-        badge: 'bg-indigo-500/20 text-indigo-400 border-emerald-500/30',
-        latestUrl: () => 'https://phimapi.com/danh-sach/phim-bo?page=1&limit=15',
+        badge: 'bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border-indigo-500/40 font-semibold',
+        latestUrl: () => 'https://phimapi.com/v1/api/danh-sach/phim-bo?page=1&limit=15',
         searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=15`,
         detailUrl: (slug) => `https://phimapi.com/phim/${slug}`,
         imgPrefix: 'https://phimimg.com/'
@@ -223,7 +229,7 @@
         id: 'nguonc',
         name: 'NguonC Hub',
         type: 'nguonc',
-        badge: 'bg-amber-500/20 text-amber-400 border-emerald-500/30',
+        badge: 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/40 font-semibold',
         latestUrl: () => 'https://phim.nguonc.com/api/films/phim-moi-cap-nhat?page=1',
         searchUrl: (kw) => `https://phim.nguonc.com/api/films/search?keyword=${encodeURIComponent(kw)}`,
         detailUrl: (slug) => `https://phim.nguonc.com/api/film/${slug}`,
@@ -231,10 +237,10 @@
       }
     ];
 
-    const HISTORY_KEY = 'browns_cinema_history_v84';
-    const THEME_KEY = 'browns_cinema_theme_v84';
-    const searchCache = new Map(); // Lưu RAM kết quả tìm kiếm để phản hồi tức thì
-    const detailCache = new Map(); // Lưu RAM chi tiết phim để bấm vào load 0ms
+    const HISTORY_KEY = 'browns_cinema_history_v85';
+    const THEME_KEY = 'browns_cinema_theme_v85';
+    const searchCache = new Map();
+    const detailCache = new Map();
 
     let hlsInstance = null;
     let preferredMode = 'm3u8';
@@ -247,6 +253,31 @@
     let pendingResumeTime = 0;
     let lastSaveTimestamp = 0;
     let searchDebounceTimer = null;
+
+    // Tự động nhận diện theme hệ thống (Light/Dark mode)
+    (function initSystemTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved) {
+        document.documentElement.classList.toggle('dark', saved === 'dark');
+      } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', prefersDark);
+      }
+      updateThemeUI();
+    })();
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+      updateThemeUI();
+    }
+
+    function updateThemeUI() {
+      const isDark = document.documentElement.classList.contains('dark');
+      document.getElementById('themeText').textContent = isDark ? '☀️ Chế độ Sáng' : '🌙 Chế độ Tối';
+      const mobIcon = document.getElementById('themeIconMobile');
+      if (mobIcon) mobIcon.textContent = isDark ? '☀️' : '🌙';
+    }
 
     async function fetchWithTimeout(url, ms = 4000) {
       const ctrl = new AbortController();
@@ -269,12 +300,11 @@
       video.classList.remove('hidden');
 
       document.getElementById('btnModeM3u8').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white';
-      document.getElementById('btnModeEmbed').className = 'liquid-card px-3 py-1.5 rounded-lg text-xs font-medium';
+      document.getElementById('btnModeEmbed').className = 'liquid-card px-3 py-1.5 rounded-lg text-xs font-semibold';
       document.getElementById('currentStreamStatus').textContent = `⚡ Đang phát M3U8 trực tiếp • Tập ${currentEpisodeData.name}`;
 
       if (Hls.isSupported()) {
         if (hlsInstance) hlsInstance.destroy();
-        // Cấu hình Turbo HLS: giảm bộ đệm tối đa để phát ngay lập tức
         hlsInstance = new Hls({ maxBufferLength: 10, startFragPrefetch: true });
         hlsInstance.loadSource(m3u8Url);
         hlsInstance.attachMedia(video);
@@ -311,7 +341,7 @@
 
       iframe.classList.remove('hidden');
       iframe.src = finalUrl;
-      document.getElementById('btnModeM3u8').className = 'liquid-card px-3 py-1.5 rounded-lg text-xs font-medium';
+      document.getElementById('btnModeM3u8').className = 'liquid-card px-3 py-1.5 rounded-lg text-xs font-semibold';
       document.getElementById('btnModeEmbed').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white';
       document.getElementById('currentStreamStatus').textContent = `🎬 Đang phát qua VIP Iframe • Tập ${currentEpisodeData.name}`;
     }
@@ -370,13 +400,13 @@
     async function runMultiSearch(keyword = '') {
       const searchResults = document.getElementById('searchResults');
       const pingBar = document.getElementById('providerPingBar');
-      searchResults.innerHTML = `<div class="text-center text-slate-400 text-xs py-12 animate-pulse">⚡ Đang quét nguồn tốc độ cao...</div>`;
+      searchResults.innerHTML = `<div class="text-center text-slate-500 dark:text-slate-400 text-xs py-12 animate-pulse font-semibold">⚡ Đang quét nguồn tốc độ cao...</div>`;
 
       const results = await Promise.all(PROVIDERS.map(p => fetchFromProvider(p, keyword)));
 
       pingBar.innerHTML = results.map(r => r.error
-        ? `<span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-400">${r.provider.name}: Offline</span>`
-        : `<span class="text-[10px] font-mono px-2 py-0.5 rounded liquid-card">${r.provider.name}: <b class="text-emerald-400">${r.pingMs}ms</b></span>`
+        ? `<span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-600 dark:text-rose-400 font-semibold">${r.provider.name}: Offline</span>`
+        : `<span class="text-[10px] font-mono px-2 py-0.5 rounded liquid-card font-semibold">${r.provider.name}: <b class="text-emerald-600 dark:text-emerald-400">${r.pingMs}ms</b></span>`
       ).join('');
 
       allFetchedItems = [];
@@ -394,14 +424,13 @@
       document.getElementById('providerFilterTabs').innerHTML = `
         <button onclick="renderSearchResults(allFetchedItems)" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-600 text-white shrink-0">Tất cả (${allFetchedItems.length})</button>
         ${results.filter(r => !r.error).map(r => `
-          <button onclick="filterByProv('${r.provider.id}')" class="liquid-card px-2.5 py-1 rounded-lg text-xs font-medium shrink-0">${r.provider.name} (${r.items.length})</button>
+          <button onclick="filterByProv('${r.provider.id}')" class="liquid-card px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0">${r.provider.name} (${r.items.length})</button>
         `).join('')}
       `;
 
       renderSearchResults(allFetchedItems);
     }
 
-    // Cơ chế Debounce: Tự động tìm kiếm ngay khi gõ phím sau 300ms mà không cần bấm Enter
     function handleSearchInput(val) {
       clearTimeout(searchDebounceTimer);
       searchDebounceTimer = setTimeout(() => {
@@ -417,29 +446,28 @@
       const el = document.getElementById('searchResults');
       document.getElementById('resultCount').textContent = `${items.length} phim`;
       if (!items.length) {
-        el.innerHTML = `<div class="text-center text-slate-400 text-xs py-12">Không tìm thấy phim phù hợp.</div>`;
+        el.innerHTML = `<div class="text-center text-slate-500 dark:text-slate-400 text-xs py-12 font-semibold">Không tìm thấy phim phù hợp.</div>`;
         return;
       }
       el.innerHTML = items.map(item => {
         const sTitle = (item.title || '').replace(/'/g, "\\'");
         const sThumb = (item.thumb || '').replace(/'/g, "\\'");
         return `
-          <div onmouseenter="prefetchDetail('${item.provider.id}', '${item.slug}')" onclick="loadMovieDetail('${item.provider.id}', '${item.slug}', '${sTitle}', '${sThumb}')" class="liquid-card rounded-xl p-2.5 flex gap-3 cursor-pointer group">
+          <div onmouseenter="prefetchDetail('${item.provider.id}', '${item.slug}')" onclick="loadMovieDetail('${item.provider.id}', '${item.slug}', '${sTitle}', '${sThumb}')" class="liquid-card rounded-xl p-2.5 flex gap-3 cursor-pointer group shadow-sm">
             <img src="${item.thumb}" loading="lazy" class="w-14 h-20 object-cover rounded-lg bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Film'"/>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded border ${item.provider.badge}">${item.provider.name}</span>
-                <span class="text-[10px] font-mono text-emerald-400">${item.pingMs}ms</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${item.provider.badge}">${item.provider.name}</span>
+                <span class="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">${item.pingMs}ms</span>
               </div>
-              <h4 class="text-sm font-bold truncate group-hover:text-indigo-400">${item.title}</h4>
-              <p class="text-xs text-slate-400 truncate">${item.originTitle} ${item.year ? `(${item.year})` : ''}</p>
+              <h4 class="text-sm font-bold text-[var(--text-main)] truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">${item.title}</h4>
+              <p class="text-xs font-medium text-[var(--text-sub)] truncate">${item.originTitle} ${item.year ? `(${item.year})` : ''}</p>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // Tải trước ngầm (Prefetch) khi di chuột vào thẻ phim giúp tốc độ mở phim đạt 0ms
     function prefetchDetail(providerId, slug) {
       const cacheKey = `${providerId}:${slug}`;
       if (!detailCache.has(cacheKey)) {
@@ -463,7 +491,7 @@
     async function loadMovieDetail(providerId, slug, fallbackTitle = '', fallbackThumb = '', sIdx = 0, eIdx = 0, resumeSec = 0) {
       const serverListEl = document.getElementById('serverList');
       const episodeListEl = document.getElementById('episodeList');
-      serverListEl.innerHTML = `<span class="text-indigo-400 animate-pulse">⚡ Đang nạp danh sách tập siêu tốc...</span>`;
+      serverListEl.innerHTML = `<span class="text-indigo-600 dark:text-indigo-400 font-semibold animate-pulse">⚡ Đang nạp danh sách tập siêu tốc...</span>`;
       episodeListEl.innerHTML = '';
 
       try {
@@ -496,7 +524,7 @@
         document.getElementById('currentMovieTitle').textContent = title;
 
         if (!servers.length || !servers[0].server_data?.length) {
-          serverListEl.innerHTML = `<span class="text-rose-400">Chưa có tập phát.</span>`;
+          serverListEl.innerHTML = `<span class="text-rose-600 dark:text-rose-400 font-semibold">Chưa có tập phát.</span>`;
           return;
         }
 
@@ -504,7 +532,7 @@
         pendingResumeTime = resumeSec;
         renderServers(sIdx, eIdx);
       } catch (e) {
-        serverListEl.innerHTML = `<span class="text-rose-400">Lỗi tải dữ liệu phim.</span>`;
+        serverListEl.innerHTML = `<span class="text-rose-600 dark:text-rose-400 font-semibold">Lỗi tải dữ liệu phim.</span>`;
       }
     }
 
@@ -512,13 +540,13 @@
       const servers = window._currentServers || [];
       currentServerIdx = sIdx < servers.length ? sIdx : 0;
       document.getElementById('serverList').innerHTML = servers.map((s, i) => `
-        <button onclick="renderServers(${i}, 0)" class="px-3 py-1.5 rounded-xl text-xs font-semibold ${i === currentServerIdx ? 'bg-indigo-600 text-white' : 'liquid-card'}">${s.server_name}</button>
+        <button onclick="renderServers(${i}, 0)" class="px-3 py-1.5 rounded-xl text-xs font-bold ${i === currentServerIdx ? 'bg-indigo-600 text-white shadow-sm' : 'liquid-card'}">${s.server_name}</button>
       `).join('');
 
       const epList = servers[currentServerIdx]?.server_data || [];
       currentEpisodeIdx = eIdx < epList.length ? eIdx : 0;
       document.getElementById('episodeList').innerHTML = epList.map((ep, i) => `
-        <button id="ep-btn-${i}" onclick="selectAndPlayEpisode(${i})" class="px-2 py-2 rounded-xl text-xs font-semibold truncate ${i === currentEpisodeIdx ? 'bg-indigo-600 text-white' : 'liquid-card'}">Tập ${ep.name}</button>
+        <button id="ep-btn-${i}" onclick="selectAndPlayEpisode(${i})" class="px-2 py-2 rounded-xl text-xs font-bold truncate ${i === currentEpisodeIdx ? 'bg-indigo-600 text-white shadow-sm' : 'liquid-card'}">Tập ${ep.name}</button>
       `).join('');
 
       selectAndPlayEpisode(currentEpisodeIdx);
@@ -533,7 +561,7 @@
 
       activeServer.server_data.forEach((_, i) => {
         const b = document.getElementById(`ep-btn-${i}`);
-        if (b) b.className = i === idx ? 'px-2 py-2 rounded-xl text-xs font-semibold truncate bg-indigo-600 text-white' : 'px-2 py-2 rounded-xl text-xs font-semibold truncate liquid-card';
+        if (b) b.className = i === idx ? 'px-2 py-2 rounded-xl text-xs font-bold truncate bg-indigo-600 text-white shadow-sm' : 'px-2 py-2 rounded-xl text-xs font-bold truncate liquid-card';
       });
 
       currentEpisodeData = { link_m3u8: ep.link_m3u8 || '', link_embed: ep.link_embed || '', name: ep.name };
@@ -568,12 +596,6 @@
       document.getElementById('autoNextLabel').textContent = `Auto-Next: ${autoNextEnabled ? 'BẬT' : 'TẮT'}`;
     }
 
-    function toggleTheme() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
-      document.getElementById('themeText').textContent = isDark ? '🌙 Tối' : '☀️ Sáng';
-    }
-
     function getWatchHistory() {
       try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
     }
@@ -595,11 +617,11 @@
         const sTitle = (item.title || '').replace(/'/g, "\\'");
         const sThumb = (item.thumb || '').replace(/'/g, "\\'");
         return `
-          <div onclick="loadMovieDetail('${item.providerId}', '${item.slug}', '${sTitle}', '${sThumb}', ${item.sIdx || 0}, ${item.eIdx || 0}, ${item.time || 0})" class="liquid-card rounded-xl p-2.5 flex items-center gap-3 cursor-pointer">
+          <div onclick="loadMovieDetail('${item.providerId}', '${item.slug}', '${sTitle}', '${sThumb}', ${item.sIdx || 0}, ${item.eIdx || 0}, ${item.time || 0})" class="liquid-card rounded-xl p-2.5 flex items-center gap-3 cursor-pointer shadow-sm">
             <img src="${item.thumb}" class="w-11 h-14 object-cover rounded bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Play'"/>
             <div class="min-w-0 flex-1">
-              <h4 class="text-xs font-bold truncate">${item.title}</h4>
-              <p class="text-[11px] text-emerald-400">▶ Tập ${item.epName} • ${Math.floor((item.time || 0) / 60)}p${(item.time || 0) % 60}s</p>
+              <h4 class="text-xs font-bold text-[var(--text-main)] truncate">${item.title}</h4>
+              <p class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">▶ Tập ${item.epName} • ${Math.floor((item.time || 0) / 60)}p${(item.time || 0) % 60}s</p>
             </div>
           </div>
         `;
