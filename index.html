@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Brown's Cinema - iOS Native Fullscreen</title>
+  <title>Brown's Cinema - Expanded Recommendations</title>
 
   <link rel="preconnect" href="https://phimapi.com" crossorigin />
   <link rel="preconnect" href="https://phim.nguonc.com" crossorigin />
@@ -84,7 +84,7 @@
   <!-- Main Layout -->
   <main class="flex-1 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0 overflow-hidden">
     
-    <!-- Cột Trái: Player tinh gọn chuẩn Apple TV -->
+    <!-- Cột Trái: Player -->
     <div class="lg:col-span-7 xl:col-span-8 flex flex-col min-h-0 space-y-2">
       <div class="ios-blur rounded-2xl p-2 shrink-0 flex flex-col shadow-lg">
         
@@ -100,12 +100,11 @@
 
           <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-white">
             <div class="w-12 h-12 rounded-full bg-red-500/20 border border-red-500 flex items-center justify-center text-xl mb-2 text-red-500 font-bold">▶</div>
-            <h3 class="text-sm font-semibold">Chọn phim để bắt đầu</h3>
-            <p class="text-[11px] text-white/60 mt-0.5">Hỗ trợ Fullscreen nguyên bản trên iOS</p>
+            <h3 class="text-sm font-semibold">Chọn phim từ kho đề xuất bên phải</h3>
+            <p class="text-[11px] text-white/60 mt-0.5">Hàng loạt phim mới cập nhật liên tục</p>
           </div>
         </div>
 
-        <!-- Thanh điều khiển tinh tế -->
         <div class="mt-2 px-1 flex flex-wrap items-center justify-between gap-2">
           <div class="min-w-0 flex-1">
             <h2 id="currentMovieTitle" class="font-bold text-xs md:text-sm truncate">Chưa chọn phim</h2>
@@ -124,7 +123,6 @@
             </select>
             <button id="btnModeM3u8" onclick="switchPlayerMode('m3u8')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-blue-600 text-white">M3U8</button>
             <button id="btnModeEmbed" onclick="switchPlayerMode('embed')" class="ios-blur px-2.5 py-1 rounded-lg text-[11px]">VIP</button>
-            <!-- Nút Fullscreen Native iOS -->
             <button onclick="nativeFullscreen()" class="ios-blur px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-600 text-white shadow-sm">⛶ Phóng To</button>
           </div>
         </div>
@@ -137,7 +135,7 @@
       </div>
     </div>
 
-    <!-- Cột Phải: Tabs Trang Chủ & Kho Phim -->
+    <!-- Cột Phải: Kho Phim & Trang Chủ (Mở rộng số lượng đề xuất) -->
     <div class="lg:col-span-5 xl:col-span-4 ios-blur rounded-2xl p-3 flex flex-col min-h-0 overflow-hidden shadow-lg">
       
       <div class="grid grid-cols-2 gap-1 p-1 ios-blur rounded-xl mb-2 shrink-0">
@@ -149,17 +147,17 @@
         </button>
       </div>
 
-      <!-- TAB 1 -->
+      <!-- TAB 1: TRANG CHỦ (Hiển thị đầy đủ danh sách đề xuất) -->
       <div id="contentHome" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-0">
         <div class="flex items-center justify-between mb-1">
-          <h3 class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-sub)] opacity-80">🔥 Đề Xuất Mới Nhất</h3>
+          <h3 class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-sub)] opacity-80">🔥 Đề Xuất Phim Mới (<span id="homeCount">0</span>)</h3>
         </div>
         <div id="homeRecommendationsList" class="space-y-2">
-          <div class="text-center text-[var(--text-sub)] text-xs py-12 animate-pulse font-medium">⚡ Đang quét đề xuất nóng...</div>
+          <div class="text-center text-[var(--text-sub)] text-xs py-12 animate-pulse font-medium">⚡ Đang quét toàn bộ kho phim nóng...</div>
         </div>
       </div>
 
-      <!-- TAB 2 -->
+      <!-- TAB 2: KHO PHIM -->
       <div id="contentSearch" class="flex-1 flex-col hidden overflow-hidden min-h-0">
         <div class="flex items-center justify-between mb-1.5 shrink-0">
           <h3 class="text-[11px] font-bold uppercase tracking-wider text-[var(--text-sub)] opacity-80">Tra Cứu Kho Phim</h3>
@@ -207,7 +205,7 @@
         type: 'kkphim',
         badge: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold',
         latestUrl: () => 'https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1',
-        searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=15`,
+        searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=25`,
         detailUrl: (slug) => `https://phimapi.com/phim/${slug}`,
         imgPrefix: 'https://phimimg.com/'
       },
@@ -216,8 +214,8 @@
         name: 'Phim Bộ VIP',
         type: 'kkphim',
         badge: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 font-semibold',
-        latestUrl: () => 'https://phimapi.com/v1/api/danh-sach/phim-bo?page=1&limit=15',
-        searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=15`,
+        latestUrl: () => 'https://phimapi.com/v1/api/danh-sach/phim-bo?page=1&limit=25',
+        searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=25`,
         detailUrl: (slug) => `https://phimapi.com/phim/${slug}`,
         imgPrefix: 'https://phimimg.com/'
       },
@@ -233,9 +231,9 @@
       }
     ];
 
-    const HISTORY_KEY = 'browns_cinema_history_v95';
-    const THEME_KEY = 'browns_cinema_theme_v95';
-    const CACHE_KEY = 'browns_cinema_instant_cache_v95';
+    const HISTORY_KEY = 'browns_cinema_history_v96';
+    const THEME_KEY = 'browns_cinema_theme_v96';
+    const CACHE_KEY = 'browns_cinema_instant_cache_v96';
 
     const searchCache = new Map();
     const detailCache = new Map();
@@ -269,23 +267,16 @@
       document.getElementById('themeText').textContent = isDark ? '☀️ Sáng' : '🌙 Tối';
     }
 
-    // Hàm gọi Fullscreen nguyên bản chuẩn iOS Safari / Chrome Mobile
     function nativeFullscreen() {
       const video = document.getElementById('hlsVideo');
       const iframe = document.getElementById('embedIframe');
       
       if (!video.classList.contains('hidden')) {
-        if (video.webkitEnterFullscreen) {
-          video.webkitEnterFullscreen(); // Chuẩn riêng cho iOS Safari
-        } else if (video.requestFullscreen) {
-          video.requestFullscreen();
-        }
+        if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+        else if (video.requestFullscreen) video.requestFullscreen();
       } else if (!iframe.classList.contains('hidden')) {
-        if (iframe.requestFullscreen) {
-          iframe.requestFullscreen();
-        } else if (iframe.webkitRequestFullscreen) {
-          iframe.webkitRequestFullscreen();
-        }
+        if (iframe.requestFullscreen) iframe.requestFullscreen();
+        else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
       }
     }
 
@@ -456,11 +447,12 @@
 
     function renderHomeRecommendations(items) {
       const el = document.getElementById('homeRecommendationsList');
+      document.getElementById('homeCount').textContent = items.length;
       if (!items.length) {
         el.innerHTML = `<div class="text-center text-[var(--text-sub)] text-xs py-10">Chưa có đề xuất phim.</div>`;
         return;
       }
-      el.innerHTML = items.slice(0, 20).map(item => {
+      el.innerHTML = items.map(item => {
         const sTitle = (item.title || '').replace(/'/g, "\\'");
         const sThumb = (item.thumb || '').replace(/'/g, "\\'");
         return `
