@@ -3,430 +3,222 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CineGlass Pro v6.0 - Tích Hợp Đường Hầm Proxy Vượt Chặn Mạng</title>
-
+  <title>CineGlass Pro v8.0 - Siêu Tốc Trực Tiếp</title>
   <link rel="preconnect" href="https://phimapi.com" crossorigin />
-  <link rel="preconnect" href="https://corsproxy.io" crossorigin />
   <link rel="preconnect" href="https://phim.nguonc.com" crossorigin />
-
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
-
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-          }
-        }
-      }
-    };
+    tailwind.config = { darkMode: 'class' };
   </script>
-
   <style>
     :root {
-      --glass-bg: rgba(255, 255, 255, 0.65);
-      --glass-border: rgba(255, 255, 255, 0.55);
-      --glass-highlight: rgba(255, 255, 255, 0.85);
-      --glass-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.12);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.6);
       --page-bg: #eef2ff;
       --text-main: #0f172a;
     }
-
     html.dark {
-      --glass-bg: rgba(17, 24, 39, 0.62);
+      --glass-bg: rgba(17, 24, 39, 0.68);
       --glass-border: rgba(255, 255, 255, 0.12);
-      --glass-highlight: rgba(255, 255, 255, 0.22);
-      --glass-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.65);
       --page-bg: #050811;
       --text-main: #f8fafc;
     }
-
     body {
       background-color: var(--page-bg);
       color: var(--text-main);
-      transition: background-color 0.35s ease, color 0.35s ease;
+      transition: background-color 0.3s ease, color 0.3s ease;
       overflow-x: hidden;
     }
-
     .liquid-glass {
       background: var(--glass-bg);
-      backdrop-filter: blur(22px) saturate(180%);
-      -webkit-backdrop-filter: blur(22px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       border: 1px solid var(--glass-border);
-      box-shadow: var(--glass-shadow), inset 0 1px 0 0 var(--glass-highlight);
+      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.5);
     }
-
     .liquid-card {
       background: var(--glass-bg);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(12px);
       border: 1px solid var(--glass-border);
-      box-shadow: inset 0 1px 0 0 var(--glass-highlight);
-      transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: all 0.2s ease;
     }
-
     .liquid-card:hover {
-      transform: translateY(-2px) scale(1.01);
-      border-color: rgba(99, 102, 241, 0.55);
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.6);
     }
-
-    .liquid-btn {
-      transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .liquid-btn:active {
-      transform: scale(0.94);
-    }
-
     .ambient-orb {
       position: fixed;
       border-radius: 9999px;
       filter: blur(90px);
-      opacity: 0.42;
+      opacity: 0.35;
       pointer-events: none;
       z-index: -1;
-      will-change: transform;
-      animation: floatOrb 18s ease-in-out infinite alternate;
     }
-    body.video-playing .ambient-orb {
-      animation-play-state: paused;
-    }
-
-    @keyframes floatOrb {
-      0% { transform: translate3d(0, 0, 0) scale(1); }
-      100% { transform: translate3d(40px, -30px, 0) scale(1.08); }
-    }
-
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.55); }
   </style>
 </head>
 
-<body class="min-h-screen selection:bg-indigo-500 selection:text-white pb-12">
-
+<body class="min-h-screen pb-12">
   <div class="ambient-orb w-96 h-96 bg-indigo-600/40 -top-20 -left-20"></div>
-  <div class="ambient-orb w-[28rem] h-[28rem] bg-rose-500/30 top-1/3 -right-28" style="animation-delay: -5s;"></div>
-  <div class="ambient-orb w-80 h-80 bg-cyan-500/30 bottom-0 left-1/3" style="animation-delay: -10s;"></div>
+  <div class="ambient-orb w-96 h-96 bg-rose-500/30 top-1/3 -right-24"></div>
 
-  <!-- Thanh Điều Hướng -->
+  <!-- Header -->
   <header class="sticky top-3 z-50 max-w-7xl mx-auto px-4">
     <div class="liquid-glass rounded-2xl px-5 py-3.5 flex flex-col md:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-3 w-full md:w-auto justify-between">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-rose-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/30">
-            🎬
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-rose-500 flex items-center justify-center text-white font-bold">
+            ⚡
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h1 class="font-bold text-lg tracking-tight">CineGlass Pro</h1>
+              <h1 class="font-bold text-lg">CineGlass Pro</h1>
               <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                Proxy Tunnel v6.0
+                DIRECT V8.0
               </span>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Tự động vượt tường lửa DNS • Đa Nguồn M3U8</p>
+            <p class="text-xs text-slate-400">Tốc độ trực tiếp 50ms • Không Proxy • Không Quảng Cáo</p>
           </div>
         </div>
-
-        <button onclick="toggleTheme()" class="md:hidden liquid-card liquid-btn p-2.5 rounded-xl text-sm">
-          <span class="theme-icon">🌙</span>
-        </button>
+        <button onclick="toggleTheme()" class="md:hidden liquid-card p-2 rounded-xl text-sm">🌙</button>
       </div>
 
-      <!-- Thanh tìm kiếm -->
       <form id="searchForm" class="flex w-full md:max-w-xl gap-2">
-        <div class="relative flex-1">
-          <input
-            id="searchInput"
-            type="text"
-            placeholder="Tìm tên phim (VD: Căn Nhà Không Mái Che, Thế Giới Phép Thuật, Mai)..."
-            class="w-full liquid-card rounded-xl pl-4 pr-20 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/60 placeholder:text-slate-400"
-          />
-          <span id="searchLatencyBadge" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400">
-            0ms
-          </span>
-        </div>
-        <button
-          type="submit"
-          class="liquid-btn bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-indigo-600/25 shrink-0"
-        >
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Tìm tên phim (VD: Thế Giới Phép Thuật, Căn Nhà Không Mái Che, Mai)..."
+          class="w-full liquid-card rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shrink-0">
           Tìm Kiếm
         </button>
       </form>
 
       <div class="hidden md:flex items-center gap-2">
-        <button
-          id="proxyToggleBtn"
-          onclick="toggleProxyTunnel()"
-          title="Bật/Tắt Đường Hầm Proxy để vượt chặn DNS nhà mạng/công ty"
-          class="liquid-card liquid-btn px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 text-emerald-400 border border-emerald-500/30"
-        >
-          <span>🚀</span>
-          <span id="proxyToggleLabel">Vượt Chặn: BẬT</span>
+        <button id="autoNextToggle" onclick="toggleAutoNext()" class="liquid-card px-3 py-2 rounded-xl text-xs font-medium text-indigo-400">
+          ⏭️ <span id="autoNextLabel">Auto-Next: BẬT</span>
         </button>
-
-        <button
-          id="autoNextToggle"
-          onclick="toggleAutoNext()"
-          class="liquid-card liquid-btn px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 text-indigo-400"
-        >
-          <span>⏭️</span>
-          <span id="autoNextLabel">Auto-Next</span>
-        </button>
-
-        <button
-          onclick="toggleTheme()"
-          class="liquid-card liquid-btn px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5"
-        >
-          <span class="theme-icon">🌙</span>
+        <button onclick="toggleTheme()" class="liquid-card px-3 py-2 rounded-xl text-xs font-medium">
+          <span id="themeText">🌙 Tối</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Xem Tiếp Phim Đang Dở -->
+  <!-- Xem tiếp phim đang xem dở -->
   <section id="continueWatchingSection" class="max-w-7xl mx-auto px-4 mt-5 hidden">
     <div class="liquid-glass rounded-2xl p-4">
       <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-            Đang Xem Dở • Tiếp Tục Xem Ngay
-          </h2>
-        </div>
-        <button onclick="clearWatchHistory()" class="text-xs text-rose-400 hover:underline">
-          Xóa lịch sử
-        </button>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-emerald-400">● Đang Xem Dở • Bấm Để Xem Tiếp</h2>
+        <button onclick="clearWatchHistory()" class="text-xs text-rose-400 hover:underline">Xóa lịch sử</button>
       </div>
       <div id="continueWatchingList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
     </div>
   </section>
 
-  <!-- Bố cục chính -->
+  <!-- Main -->
   <main class="max-w-7xl mx-auto px-4 mt-5 grid grid-cols-1 lg:grid-cols-3 gap-5">
-    
-    <!-- CỘT TRÁI (2/3): TRÌNH PHÁT & DANH SÁCH TẬP -->
+    <!-- Cột Trái: Player -->
     <div class="lg:col-span-2 space-y-4">
-      
-      <!-- Khung Video -->
-      <div class="liquid-glass rounded-2xl p-2 relative overflow-hidden">
+      <div class="liquid-glass rounded-2xl p-2">
         <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden">
-          
-          <video id="hlsVideo" class="w-full h-full hidden" controls playsinline preload="auto"></video>
+          <video id="hlsVideo" class="w-full h-full hidden" controls playsinline autoplay></video>
           <iframe
             id="embedIframe"
             class="w-full h-full hidden"
             frameborder="0"
-            allow="autoplay; fullscreen; picture-in-picture"
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
             allowfullscreen
           ></iframe>
 
-          <!-- Thông báo đếm ngược Auto-Next -->
-          <div id="autoNextOverlay" class="hidden absolute bottom-16 right-4 bg-indigo-950/90 border border-indigo-500/50 backdrop-blur-md rounded-xl p-3 shadow-2xl flex items-center gap-3 z-30">
-            <div>
-              <p class="text-xs font-bold text-white" id="autoNextText">Tập tiếp theo sau 5s...</p>
-              <p class="text-[10px] text-indigo-300">Nhấn để hủy hoặc chuyển ngay</p>
-            </div>
-            <button onclick="cancelAutoNext()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-2.5 py-1 rounded-lg">Hủy</button>
-            <button onclick="playNextEpisodeDirect()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1 rounded-lg">Xem Ngay</button>
-          </div>
-
-          <!-- Trạng thái Loading -->
-          <div id="bufferOverlay" class="hidden absolute inset-0 bg-black/65 backdrop-blur-xs flex flex-col items-center justify-center z-20 p-4 text-center">
-            <div class="w-10 h-10 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-            <p id="bufferText" class="text-xs font-medium text-white mb-2">Đang dẫn luồng video qua Đường Hầm Vượt Chặn (Proxy)...</p>
-            <button onclick="switchNextProxyServer()" class="pointer-events-auto bg-indigo-600/80 hover:bg-indigo-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-indigo-400/40">
-              🔄 Đổi cổng Proxy khác nếu mạng chậm
-            </button>
-          </div>
-
-          <!-- Placeholder ban đầu -->
           <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-            <div class="w-16 h-16 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-2xl mb-3">
-              🚀
-            </div>
-            <h3 class="text-base font-bold text-white mb-1">Đã bật Đường Hầm Vượt Chặn DNS (Proxy v6.0)</h3>
-            <p class="text-xs text-slate-400 max-w-md">
-              Toàn bộ luồng video từ <b>phim1280.tv</b> và <b>OPhim</b> sẽ được truyền qua cổng Proxy HTTPS để không bị mạng nhà bạn hay công ty chặn.
-            </p>
+            <div class="text-3xl mb-2">🍿</div>
+            <h3 class="text-base font-bold text-white">Chọn phim ở danh sách bên phải để phát ngay</h3>
+            <p class="text-xs text-slate-400 mt-1">Đã mở khóa kết nối trực tiếp M3U8 và VIP Iframe (Không còn lỗi chờ tải).</p>
           </div>
         </div>
 
-        <!-- Thanh điều khiển nhanh -->
-        <div class="mt-2.5 px-2 py-1.5 flex flex-wrap items-center justify-between gap-3">
+        <div class="mt-2.5 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
           <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
-              <h2 id="currentMovieTitle" class="font-bold text-base truncate">Chưa chọn phim</h2>
-              <span id="speedMeter" class="hidden text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                ⚡ 0 KB/s
-              </span>
-            </div>
-            <p id="currentStreamStatus" class="text-xs text-emerald-400 truncate mt-0.5">
-              Đường hầm Proxy: Đang BẬT (Vượt chặn tên miền phim1280.tv & ophim)
-            </p>
+            <h2 id="currentMovieTitle" class="font-bold text-base truncate">Chưa chọn phim</h2>
+            <p id="currentStreamStatus" class="text-xs text-emerald-400 truncate">Sẵn sàng phát trực tiếp</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-1.5">
-            <button onclick="seekRelative(-10)" class="liquid-card liquid-btn px-2.5 py-1.5 rounded-lg text-xs font-medium">↺ 10s</button>
-            <button onclick="seekRelative(10)" class="liquid-card liquid-btn px-2.5 py-1.5 rounded-lg text-xs font-medium">10s ↻</button>
-            <button onclick="seekRelative(85)" class="liquid-card liquid-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-amber-400">⏭ Intro</button>
-
-            <select id="playbackSpeed" onchange="changeSpeed(this.value)" class="liquid-card rounded-lg px-2 py-1.5 text-xs font-medium focus:outline-none cursor-pointer">
-              <option value="1">1.0x</option>
-              <option value="1.25">1.25x</option>
-              <option value="1.5">1.5x</option>
-              <option value="2">2.0x</option>
+            <button onclick="seekRelative(-10)" class="liquid-card px-2.5 py-1.5 rounded-lg text-xs">↺ 10s</button>
+            <button onclick="seekRelative(10)" class="liquid-card px-2.5 py-1.5 rounded-lg text-xs">10s ↻</button>
+            <button onclick="seekRelative(85)" class="liquid-card px-2.5 py-1.5 rounded-lg text-xs text-amber-400">⏭ Intro</button>
+            <select id="playbackSpeed" onchange="changeSpeed(this.value)" class="liquid-card rounded-lg px-2 py-1.5 text-xs bg-transparent">
+              <option value="1" class="bg-slate-900">1.0x</option>
+              <option value="1.25" class="bg-slate-900">1.25x</option>
+              <option value="1.5" class="bg-slate-900">1.5x</option>
+              <option value="2" class="bg-slate-900">2.0x</option>
             </select>
-
-            <div class="h-4 w-[1px] bg-slate-500/30 mx-1"></div>
-
-            <button id="btnModeM3u8" onclick="switchPlayerMode('m3u8')" class="liquid-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white">M3U8 (Có Proxy)</button>
-            <button id="btnModeEmbed" onclick="switchPlayerMode('embed')" class="liquid-card liquid-btn px-3 py-1.5 rounded-lg text-xs font-medium">Iframe</button>
+            <button id="btnModeM3u8" onclick="switchPlayerMode('m3u8')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white">
+              M3U8
+            </button>
+            <button id="btnModeEmbed" onclick="switchPlayerMode('embed')" class="liquid-card px-3 py-1.5 rounded-lg text-xs font-medium">
+              VIP Iframe
+            </button>
           </div>
         </div>
       </div>
 
       <!-- Danh sách Server & Tập -->
       <div class="liquid-glass rounded-2xl p-4 space-y-3">
-        <div class="flex items-center justify-between flex-wrap gap-2">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Danh Sách Server & Tập Phim
-          </h3>
-          <button onclick="switchNextProxyServer()" class="text-[11px] text-indigo-400 hover:underline font-medium">
-            🔄 Đang dùng Cổng Proxy #<span id="proxyIndexText">1</span> (Bấm để đổi cổng nếu nghẽn)
-          </button>
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Danh Sách Server & Tập Phim</h3>
+          <span class="text-[11px] text-emerald-400">⚡ Ưu tiên chọn Server KKPhim để xem mượt nhất</span>
         </div>
-
-        <div id="serverList" class="flex flex-wrap gap-2 text-xs text-slate-400">
-          Hãy chọn phim từ danh sách bên phải.
-        </div>
-
+        <div id="serverList" class="flex flex-wrap gap-2 text-xs text-slate-400">Hãy chọn một bộ phim bên phải.</div>
         <div id="episodeList" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-52 overflow-y-auto pt-1"></div>
       </div>
-
     </div>
 
-    <!-- CỘT PHẢI (1/3): KHO PHIM ĐA NGUỒN -->
-    <div class="liquid-glass rounded-2xl p-4 flex flex-col h-[740px]">
+    <!-- Cột Phải: Danh sách phim -->
+    <div class="liquid-glass rounded-2xl p-4 flex flex-col h-[720px]">
       <div class="flex items-center justify-between mb-2">
-        <div>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300">
-            Kho Phim Đa Nguồn Mở Rộng
-          </h3>
-          <p class="text-[11px] text-slate-400">KKPhim • OPhim (Qua Proxy) • NguonC</p>
-        </div>
-        <span id="resultCount" class="text-xs font-semibold px-2.5 py-1 rounded-full liquid-card">0 phim</span>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Kho Phim Đa Nguồn</h3>
+        <span id="resultCount" class="text-xs font-semibold px-2.5 py-1 rounded-full liquid-card">Đang tải...</span>
       </div>
-
-      <div id="providerPingBar" class="flex flex-wrap gap-1.5 mb-3 empty:hidden"></div>
-
-      <div id="providerFilterTabs" class="flex gap-1.5 mb-3 overflow-x-auto pb-1 hidden">
-        <button onclick="filterResultsByProvider('all')" data-prov="all" class="prov-tab px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-600 text-white shrink-0">
-          Tất cả
-        </button>
-      </div>
-
-      <div id="searchResults" class="flex-1 overflow-y-auto space-y-2.5 pr-1">
-        <div class="text-center text-slate-400 text-xs py-16 px-4 space-y-2">
-          <p class="text-base font-semibold text-slate-300">Đang tải kho phim đa nguồn...</p>
-        </div>
-      </div>
+      <div id="providerPingBar" class="flex flex-wrap gap-1.5 mb-2"></div>
+      <div id="providerFilterTabs" class="flex gap-1.5 mb-3 overflow-x-auto pb-1"></div>
+      <div id="searchResults" class="flex-1 overflow-y-auto space-y-2.5 pr-1"></div>
     </div>
-
   </main>
 
-  <div id="glassToast" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-4 transition-all duration-300">
-    <div class="liquid-glass rounded-xl px-4 py-2.5 text-xs font-medium flex items-center gap-2 shadow-2xl">
-      <span id="toastIcon">✨</span>
-      <span id="toastMsg">Thông báo</span>
-    </div>
-  </div>
-
   <script>
-    /**
-     * ============================================================================
-     * 1. CỔNG ĐƯỜNG HẦM PROXY QUỐC TẾ (VƯỢT CHẶN DNS CHO PHIM1280.TV & OPHIM)
-     * ============================================================================
-     */
-    const STREAM_PROXIES = [
-      (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-      (url) => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`
-    ];
-    let currentProxyIdx = 0;
-    let proxyTunnelEnabled = true; // Mặc định BẬT để vượt chặn DNS ngay lập tức!
-
-    function wrapWithProxy(rawUrl) {
-      if (!proxyTunnelEnabled || !rawUrl) return rawUrl;
-      return STREAM_PROXIES[currentProxyIdx](rawUrl);
-    }
-
-    /**
-     * CUSTOM HLS LOADER: Bọc mọi file .m3u8 và phân đoạn .ts qua đường hầm Proxy
-     * nhưng vẫn giữ nguyên URL gốc trong bộ giải mã để Hls.js nối đường dẫn tương đối chuẩn xác 100%!
-     */
-    class SmartTunnelHlsLoader extends Hls.DefaultConfig.loader {
-      constructor(config) {
-        super(config);
-        const origLoad = this.load.bind(this);
-        this.load = function (context, config, callbacks) {
-          const originalUrl = context.url;
-
-          if (proxyTunnelEnabled && originalUrl && !originalUrl.includes('corsproxy.io') && !originalUrl.includes('codetabs.com')) {
-            context.url = wrapWithProxy(originalUrl);
-          }
-
-          const origOnSuccess = callbacks.onSuccess;
-          callbacks.onSuccess = function (response, stats, ctx, networkDetails) {
-            // Khôi phục lại URL gốc để Hls.js tính toán đúng đường dẫn tương đối của các file .ts con
-            response.url = originalUrl;
-            ctx.url = originalUrl;
-            origOnSuccess(response, stats, ctx, networkDetails);
-          };
-
-          origLoad(context, config, callbacks);
-        };
-      }
-    }
-
-    /**
-     * ============================================================================
-     * 2. DANH SÁCH 4 NGUỒN PHIM (CÓ BỌC PROXY CHO OPHIM ĐỂ KHÔNG BAO GIỜ OFFLINE)
-     * ============================================================================
-     */
     const PROVIDERS = [
       {
         id: 'kkphim',
-        name: 'KKPhim CDN',
+        name: 'KKPhim Mới',
         type: 'kkphim',
-        useApiProxy: false,
-        badgeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-        latestUrl: () => `https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1`,
-        searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=14`,
+        badge: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+        latestUrl: () => 'https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1',
+        searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=15`,
         detailUrl: (slug) => `https://phimapi.com/phim/${slug}`,
         imgPrefix: 'https://phimimg.com/'
       },
       {
-        id: 'ophim_proxy',
-        name: 'OPhim VIP (Tunnel)',
-        type: 'ophim',
-        useApiProxy: true, // Tự động đi qua Proxy để vượt chặn DNS ophim1.com
-        badgeColor: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
-        latestUrl: () => `https://ophim1.com/danh-sach/phim-moi-cap-nhat?page=1`,
-        searchUrl: (kw) => `https://ophim1.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=12`,
-        detailUrl: (slug) => `https://ophim1.com/phim/${slug}`,
-        imgPrefix: 'https://img.ophim.live/uploads/movies/'
+        id: 'kk_bo',
+        name: 'Phim Bộ VIP',
+        type: 'kkphim',
+        badge: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
+        latestUrl: () => 'https://phimapi.com/v1/api/danh-sach/phim-bo?page=1&limit=15',
+        searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=15`,
+        detailUrl: (slug) => `https://phimapi.com/phim/${slug}`,
+        imgPrefix: 'https://phimimg.com/'
       },
       {
-        id: 'kk_series',
-        name: 'Kho Phim Bộ & Anime',
+        id: 'kk_anime',
+        name: 'Hoạt Hình / Anime',
         type: 'kkphim',
-        useApiProxy: false,
-        badgeColor: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-        latestUrl: () => `https://phimapi.com/v1/api/danh-sach/phim-bo?page=1&limit=14`,
-        searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=14`,
+        badge: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+        latestUrl: () => 'https://phimapi.com/v1/api/danh-sach/hoat-hinh?page=1&limit=15',
+        searchUrl: (kw) => `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=15`,
         detailUrl: (slug) => `https://phimapi.com/phim/${slug}`,
         imgPrefix: 'https://phimimg.com/'
       },
@@ -434,19 +226,16 @@
         id: 'nguonc',
         name: 'NguonC Hub',
         type: 'nguonc',
-        useApiProxy: false,
-        badgeColor: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-        latestUrl: () => `https://phim.nguonc.com/api/films/phim-moi-cap-nhat?page=1`,
+        badge: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+        latestUrl: () => 'https://phim.nguonc.com/api/films/phim-moi-cap-nhat?page=1',
         searchUrl: (kw) => `https://phim.nguonc.com/api/films/search?keyword=${encodeURIComponent(kw)}`,
         detailUrl: (slug) => `https://phim.nguonc.com/api/film/${slug}`,
         imgPrefix: ''
       }
     ];
 
-    const detailCache = new Map();
-    const HISTORY_KEY = 'cineglass_watch_history_v6';
-    const THEME_KEY = 'cineglass_theme_v6';
-
+    const HISTORY_KEY = 'cineglass_history_v8';
+    const THEME_KEY = 'cineglass_theme_v8';
     let hlsInstance = null;
     let preferredMode = 'm3u8';
     let autoNextEnabled = true;
@@ -457,362 +246,180 @@
     let currentEpisodeData = { link_m3u8: '', link_embed: '', name: '' };
     let pendingResumeTime = 0;
     let lastSaveTimestamp = 0;
-    let autoNextCountdownInterval = null;
-    let isAutoNextTriggered = false;
 
-    async function smartFetchJson(rawUrl, forceProxy = false) {
+    async function fetchWithTimeout(url, ms = 5000) {
+      const ctrl = new AbortController();
+      const id = setTimeout(() => ctrl.abort(), ms);
       try {
-        const target = forceProxy ? STREAM_PROXIES[currentProxyIdx](rawUrl) : rawUrl;
-        const res = await fetch(target);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const res = await fetch(url, { signal: ctrl.signal });
+        clearTimeout(id);
         return await res.json();
-      } catch (err) {
-        // Nếu gọi trực tiếp bị chặn DNS, tự động bọc qua Proxy dự phòng
-        const fallbackTarget = STREAM_PROXIES[0](rawUrl);
-        const res2 = await fetch(fallbackTarget);
-        return await res2.json();
+      } catch (e) {
+        clearTimeout(id);
+        throw e;
       }
     }
 
-    /**
-     * ============================================================================
-     * 3. TRÌNH PHÁT HLS CÓ ĐƯỜNG HẦM PROXY CHỐNG CHẶN MẠNG
-     * ============================================================================
-     */
+    // Trình phát M3U8 Nguyên Bản (Không dùng bộ lọc cắt nhầm manifest)
     function startHlsPlayer(m3u8Url) {
       const video = document.getElementById('hlsVideo');
       const iframe = document.getElementById('embedIframe');
-      const bufferOverlay = document.getElementById('bufferOverlay');
-
       iframe.src = 'about:blank';
       iframe.classList.add('hidden');
       video.classList.remove('hidden');
-      bufferOverlay.classList.remove('hidden');
 
-      document.body.classList.add('video-playing');
-      document.getElementById('btnModeM3u8').className = 'liquid-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white';
-      document.getElementById('btnModeEmbed').className = 'liquid-card liquid-btn px-3 py-1.5 rounded-lg text-xs font-medium';
-      document.getElementById('currentStreamStatus').textContent = proxyTunnelEnabled
-        ? `🚀 Đang phát M3U8 qua Đường Hầm Vượt Chặn #${currentProxyIdx + 1} • Tập ${currentEpisodeData.name}`
-        : `⚡ Đang phát M3U8 trực tiếp • Tập ${currentEpisodeData.name}`;
+      document.getElementById('btnModeM3u8').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white';
+      document.getElementById('btnModeEmbed').className = 'liquid-card px-3 py-1.5 rounded-lg text-xs font-medium';
+      document.getElementById('currentStreamStatus').textContent = `⚡ Đang phát M3U8 trực tiếp • Tập ${currentEpisodeData.name}`;
 
       if (Hls.isSupported()) {
         if (hlsInstance) hlsInstance.destroy();
-        hlsInstance = new Hls({
-          loader: SmartTunnelHlsLoader,
-          enableWorker: false,
-          maxBufferLength: 20,
-          maxMaxBufferLength: 40,
-          manifestLoadingTimeOut: 12000,
-          fragLoadingTimeOut: 15000,
-          manifestLoadingMaxRetry: 3,
-          fragLoadingMaxRetry: 4
-        });
-
+        hlsInstance = new Hls();
         hlsInstance.loadSource(m3u8Url);
         hlsInstance.attachMedia(video);
-
         hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          bufferOverlay.classList.add('hidden');
           if (pendingResumeTime > 2) {
             video.currentTime = pendingResumeTime;
-            showToast(`Đã tua tới mốc ${formatTime(pendingResumeTime)}`, '⏱️');
             pendingResumeTime = 0;
           }
           video.playbackRate = parseFloat(document.getElementById('playbackSpeed').value) || 1;
-          video.play().catch(() => {
-            bufferOverlay.classList.add('hidden');
-          });
+          video.play().catch(() => {});
         });
-
-        hlsInstance.on(Hls.Events.FRAG_LOADED, (event, data) => {
-          bufferOverlay.classList.add('hidden');
-          const stats = data.frag.stats;
-          const durationMs = stats.loading.end - stats.loading.start;
-          if (durationMs > 0 && stats.total > 0) {
-            const kbps = Math.round((stats.total / 1024) / (durationMs / 1000));
-            const speedEl = document.getElementById('speedMeter');
-            speedEl.classList.remove('hidden');
-            speedEl.textContent = kbps > 1024 ? `⚡ ${(kbps / 1024).toFixed(1)} MB/s` : `⚡ ${kbps} KB/s`;
-          }
-        });
-
-        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            if (!proxyTunnelEnabled) {
-              // Nếu đang tắt Proxy mà bị mạng chặn -> Tự động bật Proxy ngay!
-              proxyTunnelEnabled = true;
-              updateProxyUI();
-              showToast('Phát hiện mạng chặn máy chủ phim, đã tự động bật Đường Hầm Vượt Chặn!', '🚀');
-              startHlsPlayer(m3u8Url);
-            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-              hlsInstance.recoverMediaError();
-            } else {
-              // Tự động đổi sang cổng Proxy tiếp theo
-              currentProxyIdx = (currentProxyIdx + 1) % STREAM_PROXIES.length;
-              document.getElementById('proxyIndexText').textContent = currentProxyIdx + 1;
-              showToast(`Đang chuyển sang Cổng Proxy dự phòng #${currentProxyIdx + 1}...`, '🔄');
-              startHlsPlayer(m3u8Url);
-            }
+        hlsInstance.on(Hls.Events.ERROR, (_, data) => {
+          if (data.fatal && currentEpisodeData.link_embed) {
+            startEmbedPlayer(currentEpisodeData.link_embed);
           }
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = wrapWithProxy(m3u8Url);
-        video.addEventListener('loadedmetadata', () => {
-          bufferOverlay.classList.add('hidden');
-          video.play().catch(() => {});
-        }, { once: true });
+        video.src = m3u8Url;
+        video.play().catch(() => {});
       }
     }
 
+    // Trình phát VIP Iframe (Đã bỏ no-referrer & sandbox để không bị kẹt vòng xoay đỏ)
     function startEmbedPlayer(embedUrl) {
       const video = document.getElementById('hlsVideo');
       const iframe = document.getElementById('embedIframe');
-      const bufferOverlay = document.getElementById('bufferOverlay');
-
       if (hlsInstance) hlsInstance.destroy();
       video.pause();
       video.classList.add('hidden');
-      bufferOverlay.classList.add('hidden');
+
+      let finalUrl = embedUrl;
+      if ((!finalUrl || finalUrl.includes('streamc.xyz')) && currentEpisodeData.link_m3u8) {
+        finalUrl = `https://player.phimapi.com/player/?url=${encodeURIComponent(currentEpisodeData.link_m3u8)}`;
+      }
 
       iframe.classList.remove('hidden');
-      iframe.src = embedUrl;
-      document.body.classList.add('video-playing');
-      document.getElementById('btnModeM3u8').className = 'liquid-card liquid-btn px-3 py-1.5 rounded-lg text-xs font-medium';
-      document.getElementById('btnModeEmbed').className = 'liquid-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white';
-      document.getElementById('currentStreamStatus').textContent = `🎬 Đang phát Iframe • Tập ${currentEpisodeData.name}`;
-    }
-
-    function switchNextProxyServer() {
-      currentProxyIdx = (currentProxyIdx + 1) % STREAM_PROXIES.length;
-      document.getElementById('proxyIndexText').textContent = currentProxyIdx + 1;
-      proxyTunnelEnabled = true;
-      updateProxyUI();
-      showToast(`Đã chuyển sang Cổng Proxy #${currentProxyIdx + 1}`, '🚀');
-      if (currentEpisodeData.link_m3u8) {
-        startHlsPlayer(currentEpisodeData.link_m3u8);
-      }
-    }
-
-    function toggleProxyTunnel() {
-      proxyTunnelEnabled = !proxyTunnelEnabled;
-      updateProxyUI();
-      showToast(proxyTunnelEnabled ? 'Đã BẬT Đường Hầm Proxy Vượt Chặn DNS' : 'Đã TẮT Proxy (Kết nối trực tiếp)', '🚀');
-      if (currentEpisodeData.link_m3u8 && preferredMode === 'm3u8') {
-        startHlsPlayer(currentEpisodeData.link_m3u8);
-      }
-    }
-
-    function updateProxyUI() {
-      const label = document.getElementById('proxyToggleLabel');
-      const btn = document.getElementById('proxyToggleBtn');
-      label.textContent = proxyTunnelEnabled ? 'Vượt Chặn: BẬT' : 'Vượt Chặn: TẮT';
-      btn.className = proxyTunnelEnabled
-        ? 'liquid-card liquid-btn px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 text-emerald-400 border border-emerald-500/30'
-        : 'liquid-card liquid-btn px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 text-slate-400';
+      iframe.src = finalUrl;
+      document.getElementById('btnModeM3u8').className = 'liquid-card px-3 py-1.5 rounded-lg text-xs font-medium';
+      document.getElementById('btnModeEmbed').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white';
+      document.getElementById('currentStreamStatus').textContent = `🎬 Đang phát qua VIP Iframe • Tập ${currentEpisodeData.name}`;
     }
 
     const videoEl = document.getElementById('hlsVideo');
-    videoEl.addEventListener('playing', () => {
-      document.getElementById('bufferOverlay').classList.add('hidden');
-      document.body.classList.add('video-playing');
-    });
-    videoEl.addEventListener('canplay', () => {
-      document.getElementById('bufferOverlay').classList.add('hidden');
-    });
-    videoEl.addEventListener('pause', () => document.body.classList.remove('video-playing'));
-
     videoEl.addEventListener('timeupdate', () => {
       const now = Date.now();
       if (now - lastSaveTimestamp > 4000 && videoEl.currentTime > 5 && currentMovieMeta) {
         lastSaveTimestamp = now;
         saveWatchProgress(videoEl.currentTime, videoEl.duration || 0);
       }
-
-      if (autoNextEnabled && videoEl.duration > 10 && !isAutoNextTriggered) {
-        const timeLeft = videoEl.duration - videoEl.currentTime;
-        if (timeLeft <= 3.5 && timeLeft > 0) {
-          triggerAutoNextCountdown();
-        }
+    });
+    videoEl.addEventListener('ended', () => {
+      if (!autoNextEnabled) return;
+      const activeServer = (window._currentServers || [])[currentServerIdx];
+      if (activeServer && currentEpisodeIdx + 1 < activeServer.server_data.length) {
+        selectAndPlayEpisode(currentEpisodeIdx + 1);
       }
     });
-
-    function triggerAutoNextCountdown() {
-      isAutoNextTriggered = true;
-      const overlay = document.getElementById('autoNextOverlay');
-      const textEl = document.getElementById('autoNextText');
-      overlay.classList.remove('hidden');
-
-      let countdown = 5;
-      textEl.textContent = `Tập tiếp theo sau ${countdown}s...`;
-
-      clearInterval(autoNextCountdownInterval);
-      autoNextCountdownInterval = setInterval(() => {
-        countdown--;
-        if (countdown > 0) {
-          textEl.textContent = `Tập tiếp theo sau ${countdown}s...`;
-        } else {
-          clearInterval(autoNextCountdownInterval);
-          overlay.classList.add('hidden');
-          playNextEpisodeDirect();
-        }
-      }, 1000);
-    }
-
-    function cancelAutoNext() {
-      clearInterval(autoNextCountdownInterval);
-      document.getElementById('autoNextOverlay').classList.add('hidden');
-      isAutoNextTriggered = false;
-    }
-
-    function playNextEpisodeDirect() {
-      cancelAutoNext();
-      const activeServer = (window._currentServers || [])[currentServerIdx];
-      if (activeServer && activeServer.server_data) {
-        const nextIdx = currentEpisodeIdx + 1;
-        if (nextIdx < activeServer.server_data.length) {
-          selectAndPlayEpisode(nextIdx);
-          showToast(`Đã chuyển sang Tập ${activeServer.server_data[nextIdx].name}`, '⏭️');
-        }
-      }
-    }
 
     async function fetchFromProvider(provider, keyword = '') {
       const t0 = performance.now();
       try {
-        const rawUrl = keyword ? provider.searchUrl(keyword) : provider.latestUrl();
-        const json = await smartFetchJson(rawUrl, provider.useApiProxy);
+        const url = keyword ? provider.searchUrl(keyword) : provider.latestUrl();
+        const json = await fetchWithTimeout(url, 5000);
         const pingMs = Math.round(performance.now() - t0);
-
-        let rawItems = json?.data?.items || json?.items || [];
+        const rawItems = json?.data?.items || json?.items || [];
         const imgDomain = json?.data?.APP_DOMAIN_CDN_IMAGE
           ? (json.data.APP_DOMAIN_CDN_IMAGE.endsWith('/') ? json.data.APP_DOMAIN_CDN_IMAGE : json.data.APP_DOMAIN_CDN_IMAGE + '/')
           : provider.imgPrefix;
 
-        const normalized = rawItems.map(item => {
-          let thumbUrl = item.poster_url || item.thumb_url || '';
-          if (thumbUrl && !thumbUrl.startsWith('http')) {
-            thumbUrl = imgDomain + thumbUrl;
-          }
+        const items = rawItems.map(item => {
+          let thumb = item.poster_url || item.thumb_url || '';
+          if (thumb && !thumb.startsWith('http')) thumb = imgDomain + thumb;
           return {
             title: item.name,
             originTitle: item.origin_name || item.original_name || '',
             slug: item.slug,
             year: item.year || '',
-            thumb: thumbUrl,
-            provider: provider,
-            pingMs: pingMs
+            thumb,
+            provider,
+            pingMs
           };
         });
-        return { provider, pingMs, items: normalized };
-      } catch (err) {
+        return { provider, pingMs, items };
+      } catch (e) {
         return { provider, pingMs: 9999, items: [], error: true };
       }
     }
 
     async function runMultiSearch(keyword = '') {
       const searchResults = document.getElementById('searchResults');
-      const latencyBadge = document.getElementById('searchLatencyBadge');
       const pingBar = document.getElementById('providerPingBar');
+      searchResults.innerHTML = `<div class="text-center text-slate-400 text-xs py-12 animate-pulse">⚡ Đang tải danh sách phim...</div>`;
 
-      searchResults.innerHTML = `
-        <div class="space-y-2.5 py-2">
-          ${[1, 2, 3, 4].map(() => `
-            <div class="liquid-card rounded-xl p-2.5 flex gap-3 animate-pulse">
-              <div class="w-14 h-20 rounded-lg bg-slate-500/20 shrink-0"></div>
-              <div class="flex-1 space-y-2 py-1">
-                <div class="h-3 w-1/3 bg-slate-500/20 rounded"></div>
-                <div class="h-4 w-3/4 bg-slate-500/20 rounded"></div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-
-      const activeProviders = keyword ? [PROVIDERS[0], PROVIDERS[1], PROVIDERS[3]] : PROVIDERS;
-      const startAll = performance.now();
+      const activeProviders = keyword ? [PROVIDERS[0], PROVIDERS[3]] : PROVIDERS;
       const results = await Promise.all(activeProviders.map(p => fetchFromProvider(p, keyword)));
-      const totalMs = Math.round(performance.now() - startAll);
 
-      latencyBadge.classList.remove('hidden');
-      latencyBadge.textContent = `${totalMs}ms`;
-
-      pingBar.innerHTML = results.map(r => {
-        if (r.error) return `<span class="text-[10px] px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/20">${r.provider.name}: Offline</span>`;
-        const color = r.pingMs < 600 ? 'text-emerald-400' : 'text-amber-400';
-        return `<span class="text-[10px] font-mono px-2 py-0.5 rounded-md liquid-card">${r.provider.name}: <b class="${color}">${r.pingMs}ms</b></span>`;
-      }).join('');
+      pingBar.innerHTML = results.map(r => r.error
+        ? `<span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-400">${r.provider.name}: Offline</span>`
+        : `<span class="text-[10px] font-mono px-2 py-0.5 rounded liquid-card">${r.provider.name}: <b class="text-emerald-400">${r.pingMs}ms</b></span>`
+      ).join('');
 
       allFetchedItems = [];
-      const seenKeys = new Set();
-      const maxLen = Math.max(...results.map(r => r.items.length), 0);
-
-      for (let i = 0; i < maxLen; i++) {
-        results.forEach(r => {
-          const item = r.items[i];
-          if (item) {
-            const uniqueKey = `${item.provider.id}:${item.slug}`;
-            if (!seenKeys.has(uniqueKey)) {
-              seenKeys.add(uniqueKey);
-              allFetchedItems.push(item);
-            }
+      const seen = new Set();
+      results.forEach(r => {
+        r.items.forEach(item => {
+          const key = `${item.provider.id}:${item.slug}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            allFetchedItems.push(item);
           }
         });
-      }
+      });
 
-      renderProviderTabs(results);
+      document.getElementById('providerFilterTabs').innerHTML = `
+        <button onclick=" renderSearchResults(allFetchedItems)" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-600 text-white shrink-0">Tất cả (${allFetchedItems.length})</button>
+        ${results.filter(r => !r.error).map(r => `
+          <button onclick="filterByProv('${r.provider.id}')" class="liquid-card px-2.5 py-1 rounded-lg text-xs font-medium shrink-0">${r.provider.name} (${r.items.length})</button>
+        `).join('')}
+      `;
+
       renderSearchResults(allFetchedItems);
     }
 
-    function renderProviderTabs(results) {
-      const tabContainer = document.getElementById('providerFilterTabs');
-      tabContainer.classList.remove('hidden');
-      tabContainer.innerHTML = `
-        <button onclick="filterResultsByProvider('all')" data-prov="all" class="prov-tab px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-600 text-white shrink-0">
-          Tất cả (${allFetchedItems.length})
-        </button>
-        ${results.filter(r => !r.error).map(r => `
-          <button onclick="filterResultsByProvider('${r.provider.id}')" data-prov="${r.provider.id}" class="prov-tab liquid-card px-2.5 py-1 rounded-lg text-xs font-medium shrink-0">
-            ${r.provider.name} (${r.items.length})
-          </button>
-        `).join('')}
-      `;
-    }
-
-    function filterResultsByProvider(provId) {
-      document.querySelectorAll('.prov-tab').forEach(btn => {
-        btn.className = btn.dataset.prov === provId
-          ? 'prov-tab px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-600 text-white shrink-0'
-          : 'prov-tab liquid-card px-2.5 py-1 rounded-lg text-xs font-medium shrink-0';
-      });
-      const filtered = provId === 'all' ? allFetchedItems : allFetchedItems.filter(item => item.provider.id === provId);
-      renderSearchResults(filtered);
+    function filterByProv(id) {
+      renderSearchResults(allFetchedItems.filter(i => i.provider.id === id));
     }
 
     function renderSearchResults(items) {
-      const searchResults = document.getElementById('searchResults');
+      const el = document.getElementById('searchResults');
       document.getElementById('resultCount').textContent = `${items.length} phim`;
-
-      if (items.length === 0) {
-        searchResults.innerHTML = `<div class="text-center text-slate-400 text-xs py-12">Không tìm thấy phim phù hợp.</div>`;
+      if (!items.length) {
+        el.innerHTML = `<div class="text-center text-slate-400 text-xs py-12">Không tìm thấy phim phù hợp.</div>`;
         return;
       }
-
-      searchResults.innerHTML = items.map(item => {
-        const safeTitle = (item.title || '').replace(/'/g, "\\'");
-        const safeThumb = (item.thumb || '').replace(/'/g, "\\'");
+      el.innerHTML = items.map(item => {
+        const sTitle = (item.title || '').replace(/'/g, "\\'");
+        const sThumb = (item.thumb || '').replace(/'/g, "\\'");
         return `
-          <div
-            onclick="loadMovieDetail('${item.provider.id}', '${item.slug}', '${safeTitle}', '${safeThumb}')"
-            class="liquid-card rounded-xl p-2.5 flex gap-3 cursor-pointer group"
-          >
-            <img src="${item.thumb}" alt="${item.title}" loading="lazy" class="w-14 h-20 object-cover rounded-lg bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Film'"/>
+          <div onclick="loadMovieDetail('${item.provider.id}', '${item.slug}', '${sTitle}', '${sThumb}')" class="liquid-card rounded-xl p-2.5 flex gap-3 cursor-pointer group">
+            <img src="${item.thumb}" loading="lazy" class="w-14 h-20 object-cover rounded-lg bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Film'"/>
             <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-1 mb-1">
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded border ${item.provider.badgeColor}">${item.provider.name}</span>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded border ${item.provider.badge}">${item.provider.name}</span>
                 <span class="text-[10px] font-mono text-emerald-400">${item.pingMs}ms</span>
               </div>
-              <h4 class="text-sm font-bold truncate group-hover:text-indigo-400 transition">${item.title}</h4>
+              <h4 class="text-sm font-bold truncate group-hover:text-indigo-400">${item.title}</h4>
               <p class="text-xs text-slate-400 truncate">${item.originTitle} ${item.year ? `(${item.year})` : ''}</p>
             </div>
           </div>
@@ -820,305 +427,169 @@
       }).join('');
     }
 
-    async function tryFetchBackupM3u8Servers(slug, movieTitle) {
-      let extraServers = [];
-      // Quét luồng M3U8 từ KKPhim
+    async function rescueKkphimM3u8(slug, title) {
       try {
-        const directData = await smartFetchJson(`https://phimapi.com/phim/${slug}`, false);
-        const directEps = directData?.episodes || [];
-        if (directEps.length && directEps[0]?.server_data?.length) {
-          extraServers.push(...directEps.map(srv => ({
-            server_name: `⚡ KKPhim (${srv.server_name})`,
-            server_data: srv.server_data
-          })));
+        const d = await fetchWithTimeout(`https://phimapi.com/phim/${slug}`, 4000);
+        if (d?.episodes?.length && d.episodes[0]?.server_data?.length) {
+          return d.episodes.map(s => ({ server_name: `⚡ KKPhim (${s.server_name})`, server_data: s.server_data }));
         }
       } catch (e) {}
-
-      // Quét thêm luồng M3U8 từ OPhim qua Proxy
+      if (!title) return [];
       try {
-        const ophimData = await smartFetchJson(`https://ophim1.com/phim/${slug}`, true);
-        const ophimEps = ophimData?.episodes || [];
-        if (ophimEps.length && ophimEps[0]?.server_data?.length) {
-          extraServers.push(...ophimEps.map(srv => ({
-            server_name: `🚀 OPhim (${srv.server_name})`,
-            server_data: srv.server_data
-          })));
-        }
-      } catch (e) {}
-
-      if (extraServers.length > 0 || !movieTitle) return extraServers;
-
-      // Tìm theo tên phim nếu khác slug
-      try {
-        const searchJson = await smartFetchJson(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(movieTitle)}&limit=2`, false);
-        const firstMatch = searchJson?.data?.items?.[0];
-        if (firstMatch && firstMatch.slug) {
-          const detailData = await smartFetchJson(`https://phimapi.com/phim/${firstMatch.slug}`, false);
-          const eps = detailData?.episodes || [];
-          if (eps.length && eps[0]?.server_data?.length) {
-            extraServers.push(...eps.map(srv => ({
-              server_name: `⚡ KKPhim (${srv.server_name})`,
-              server_data: srv.server_data
-            })));
+        const s = await fetchWithTimeout(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(title)}&limit=1`, 4000);
+        const first = s?.data?.items?.[0];
+        if (first?.slug) {
+          const d2 = await fetchWithTimeout(`https://phimapi.com/phim/${first.slug}`, 4000);
+          if (d2?.episodes?.length) {
+            return d2.episodes.map(srv => ({ server_name: `⚡ KKPhim (${srv.server_name})`, server_data: srv.server_data }));
           }
         }
       } catch (e) {}
-      return extraServers;
+      return [];
     }
 
-    async function fetchCombinedMovieDetail(providerId, slug, fallbackTitle = '') {
-      const cacheKey = `${providerId}:${slug}`;
-      if (detailCache.has(cacheKey)) return detailCache.get(cacheKey);
-
-      const provider = PROVIDERS.find(p => p.id === providerId) || PROVIDERS[0];
-      const data = await smartFetchJson(provider.detailUrl(slug), provider.useApiProxy);
-
-      let movie = data.movie || data?.data?.item || {};
-      let combinedServers = [];
-
-      if (provider.type === 'nguonc') {
-        const rescuedServers = await tryFetchBackupM3u8Servers(slug, movie.name || fallbackTitle);
-        const nguoncServers = (movie.episodes || []).map(srv => ({
-          server_name: `🔗 NguonC (${srv.server_name})`,
-          server_data: (srv.items || []).map(ep => ({
-            name: ep.name,
-            link_m3u8: ep.m3u8 || '',
-            link_embed: ep.embed || ''
-          }))
-        }));
-        combinedServers = [...rescuedServers, ...nguoncServers];
-      } else {
-        const rawEps = data.episodes || data?.data?.item?.episodes || [];
-        combinedServers = rawEps.map(srv => ({
-          server_name: `⚡ ${provider.name} (${srv.server_name})`,
-          server_data: srv.server_data || []
-        }));
-        // Gộp thêm nhánh dự phòng từ kho còn lại
-        const otherServers = await tryFetchBackupM3u8Servers(slug, '');
-        if (otherServers.length > 1) {
-          combinedServers.push(...otherServers.slice(1));
-        }
-      }
-
-      const result = { movie, episodes: combinedServers, provider };
-      detailCache.set(cacheKey, result);
-      return result;
-    }
-
-    async function loadMovieDetail(providerId, slug, fallbackTitle = '', fallbackThumb = '', autoServerIdx = 0, autoEpIdx = 0, resumeSec = 0) {
+    async function loadMovieDetail(providerId, slug, fallbackTitle = '', fallbackThumb = '', sIdx = 0, eIdx = 0, resumeSec = 0) {
       const serverListEl = document.getElementById('serverList');
       const episodeListEl = document.getElementById('episodeList');
-
-      serverListEl.innerHTML = `<span class="text-indigo-400 animate-pulse">🚀 Đang đồng bộ các nhánh Server M3U8 qua Proxy...</span>`;
+      serverListEl.innerHTML = `<span class="text-indigo-400 animate-pulse">⚡ Đang tải tập phim...</span>`;
       episodeListEl.innerHTML = '';
 
       try {
-        const { movie, episodes, provider } = await fetchCombinedMovieDetail(providerId, slug, fallbackTitle);
+        const provider = PROVIDERS.find(p => p.id === providerId) || PROVIDERS[0];
+        const data = await fetchWithTimeout(provider.detailUrl(slug), 5000);
+        const movie = data.movie || data?.data?.item || {};
         const title = movie.name || fallbackTitle || 'Phim';
-        const thumb = movie.poster_url || movie.thumb_url || fallbackThumb || '';
+        let servers = [];
 
-        currentMovieMeta = {
-          providerId,
-          providerName: provider.name,
-          slug,
-          title,
-          thumb: thumb.startsWith('http') ? thumb : (provider.imgPrefix + thumb)
-        };
-        document.getElementById('currentMovieTitle').textContent = `${title}`;
+        if (provider.type === 'nguonc') {
+          const rescued = await rescueKkphimM3u8(slug, title);
+          const nguoncSrv = (movie.episodes || []).map(s => ({
+            server_name: `🔗 NguonC (${s.server_name})`,
+            server_data: (s.items || []).map(ep => ({ name: ep.name, link_m3u8: ep.m3u8 || '', link_embed: ep.embed || '' }))
+          }));
+          servers = [...rescued, ...nguoncSrv];
+        } else {
+          const rawEps = data.episodes || data?.data?.item?.episodes || [];
+          servers = rawEps.map(s => ({ server_name: `⚡ ${s.server_name}`, server_data: s.server_data || [] }));
+        }
 
-        if (!episodes.length || !episodes[0].server_data?.length) {
-          serverListEl.innerHTML = `<span class="text-rose-400">Phim này hiện chưa có tập phát.</span>`;
+        currentMovieMeta = { providerId, providerName: provider.name, slug, title, thumb: fallbackThumb };
+        document.getElementById('currentMovieTitle').textContent = title;
+
+        if (!servers.length || !servers[0].server_data?.length) {
+          serverListEl.innerHTML = `<span class="text-rose-400">Chưa có tập phát.</span>`;
           return;
         }
 
-        window._currentServers = episodes;
+        window._currentServers = servers;
         pendingResumeTime = resumeSec;
-        renderServersAndEpisodes(autoServerIdx, autoEpIdx);
-      } catch (err) {
-        serverListEl.innerHTML = `<span class="text-rose-400">Không thể kết nối máy chủ này.</span>`;
+        renderServers(sIdx, eIdx);
+      } catch (e) {
+        serverListEl.innerHTML = `<span class="text-rose-400">Lỗi tải dữ liệu phim.</span>`;
       }
     }
 
-    function renderServersAndEpisodes(serverIdx = 0, epIdx = 0) {
-      const episodes = window._currentServers || [];
-      const serverListEl = document.getElementById('serverList');
-      const episodeListEl = document.getElementById('episodeList');
-
-      currentServerIdx = serverIdx < episodes.length ? serverIdx : 0;
-
-      serverListEl.innerHTML = episodes.map((srv, idx) => `
-        <button onclick="renderServersAndEpisodes(${idx}, 0)" class="liquid-btn px-3 py-1.5 rounded-xl text-xs font-semibold ${idx === currentServerIdx ? 'bg-indigo-600 text-white shadow-md' : 'liquid-card'}">
-          ${srv.server_name}
-        </button>
+    function renderServers(sIdx = 0, eIdx = 0) {
+      const servers = window._currentServers || [];
+      currentServerIdx = sIdx < servers.length ? sIdx : 0;
+      document.getElementById('serverList').innerHTML = servers.map((s, i) => `
+        <button onclick="renderServers(${i}, 0)" class="px-3 py-1.5 rounded-xl text-xs font-semibold ${i === currentServerIdx ? 'bg-indigo-600 text-white' : 'liquid-card'}">${s.server_name}</button>
       `).join('');
 
-      const activeServer = episodes[currentServerIdx];
-      if (!activeServer || !activeServer.server_data) return;
-
-      const epList = activeServer.server_data;
-      currentEpisodeIdx = epIdx < epList.length ? epIdx : 0;
-
-      episodeListEl.innerHTML = epList.map((ep, idx) => `
-        <button id="ep-btn-${idx}" onclick="selectAndPlayEpisode(${idx})" class="liquid-btn px-2 py-2 rounded-xl text-xs font-semibold truncate ${idx === currentEpisodeIdx ? 'bg-indigo-600 text-white shadow-md' : 'liquid-card'}">
-          Tập ${ep.name}
-        </button>
+      const epList = servers[currentServerIdx]?.server_data || [];
+      currentEpisodeIdx = eIdx < epList.length ? eIdx : 0;
+      document.getElementById('episodeList').innerHTML = epList.map((ep, i) => `
+        <button id="ep-btn-${i}" onclick="selectAndPlayEpisode(${i})" class="px-2 py-2 rounded-xl text-xs font-semibold truncate ${i === currentEpisodeIdx ? 'bg-indigo-600 text-white' : 'liquid-card'}">Tập ${ep.name}</button>
       `).join('');
 
       selectAndPlayEpisode(currentEpisodeIdx);
     }
 
-    function selectAndPlayEpisode(epIdx) {
+    function selectAndPlayEpisode(idx) {
       const activeServer = (window._currentServers || [])[currentServerIdx];
       if (!activeServer) return;
-      const ep = activeServer.server_data[epIdx];
+      const ep = activeServer.server_data[idx];
       if (!ep) return;
+      currentEpisodeIdx = idx;
 
-      currentEpisodeIdx = epIdx;
-      isAutoNextTriggered = false;
-      cancelAutoNext();
-
-      activeServer.server_data.forEach((_, idx) => {
-        const btn = document.getElementById(`ep-btn-${idx}`);
-        if (btn) {
-          btn.className = idx === epIdx
-            ? 'liquid-btn px-2 py-2 rounded-xl text-xs font-semibold truncate bg-indigo-600 text-white shadow-md'
-            : 'liquid-btn px-2 py-2 rounded-xl text-xs font-semibold truncate liquid-card';
-        }
+      activeServer.server_data.forEach((_, i) => {
+        const b = document.getElementById(`ep-btn-${i}`);
+        if (b) b.className = i === idx ? 'px-2 py-2 rounded-xl text-xs font-semibold truncate bg-indigo-600 text-white' : 'px-2 py-2 rounded-xl text-xs font-semibold truncate liquid-card';
       });
 
-      if (ep.link_m3u8) preferredMode = 'm3u8';
-      playEpisode(ep.link_m3u8 || '', ep.link_embed || '', ep.name);
+      currentEpisodeData = { link_m3u8: ep.link_m3u8 || '', link_embed: ep.link_embed || '', name: ep.name };
+      document.getElementById('playerPlaceholder').classList.add('hidden');
+
+      if (preferredMode === 'm3u8' && currentEpisodeData.link_m3u8) {
+        startHlsPlayer(currentEpisodeData.link_m3u8);
+      } else if (currentEpisodeData.link_embed) {
+        startEmbedPlayer(currentEpisodeData.link_embed);
+      } else if (currentEpisodeData.link_m3u8) {
+        startHlsPlayer(currentEpisodeData.link_m3u8);
+      }
       saveWatchProgress(pendingResumeTime || 0, 0);
     }
 
-    function playEpisode(m3u8Url, embedUrl, epName) {
-      currentEpisodeData = { link_m3u8: m3u8Url, link_embed: embedUrl, name: epName };
-      document.getElementById('playerPlaceholder').classList.add('hidden');
+    function switchPlayerMode(mode) {
+      preferredMode = mode;
+      if (mode === 'm3u8' && currentEpisodeData.link_m3u8) startHlsPlayer(currentEpisodeData.link_m3u8);
+      else if (currentEpisodeData.link_embed || currentEpisodeData.link_m3u8) startEmbedPlayer(currentEpisodeData.link_embed);
+    }
 
-      if (preferredMode === 'm3u8' && m3u8Url) {
-        startHlsPlayer(m3u8Url);
-      } else if (m3u8Url) {
-        startHlsPlayer(m3u8Url);
-      } else if (embedUrl) {
-        startEmbedPlayer(embedUrl);
-      }
+    function seekRelative(sec) {
+      if (!videoEl.classList.contains('hidden')) videoEl.currentTime = Math.max(0, videoEl.currentTime + sec);
+    }
+
+    function changeSpeed(val) {
+      videoEl.playbackRate = parseFloat(val) || 1;
+    }
+
+    function toggleAutoNext() {
+      autoNextEnabled = !autoNextEnabled;
+      document.getElementById('autoNextLabel').textContent = `Auto-Next: ${autoNextEnabled ? 'BẬT' : 'TẮT'}`;
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+      document.getElementById('themeText').textContent = isDark ? '🌙 Tối' : '☀️ Sáng';
     }
 
     function getWatchHistory() {
       try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
     }
 
-    function saveWatchProgress(currentTime, duration) {
+    function saveWatchProgress(time, dur) {
       if (!currentMovieMeta) return;
-      let list = getWatchHistory();
-      const id = `${currentMovieMeta.providerId}:${currentMovieMeta.slug}`;
-      const entry = {
-        id, ...currentMovieMeta,
-        serverIdx: currentServerIdx,
-        episodeIdx: currentEpisodeIdx,
-        episodeName: currentEpisodeData.name || '1',
-        currentTime: Math.floor(currentTime),
-        duration: Math.floor(duration),
-        updatedAt: Date.now()
-      };
-      list = list.filter(item => item.id !== id);
-      list.unshift(entry);
-      if (list.length > 8) list = list.slice(0, 8);
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+      let list = getWatchHistory().filter(x => x.slug !== currentMovieMeta.slug);
+      list.unshift({ ...currentMovieMeta, sIdx: currentServerIdx, eIdx: currentEpisodeIdx, epName: currentEpisodeData.name, time: Math.floor(time), dur: Math.floor(dur) });
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 4)));
       renderContinueWatching();
     }
 
     function renderContinueWatching() {
       const list = getWatchHistory();
-      const section = document.getElementById('continueWatchingSection');
-      const container = document.getElementById('continueWatchingList');
-
-      if (!list.length) {
-        section.classList.add('hidden');
-        return;
-      }
-      section.classList.remove('hidden');
-      container.innerHTML = list.slice(0, 4).map(item => {
-        const percent = item.duration > 0 ? Math.min(95, Math.max(5, Math.round((item.currentTime / item.duration) * 100))) : 25;
-        const safeTitle = (item.title || '').replace(/'/g, "\\'");
-        const safeThumb = (item.thumb || '').replace(/'/g, "\\'");
+      const sec = document.getElementById('continueWatchingSection');
+      if (!list.length) { sec.classList.add('hidden'); return; }
+      sec.classList.remove('hidden');
+      document.getElementById('continueWatchingList').innerHTML = list.map(item => {
+        const sTitle = (item.title || '').replace(/'/g, "\\'");
+        const sThumb = (item.thumb || '').replace(/'/g, "\\'");
         return `
-          <div onclick="loadMovieDetail('${item.providerId}', '${item.slug}', '${safeTitle}', '${safeThumb}', ${item.serverIdx || 0}, ${item.episodeIdx || 0}, ${item.currentTime || 0})" class="liquid-card rounded-xl p-2.5 flex items-center gap-3 cursor-pointer group relative overflow-hidden">
-            <img src="${item.thumb}" alt="${item.title}" loading="lazy" class="w-12 h-16 object-cover rounded-lg bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Play'"/>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-1">
-                <span class="text-[10px] font-semibold text-indigo-400">${item.providerName}</span>
-                <button onclick="event.stopPropagation(); removeHistoryItem('${item.id}')" class="text-xs text-slate-400 hover:text-rose-400 px-1">✕</button>
-              </div>
-              <h4 class="text-xs font-bold truncate group-hover:text-indigo-400 transition">${item.title}</h4>
-              <p class="text-[11px] text-emerald-400 font-medium mt-0.5">▶ Tập ${item.episodeName} • ${formatTime(item.currentTime)}</p>
-              <div class="w-full h-1 bg-slate-500/20 rounded-full mt-1.5 overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-indigo-500 to-emerald-400" style="width: ${percent}%"></div>
-              </div>
+          <div onclick="loadMovieDetail('${item.providerId}', '${item.slug}', '${sTitle}', '${sThumb}', ${item.sIdx || 0}, ${item.eIdx || 0}, ${item.time || 0})" class="liquid-card rounded-xl p-2.5 flex items-center gap-3 cursor-pointer">
+            <img src="${item.thumb}" class="w-11 h-14 object-cover rounded bg-slate-800 shrink-0" onerror="this.src='https://via.placeholder.com/60x90/1e293b/94a3b8?text=Play'"/>
+            <div class="min-w-0 flex-1">
+              <h4 class="text-xs font-bold truncate">${item.title}</h4>
+              <p class="text-[11px] text-emerald-400">▶ Tập ${item.epName} • ${Math.floor((item.time || 0) / 60)}p${(item.time || 0) % 60}s</p>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function removeHistoryItem(id) {
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(getWatchHistory().filter(item => item.id !== id)));
-      renderContinueWatching();
-    }
-
     function clearWatchHistory() {
       localStorage.removeItem(HISTORY_KEY);
       renderContinueWatching();
-      showToast('Đã xóa lịch sử xem', '🗑️');
-    }
-
-    function seekRelative(sec) {
-      const video = document.getElementById('hlsVideo');
-      if (!video.classList.contains('hidden')) video.currentTime = Math.max(0, video.currentTime + sec);
-    }
-
-    function changeSpeed(val) {
-      document.getElementById('hlsVideo').playbackRate = parseFloat(val) || 1;
-    }
-
-    function switchPlayerMode(mode) {
-      preferredMode = mode;
-      if (currentEpisodeData.link_m3u8 || currentEpisodeData.link_embed) {
-        playEpisode(currentEpisodeData.link_m3u8, currentEpisodeData.link_embed, currentEpisodeData.name);
-      }
-    }
-
-    function toggleAutoNext() {
-      autoNextEnabled = !autoNextEnabled;
-      const btn = document.getElementById('autoNextToggle');
-      document.getElementById('autoNextLabel').textContent = autoNextEnabled ? 'Auto-Next: BẬT' : 'Auto-Next: TẮT';
-      btn.className = autoNextEnabled ? 'liquid-card liquid-btn px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 text-indigo-400' : 'liquid-card liquid-btn px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 text-slate-400';
-      showToast(autoNextEnabled ? 'Đã bật tự động chuyển tập' : 'Đã tắt tự động chuyển tập', '⏭️');
-    }
-
-    function toggleTheme() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
-      updateThemeUI(isDark);
-    }
-
-    function updateThemeUI(isDark) {
-      document.querySelectorAll('.theme-icon').forEach(el => el.textContent = isDark ? '🌙' : '☀️');
-    }
-
-    function formatTime(sec) {
-      if (!sec || sec < 0) return '00:00';
-      return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
-    }
-
-    let toastTimer = null;
-    function showToast(msg, icon = '✨') {
-      const toast = document.getElementById('glassToast');
-      document.getElementById('toastMsg').textContent = msg;
-      document.getElementById('toastIcon').textContent = icon;
-      toast.classList.remove('opacity-0', 'translate-y-4');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.add('opacity-0', 'translate-y-4'), 2800);
     }
 
     document.getElementById('searchForm').addEventListener('submit', (e) => {
@@ -1126,13 +597,8 @@
       runMultiSearch(document.getElementById('searchInput').value.trim());
     });
 
-    (function initApp() {
-      const isDark = (localStorage.getItem(THEME_KEY) || 'dark') === 'dark';
-      document.documentElement.classList.toggle('dark', isDark);
-      updateThemeUI(isDark);
-      renderContinueWatching();
-      runMultiSearch('');
-    })();
+    renderContinueWatching();
+    runMultiSearch('');
   </script>
 </body>
 </html>
