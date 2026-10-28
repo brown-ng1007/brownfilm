@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CineGlass Pro v8.0 - Siêu Tốc Trực Tiếp</title>
+  <title>CineGlass Pro - Tốc Độ Trực Tiếp</title>
+
+  <!-- Cấu hình icon khi thêm ra màn hình chính iPhone / Android -->
+  <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=180&h=180&fit=crop" />
+  <link rel="icon" type="image/png" href="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=64&h=64&fit=crop" />
+
   <link rel="preconnect" href="https://phimapi.com" crossorigin />
   <link rel="preconnect" href="https://phim.nguonc.com" crossorigin />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -69,17 +74,17 @@
     <div class="liquid-glass rounded-2xl px-5 py-3.5 flex flex-col md:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-3 w-full md:w-auto justify-between">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-rose-500 flex items-center justify-center text-white font-bold">
-            ⚡
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-rose-500 flex items-center justify-center text-white font-bold shadow-lg">
+            🍿
           </div>
           <div>
             <div class="flex items-center gap-2">
               <h1 class="font-bold text-lg">CineGlass Pro</h1>
               <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                DIRECT V8.0
+                DIRECT V8.1
               </span>
             </div>
-            <p class="text-xs text-slate-400">Tốc độ trực tiếp 50ms • Không Proxy • Không Quảng Cáo</p>
+            <p class="text-xs text-slate-400">Xem phim trực tiếp • Đa nguồn • Không quảng cáo</p>
           </div>
         </div>
         <button onclick="toggleTheme()" class="md:hidden liquid-card p-2 rounded-xl text-sm">🌙</button>
@@ -89,7 +94,7 @@
         <input
           id="searchInput"
           type="text"
-          placeholder="Tìm tên phim (VD: Thế Giới Phép Thuật, Căn Nhà Không Mái Che, Mai)..."
+          placeholder="Tìm tên phim (VD: Thế Giới Phép Thuật, Mai, Conan)..."
           class="w-full liquid-card rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shrink-0">
@@ -124,7 +129,7 @@
     <!-- Cột Trái: Player -->
     <div class="lg:col-span-2 space-y-4">
       <div class="liquid-glass rounded-2xl p-2">
-        <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden">
+        <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
           <video id="hlsVideo" class="w-full h-full hidden" controls playsinline autoplay></video>
           <iframe
             id="embedIframe"
@@ -135,9 +140,9 @@
           ></iframe>
 
           <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-            <div class="text-3xl mb-2">🍿</div>
+            <div class="text-3xl mb-2">🎬</div>
             <h3 class="text-base font-bold text-white">Chọn phim ở danh sách bên phải để phát ngay</h3>
-            <p class="text-xs text-slate-400 mt-1">Đã mở khóa kết nối trực tiếp M3U8 và VIP Iframe (Không còn lỗi chờ tải).</p>
+            <p class="text-xs text-slate-400 mt-1">Trận chiến không quảng cáo • Hỗ trợ tự động chuyển tập.</p>
           </div>
         </div>
 
@@ -171,7 +176,7 @@
       <div class="liquid-glass rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Danh Sách Server & Tập Phim</h3>
-          <span class="text-[11px] text-emerald-400">⚡ Ưu tiên chọn Server KKPhim để xem mượt nhất</span>
+          <span class="text-[11px] text-emerald-400">⚡ Chọn Server KKPhim để có tốc độ tốt nhất</span>
         </div>
         <div id="serverList" class="flex flex-wrap gap-2 text-xs text-slate-400">Hãy chọn một bộ phim bên phải.</div>
         <div id="episodeList" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-52 overflow-y-auto pt-1"></div>
@@ -234,8 +239,8 @@
       }
     ];
 
-    const HISTORY_KEY = 'cineglass_history_v8';
-    const THEME_KEY = 'cineglass_theme_v8';
+    const HISTORY_KEY = 'cineglass_history_v81';
+    const THEME_KEY = 'cineglass_theme_v81';
     let hlsInstance = null;
     let preferredMode = 'm3u8';
     let autoNextEnabled = true;
@@ -260,7 +265,6 @@
       }
     }
 
-    // Trình phát M3U8 Nguyên Bản (Không dùng bộ lọc cắt nhầm manifest)
     function startHlsPlayer(m3u8Url) {
       const video = document.getElementById('hlsVideo');
       const iframe = document.getElementById('embedIframe');
@@ -296,7 +300,6 @@
       }
     }
 
-    // Trình phát VIP Iframe (Đã bỏ no-referrer & sandbox để không bị kẹt vòng xoay đỏ)
     function startEmbedPlayer(embedUrl) {
       const video = document.getElementById('hlsVideo');
       const iframe = document.getElementById('embedIframe');
@@ -388,7 +391,7 @@
       });
 
       document.getElementById('providerFilterTabs').innerHTML = `
-        <button onclick=" renderSearchResults(allFetchedItems)" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-600 text-white shrink-0">Tất cả (${allFetchedItems.length})</button>
+        <button onclick="renderSearchResults(allFetchedItems)" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-600 text-white shrink-0">Tất cả (${allFetchedItems.length})</button>
         ${results.filter(r => !r.error).map(r => `
           <button onclick="filterByProv('${r.provider.id}')" class="liquid-card px-2.5 py-1 rounded-lg text-xs font-medium shrink-0">${r.provider.name} (${r.items.length})</button>
         `).join('')}
