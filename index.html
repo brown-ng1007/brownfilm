@@ -18,66 +18,66 @@
 <style>
 :root{
   --bg:#faf7fa;
-  --bg-mesh:radial-gradient(at 12% 8%,rgba(250,45,72,.11) 0px,transparent 52%),radial-gradient(at 88% 22%,rgba(255,122,89,.10) 0px,transparent 48%),radial-gradient(at 50% 88%,rgba(175,82,222,.09) 0px,transparent 58%);
-  --card:rgba(255,255,255,.78);
+  --bg-mesh:radial-gradient(at 10% 6%,rgba(250,45,72,.10) 0px,transparent 50%),radial-gradient(at 90% 20%,rgba(255,122,89,.08) 0px,transparent 45%),radial-gradient(at 50% 92%,rgba(175,82,222,.08) 0px,transparent 55%);
+  --card:rgba(255,255,255,.76);
   --text:#1c1c1e;
   --sub:#726e77;
-  --glass:rgba(255,255,255,.62);
-  --glass-rim:inset 0 1px 1.5px rgba(255,255,255,.92),inset 0 -1px 1px rgba(250,45,72,.08);
-  --pill-bg:linear-gradient(180deg,rgba(255,255,255,.92) 0%,rgba(255,240,244,.78) 100%);
-  --pill-rim:inset 0 1.5px 2px rgba(255,255,255,1),inset 0 -1px 1.5px rgba(250,45,72,.16),0 4px 14px rgba(250,45,72,.14);
+  --glass:rgba(255,255,255,.64);
+  --glass-rim:inset 0 1px 1px rgba(255,255,255,.95),inset 0 -1px 1px rgba(250,45,72,.06);
+  --pill-bg:linear-gradient(180deg,rgba(255,255,255,.95) 0%,rgba(255,235,240,.75) 100%);
+  --pill-rim:inset 0 1.2px 1.8px rgba(255,255,255,1),inset 0 -1px 1.2px rgba(250,45,72,.14),0 6px 20px rgba(250,45,72,.16);
   --accent:#fa2d48;
   --accent-grad:linear-gradient(135deg,#ff375f 0%,#fa2d48 55%,#ff5e3a 100%);
-  --line:rgba(250,45,72,.12);
-  --shadow:0 12px 32px -4px rgba(35,20,30,.11),0 2px 10px rgba(250,45,72,.06);
-  --r:22px;
+  --line:rgba(250,45,72,.10);
+  --shadow:0 16px 36px -6px rgba(35,20,30,.10),0 3px 12px rgba(250,45,72,.05);
+  --r:24px;
   --sat:env(safe-area-inset-top);
   --sab:env(safe-area-inset-bottom);
-  --spring:cubic-bezier(.22,1.38,.36,1);
-  --fluid:cubic-bezier(.2,.9,.2,1);
+  --spring:cubic-bezier(.16,1.08,.28,1);
+  --fluid:cubic-bezier(.25,1,.35,1);
 }
 :root[data-theme=dark]{
   --bg:#0f0d13;
-  --bg-mesh:radial-gradient(at 15% 10%,rgba(250,45,72,.17) 0px,transparent 55%),radial-gradient(at 85% 28%,rgba(191,90,242,.13) 0px,transparent 52%),radial-gradient(at 50% 90%,rgba(255,100,130,.10) 0px,transparent 60%);
-  --card:rgba(34,30,42,.78);
+  --bg-mesh:radial-gradient(at 12% 8%,rgba(250,45,72,.16) 0px,transparent 52%),radial-gradient(at 88% 25%,rgba(191,90,242,.11) 0px,transparent 48%),radial-gradient(at 50% 90%,rgba(255,100,130,.09) 0px,transparent 58%);
+  --card:rgba(32,28,40,.76);
   --text:#f5f5f7;
   --sub:#a19ca8;
-  --glass:rgba(38,32,48,.58);
-  --glass-rim:inset 0 1px 1.5px rgba(255,255,255,.22),inset 0 -1px 1px rgba(255,55,95,.12);
-  --pill-bg:linear-gradient(180deg,rgba(255,65,105,.32) 0%,rgba(250,45,72,.18) 100%);
-  --pill-rim:inset 0 1px 2px rgba(255,255,255,.35),inset 0 -1px 1px rgba(250,45,72,.25),0 4px 16px rgba(250,45,72,.25);
+  --glass:rgba(36,30,46,.55);
+  --glass-rim:inset 0 1px 1px rgba(255,255,255,.20),inset 0 -1px 1px rgba(255,55,95,.10);
+  --pill-bg:linear-gradient(180deg,rgba(255,65,105,.30) 0%,rgba(250,45,72,.16) 100%);
+  --pill-rim:inset 0 1px 1.8px rgba(255,255,255,.32),inset 0 -1px 1px rgba(250,45,72,.22),0 6px 22px rgba(250,45,72,.24);
   --accent:#ff375f;
-  --line:rgba(255,255,255,.12);
-  --shadow:0 14px 36px rgba(0,0,0,.6);
+  --line:rgba(255,255,255,.10);
+  --shadow:0 16px 40px rgba(0,0,0,.58);
 }
 @media(prefers-color-scheme:dark){
   :root[data-theme=auto]{
     --bg:#0f0d13;
-    --bg-mesh:radial-gradient(at 15% 10%,rgba(250,45,72,.17) 0px,transparent 55%),radial-gradient(at 85% 28%,rgba(191,90,242,.13) 0px,transparent 52%),radial-gradient(at 50% 90%,rgba(255,100,130,.10) 0px,transparent 60%);
-    --card:rgba(34,30,42,.78);
+    --bg-mesh:radial-gradient(at 12% 8%,rgba(250,45,72,.16) 0px,transparent 52%),radial-gradient(at 88% 25%,rgba(191,90,242,.11) 0px,transparent 48%),radial-gradient(at 50% 90%,rgba(255,100,130,.09) 0px,transparent 58%);
+    --card:rgba(32,28,40,.76);
     --text:#f5f5f7;
     --sub:#a19ca8;
-    --glass:rgba(38,32,48,.58);
-    --glass-rim:inset 0 1px 1.5px rgba(255,255,255,.22),inset 0 -1px 1px rgba(255,55,95,.12);
-    --pill-bg:linear-gradient(180deg,rgba(255,65,105,.32) 0%,rgba(250,45,72,.18) 100%);
-    --pill-rim:inset 0 1px 2px rgba(255,255,255,.35),inset 0 -1px 1px rgba(250,45,72,.25),0 4px 16px rgba(250,45,72,.25);
+    --glass:rgba(36,30,46,.55);
+    --glass-rim:inset 0 1px 1px rgba(255,255,255,.20),inset 0 -1px 1px rgba(255,55,95,.10);
+    --pill-bg:linear-gradient(180deg,rgba(255,65,105,.30) 0%,rgba(250,45,72,.16) 100%);
+    --pill-rim:inset 0 1px 1.8px rgba(255,255,255,.32),inset 0 -1px 1px rgba(250,45,72,.22),0 6px 22px rgba(250,45,72,.24);
     --accent:#ff375f;
-    --line:rgba(255,255,255,.12);
-    --shadow:0 14px 36px rgba(0,0,0,.6);
+    --line:rgba(255,255,255,.10);
+    --shadow:0 16px 40px rgba(0,0,0,.58);
   }
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background-color:var(--bg);background-image:var(--bg-mesh);background-attachment:fixed;color:var(--text);font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;touch-action:manipulation}
 img{display:block;pointer-events:none}
-#page{padding:calc(var(--sat) + 12px) 0 calc(var(--sab) + 96px);min-height:100vh;animation:fade .32s var(--fluid);transform-origin:center top;transition:transform .42s var(--fluid),filter .42s var(--fluid),opacity .35s ease}
-body.sheet-OpenVisual #page{transform:scale(.945) translateY(6px);filter:blur(3px);opacity:.78}
-@keyframes fade{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}
-@keyframes in{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
-::view-transition-old(root){animation:.25s ease both fadeout}::view-transition-new(root){animation:.4s var(--fluid) both in}
+#page{padding:calc(var(--sat) + 12px) 0 calc(var(--sab) + 96px);min-height:100vh;animation:fade .35s var(--fluid);transform-origin:center top;transition:transform .48s var(--spring),filter .48s var(--fluid),opacity .38s ease}
+body.sheet-OpenVisual #page{transform:scale(.94) translateY(8px);filter:blur(4px);opacity:.75}
+@keyframes fade{from{opacity:0;transform:translateY(6px) scale(.995)}to{opacity:1;transform:none}}
+@keyframes in{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+::view-transition-old(root){animation:.25s ease both fadeout}::view-transition-new(root){animation:.42s var(--fluid) both in}
 @keyframes fadeout{to{opacity:0;transform:scale(.98)}}
 
-/* Hiệu ứng kính lỏng iOS 27 & vầng sáng khúc xạ theo ngón tay */
+/* Hiệu ứng quang học Liquid Glass hữu cơ */
 .glass{
   background:var(--glass);
   border:.5px solid var(--line);
@@ -85,11 +85,11 @@ body.sheet-OpenVisual #page{transform:scale(.945) translateY(6px);filter:blur(3p
   position:relative;
   overflow:hidden;
 }
-.glass::before,.btn::before,.chip::before,.card .p-wrap::after{
+.glass::before,.btn::before,.chip::before{
   content:"";
   position:absolute;
   inset:0;
-  background:radial-gradient(130px circle at var(--tx,50%) var(--ty,50%),rgba(255,255,255,.45),transparent 70%);
+  background:radial-gradient(150px circle at var(--tx,50%) var(--ty,50%),rgba(255,255,255,.50),transparent 75%);
   opacity:var(--t-op,0);
   transition:opacity .35s ease;
   pointer-events:none;
@@ -97,17 +97,17 @@ body.sheet-OpenVisual #page{transform:scale(.945) translateY(6px);filter:blur(3p
   z-index:2;
 }
 .tabs.glass{
-  -webkit-backdrop-filter:blur(28px) saturate(210%);
-  backdrop-filter:blur(28px) saturate(210%);
+  -webkit-backdrop-filter:blur(30px) saturate(210%);
+  backdrop-filter:blur(30px) saturate(210%);
   transform:translateZ(0);
   will-change:transform;
-  transition:transform .35s var(--spring),box-shadow .35s ease;
+  transition:transform .4s var(--spring),box-shadow .4s ease;
 }
 .tabs.glass.touching{
-  transform:translateZ(0) scale(1.028);
-  box-shadow:inset 0 1.5px 3px rgba(255,255,255,.95),0 16px 40px rgba(250,45,72,.22);
+  transform:translateZ(0) scale(1.022);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.9),0 18px 44px rgba(250,45,72,.20);
 }
-#player .glass{background:rgba(20,16,24,.52);border-color:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);box-shadow:inset 0 1px 1.5px rgba(255,255,255,.35),0 8px 24px rgba(0,0,0,.45)}
+#player .glass{background:rgba(18,14,24,.58);border-color:rgba(255,255,255,.24);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);box-shadow:inset 0 1px 1.5px rgba(255,255,255,.32),0 10px 28px rgba(0,0,0,.5)}
 #rows section{content-visibility:auto;contain-intrinsic-size:auto 250px}
 body.sheeted #page{visibility:hidden}
 h1{font-size:34px;letter-spacing:-.8px;margin:8px 20px 14px;font-weight:800;background:var(--accent-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -115,25 +115,24 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 .scroller{contain:layout paint;display:flex;gap:13px;overflow-x:auto;padding:8px 20px 16px;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .scroller::-webkit-scrollbar{display:none}
 
-/* Card phim tương tác đàn hồi Liquid Squish */
-.card{flex:0 0 128px;scroll-snap-align:start;text-align:left;transition:transform .38s var(--spring),filter .25s ease;position:relative;will-change:transform}
-.card:active{transform:scale(.91) translateY(2px);filter:brightness(1.06)}
-.card .p{width:128px;aspect-ratio:2/3;border-radius:18px;object-fit:cover;background:var(--card);box-shadow:0 6px 16px rgba(20,10,20,.09);border:.5px solid var(--line);transition:box-shadow .3s ease}
-.card:active .p{box-shadow:0 2px 8px rgba(250,45,72,.22)}
+/* Card phim phản hồi đàn hồi hữu cơ */
+.card{flex:0 0 128px;scroll-snap-align:start;text-align:left;transition:transform .4s var(--spring),filter .25s ease;position:relative;will-change:transform}
+.card:active{transform:scale(.91) translateY(1.5px);filter:brightness(1.05)}
+.card .p{width:128px;aspect-ratio:2/3;border-radius:18px;object-fit:cover;background:var(--card);box-shadow:0 6px 18px rgba(20,10,20,.08);border:.5px solid var(--line);transition:box-shadow .35s ease}
+.card:active .p{box-shadow:0 2px 8px rgba(250,45,72,.20)}
 .card b{display:block;font-size:13px;margin-top:8px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .card small{color:var(--sub);font-size:12px}
 .card.wide{flex-basis:230px}.card.wide .p{width:230px;aspect-ratio:16/10}
 .bar{position:relative;height:3.5px;background:rgba(120,120,128,.22);border-radius:4px;margin-top:6px;overflow:hidden}.bar i{position:absolute;inset:0 auto 0 0;background:var(--accent-grad)}
 .sk{background:var(--card);border-radius:18px;flex:0 0 128px;aspect-ratio:2/3}
-@keyframes sh{to{background-position:-200% 0}}
-.hero{margin:0 20px;position:relative;border-radius:28px;overflow:hidden;aspect-ratio:4/5;max-height:62vh;width:calc(100% - 40px);display:block;text-align:left;color:#fff;box-shadow:var(--shadow);transition:transform .4s var(--spring)}
-.hero:active{transform:scale(.965)}
-.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s var(--fluid)}
-.hero:active img{transform:scale(1.03)}
+.hero{margin:0 20px;position:relative;border-radius:28px;overflow:hidden;aspect-ratio:4/5;max-height:62vh;width:calc(100% - 40px);display:block;text-align:left;color:#fff;box-shadow:var(--shadow);transition:transform .45s var(--spring)}
+.hero:active{transform:scale(.97)}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .65s var(--fluid)}
+.hero:active img{transform:scale(1.025)}
 .hero:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 42%,rgba(18,12,22,.88))}
 .hero div{position:absolute;left:20px;right:20px;bottom:20px;z-index:1}.hero b{font-size:28px;letter-spacing:-.6px;display:block}.hero span{opacity:.88;font-size:14px}
 
-/* Thanh điều hướng Liquid Glass kèm viên nang trượt đàn hồi (#tabPill) */
+/* Thanh điều hướng Liquid Pill quán tính lò xo */
 .tabs{position:fixed;left:18px;right:18px;bottom:max(5px,calc(var(--sab) - 9px));z-index:30;display:flex;border-radius:24px;padding:3px;user-select:none;-webkit-user-select:none;touch-action:none}
 #tabPill{
   position:absolute;
@@ -144,85 +143,85 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
   border-radius:21px;
   background:var(--pill-bg);
   box-shadow:var(--pill-rim);
-  transition:transform .46s var(--spring),width .3s var(--spring);
+  transition:transform .5s var(--spring),width .35s var(--spring);
   pointer-events:none;
   z-index:0;
   will-change:transform;
 }
 .tabs.scrubbing #tabPill{
-  transition:transform .08s linear;
-  transform:translate3d(var(--pill-x,0px),0,0) scale(1.05,1.04)!important;
+  transition:transform .06s linear;
+  transform:translate3d(var(--pill-x,0px),0,0) scale(1.04,1.03)!important;
 }
 .tabs.morphing #tabPill{
-  animation:liquidPillMorph .44s var(--spring);
+  animation:liquidPillMorph .48s var(--spring);
 }
 @keyframes liquidPillMorph{
   0%{scale:1 1}
-  35%{scale:1.12 .90}
-  70%{scale:.96 1.04}
+  32%{scale:1.15 .88}
+  68%{scale:.95 1.05}
   100%{scale:1 1}
 }
-.tabs button{flex:1;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.5px;padding:6px 0;border-radius:21px;font-size:10.5px;font-weight:600;color:var(--sub);transition:color .25s ease,transform .32s var(--spring)}
-.tabs button:active{transform:scale(.88)}
-.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s var(--spring)}
+.tabs button{flex:1;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.5px;padding:6px 0;border-radius:21px;font-size:10.5px;font-weight:600;color:var(--sub);transition:color .25s ease,transform .36s var(--spring)}
+.tabs button:active{transform:scale(.86)}
+.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round;transition:transform .4s var(--spring)}
 .tabs button.on{color:var(--accent)}
 .tabs button.on svg{transform:translateY(-1px) scale(1.08)}
 
-.search{margin:0 20px 8px;display:flex;gap:8px;align-items:center;border-radius:16px;padding:11px 14px;background:var(--card);border:.5px solid var(--line);box-shadow:var(--glass-rim),0 4px 14px rgba(0,0,0,.04);transition:transform .3s var(--spring),box-shadow .3s ease}
-.search:focus-within{transform:scale(1.015);box-shadow:inset 0 1px 2px rgba(255,255,255,.9),0 6px 20px rgba(250,45,72,.15);border-color:var(--accent)}
+.search{margin:0 20px 8px;display:flex;gap:8px;align-items:center;border-radius:16px;padding:11px 14px;background:var(--card);border:.5px solid var(--line);box-shadow:var(--glass-rim),0 4px 14px rgba(0,0,0,.04);transition:transform .35s var(--spring),box-shadow .3s ease}
+.search:focus-within{transform:scale(1.015);box-shadow:inset 0 1px 2px rgba(255,255,255,.9),0 6px 22px rgba(250,45,72,.15);border-color:var(--accent)}
 .search input{flex:1;background:none;border:0;outline:0;color:var(--text);font-size:17px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:14px;padding:8px 20px}
 .grid .card{flex:none}.grid .card .p{width:100%}
 .chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 20px}
-.chip{position:relative;overflow:hidden;padding:8px 14px;border-radius:18px;background:var(--card);border:.5px solid var(--line);box-shadow:var(--glass-rim);font-size:13.5px;font-weight:600;transition:transform .34s var(--spring),background .25s ease,box-shadow .25s ease}
-.chip:active{transform:scale(.90)}
+.chip{position:relative;overflow:hidden;padding:8px 14px;border-radius:18px;background:var(--card);border:.5px solid var(--line);box-shadow:var(--glass-rim);font-size:13.5px;font-weight:600;transition:transform .38s var(--spring),background .25s ease,box-shadow .25s ease}
+.chip:active{transform:scale(.89)}
 .chip.on{background:var(--accent-grad);color:#fff;border-color:transparent;box-shadow:inset 0 1px 1.5px rgba(255,255,255,.55),0 5px 14px rgba(250,45,72,.28)}
 .list{margin:0 20px 16px;border-radius:var(--r);background:var(--card);border:.5px solid var(--line);box-shadow:var(--glass-rim),0 4px 16px rgba(0,0,0,.03);overflow:hidden}
 .list>div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:.5px solid var(--line)}.list>div:last-child{border:0}
 .list input[type=text],.list input[type=password]{background:none;border:0;outline:0;color:var(--text);text-align:right;flex:1;min-width:0;font-size:15px}
-.seg{display:flex;background:rgba(250,45,72,.08);border-radius:12px;padding:2.5px;flex-wrap:wrap;gap:2px}.seg button{padding:6px 12px;border-radius:9.5px;font-size:13px;font-weight:600;transition:transform .3s var(--spring),background .2s ease}.seg button:active{transform:scale(.92)}.seg button.on{background:var(--card);color:var(--accent);box-shadow:var(--glass-rim),0 2px 6px rgba(0,0,0,.10)}
+.seg{display:flex;background:rgba(250,45,72,.08);border-radius:12px;padding:2.5px;flex-wrap:wrap;gap:2px}.seg button{padding:6px 12px;border-radius:9.5px;font-size:13px;font-weight:600;transition:transform .35s var(--spring),background .2s ease}.seg button:active{transform:scale(.91)}.seg button.on{background:var(--card);color:var(--accent);box-shadow:var(--glass-rim),0 2px 6px rgba(0,0,0,.10)}
 .note{color:var(--sub);font-size:13px;margin:0 28px 14px}
-.btn{position:relative;overflow:hidden;background:var(--accent-grad);color:#fff;border-radius:16px;padding:12px 18px;font-weight:700;display:inline-flex;gap:8px;align-items:center;transition:transform .36s var(--spring),box-shadow .25s ease;box-shadow:inset 0 1px 1.5px rgba(255,255,255,.55),0 6px 18px rgba(250,45,72,.28)}
-.btn:active{transform:scale(.91) translateY(1px);box-shadow:inset 0 1px 2px rgba(255,255,255,.8),0 2px 8px rgba(250,45,72,.22)}
+.btn{position:relative;overflow:hidden;background:var(--accent-grad);color:#fff;border-radius:16px;padding:12px 18px;font-weight:700;display:inline-flex;gap:8px;align-items:center;transition:transform .4s var(--spring),box-shadow .25s ease;box-shadow:inset 0 1px 1.5px rgba(255,255,255,.55),0 6px 18px rgba(250,45,72,.28)}
+.btn:active{transform:scale(.90) translateY(1px);box-shadow:inset 0 1px 2px rgba(255,255,255,.8),0 2px 8px rgba(250,45,72,.22)}
 .btn.g{background:var(--card);color:var(--accent);border:.5px solid var(--line);box-shadow:var(--glass-rim)}
 
-/* Sheet thông tin phim kéo thả vật lý đàn hồi */
+/* Sheet thông tin phim kéo thả quán tính lò xo */
 #sheet{position:fixed;inset:0;z-index:50;display:none}
 #sheet.show{display:block}
-#sheet .bd{position:absolute;inset:0;background:rgba(15,10,20,.44);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);opacity:0;transition:opacity .38s ease}
+#sheet .bd{position:absolute;inset:0;background:rgba(15,10,20,.44);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);opacity:0;transition:opacity .4s ease}
 #sheet .pn{
   position:absolute;left:0;right:0;bottom:0;top:calc(var(--sat) + 18px);
   background-color:var(--bg);background-image:var(--bg-mesh);
   border-radius:32px 32px 0 0;
-  border-top:1px solid rgba(255,255,255,.65);
+  border-top:1px solid rgba(255,255,255,.7);
   overflow-y:auto;
   transform:translate3d(0,100%,0);
-  transition:transform .48s var(--spring);
+  transition:transform .52s var(--spring);
   will-change:transform;
   -webkit-overflow-scrolling:touch;
   overscroll-behavior:contain;
   padding-bottom:calc(var(--sab) + 30px);
-  box-shadow:0 -12px 44px rgba(0,0,0,.22);
+  box-shadow:0 -14px 48px rgba(0,0,0,.24);
 }
 #sheet.dragging .pn,#sheet.dragging .bd{transition:none!important}
 #sheet.open .bd{opacity:1}#sheet.open .pn{transform:translate3d(0,0,0)}
-.grab{width:42px;height:5px;border-radius:4px;background:rgba(140,130,145,.38);margin:9px auto;position:sticky;top:7px;z-index:3;transition:transform .25s var(--spring),background .25s ease}
-#sheet.dragging .grab{transform:scaleX(1.25);background:var(--accent)}
+.grab{width:42px;height:5px;border-radius:4px;background:rgba(140,130,145,.38);margin:9px auto;position:sticky;top:7px;z-index:3;transition:transform .3s var(--spring),background .25s ease}
+#sheet.dragging .grab{transform:scaleX(1.3);background:var(--accent)}
 .bk{position:relative;aspect-ratio:16/10;margin-top:-18px}.bk img{width:100%;height:100%;object-fit:cover}.bk:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,var(--bg))}
 .dt{padding:0 20px;margin-top:-34px;position:relative;z-index:1}.dt h3{font-size:28px;letter-spacing:-.6px;margin:0 0 6px}.meta{color:var(--sub);font-size:14px;display:flex;gap:10px;flex-wrap:wrap}
 .rate{color:var(--accent);font-weight:700}.acts{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap}.dt p{line-height:1.5}
-.prov{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}.prov span,.prov button{background:var(--card);border:.5px solid var(--line);box-shadow:var(--glass-rim);border-radius:12px;padding:7px 12px;font-size:13px;font-weight:600;transition:transform .3s var(--spring)}
-.prov button:active{transform:scale(.91)}
+.prov{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}.prov span,.prov button{background:var(--card);border:.5px solid var(--line);box-shadow:var(--glass-rim);border-radius:12px;padding:7px 12px;font-size:13px;font-weight:600;transition:transform .34s var(--spring)}
+.prov button:active{transform:scale(.90)}
 .prov button.on{background:var(--accent-grad);color:#fff;border-color:transparent}
 .ep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px;max-height:210px;overflow-y:auto;margin:8px 0 14px;padding:2px}
-.ep-grid button{background:var(--card);border:.5px solid var(--line);box-shadow:var(--glass-rim);border-radius:11px;padding:8px 6px;font-size:12px;font-weight:600;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:transform .28s var(--spring)}
-.ep-grid button:active{transform:scale(.88)}
+.ep-grid button{background:var(--card);border:.5px solid var(--line);box-shadow:var(--glass-rim);border-radius:11px;padding:8px 6px;font-size:12px;font-weight:600;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:transform .32s var(--spring)}
+.ep-grid button:active{transform:scale(.87)}
 .ep-grid button.on{background:var(--accent-grad);color:#fff;border-color:transparent}
 .tr{aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:#000;margin:10px 0}.tr iframe{width:100%;height:100%;border:0}
 
-/* Player hỗ trợ kéo vuốt thu nhỏ Liquid Window */
-#player{position:fixed;inset:0;z-index:80;background:#000;display:none;color:#fff;user-select:none;-webkit-user-select:none;transition:transform .42s var(--spring),border-radius .3s ease;will-change:transform;overflow:hidden}
-#player.show{display:block;animation:in .4s var(--fluid)}
+/* Player thu nhỏ hữu cơ đàn hồi */
+#player{position:fixed;inset:0;z-index:80;background:#000;display:none;color:#fff;user-select:none;-webkit-user-select:none;transition:transform .48s var(--spring),border-radius .35s ease;will-change:transform;overflow:hidden}
+#player.show{display:block;animation:in .42s var(--fluid)}
 #player.dragging{transition:none!important}
 #player video,#player iframe{width:100%;height:100%;object-fit:contain;background:#000;border:0}
 .ctl{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:calc(var(--sat) + 12px) 16px calc(var(--sab) + 16px);background:linear-gradient(rgba(0,0,0,.6),transparent 28%,transparent 65%,rgba(0,0,0,.75));transition:opacity .3s;z-index:10}
@@ -231,12 +230,12 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 #player.embed-mode .ctl .top,#player.embed-mode .ctl .bot .row2{pointer-events:auto}
 #player.embed-mode .ctl .mid,#player.embed-mode .ctl #seekRow{display:none!important}
 .top{display:flex;align-items:center;gap:12px;z-index:12}.top b{flex:1;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px rgba(0,0,0,.8)}
-.rb{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;transition:transform .34s var(--spring)}.rb:active{transform:scale(.84)}.rb svg{width:22px;height:22px;fill:#fff}
+.rb{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;transition:transform .36s var(--spring)}.rb:active{transform:scale(.82)}.rb svg{width:22px;height:22px;fill:#fff}
 .mid{display:flex;justify-content:center;align-items:center;gap:36px}.mid .rb{width:54px;height:54px}.mid .big{width:80px;height:80px;background:rgba(250,45,72,.75)!important}.mid .big svg{width:34px;height:34px}
 .bot .row{display:flex;align-items:center;gap:10px;font-size:12px;font-variant-numeric:tabular-nums}
 .bot input[type=range]{flex:1;accent-color:var(--accent);height:24px}
 .bot .row2{display:flex;justify-content:space-between;margin-top:6px;gap:6px;flex-wrap:wrap}
-.toast{position:absolute;left:50%;bottom:calc(var(--sab) + 110px);transform:translate(-50%,20px) scale(.92);padding:12px 18px;border-radius:20px;opacity:0;transition:transform .42s var(--spring),opacity .3s ease;z-index:15;white-space:nowrap;font-size:14px;pointer-events:none}.toast.on{opacity:1;transform:translate(-50%,0) scale(1)}
+.toast{position:absolute;left:50%;bottom:calc(var(--sab) + 110px);transform:translate(-50%,20px) scale(.90);padding:12px 18px;border-radius:20px;opacity:0;transition:transform .45s var(--spring),opacity .3s ease;z-index:15;white-space:nowrap;font-size:14px;pointer-events:none}.toast.on{opacity:1;transform:translate(-50%,0) scale(1)}
 .sp{display:flex;justify-content:center;padding:40px}.sp i{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:rot .8s linear infinite}@keyframes rot{to{transform:rotate(360deg)}}
 .empty{color:var(--sub);text-align:center;padding:30px 40px}
 </style>
@@ -282,7 +281,7 @@ const saveCfg=()=>{store.set("cfg",cfg);applyTheme()};
 function applyTheme(){document.documentElement.dataset.theme=cfg.theme;const dark=cfg.theme=="dark"||(cfg.theme=="auto"&&matchMedia("(prefers-color-scheme:dark)").matches);document.querySelector('meta[name=theme-color]').content=dark?"#0f0d13":"#faf7fa"}
 matchMedia("(prefers-color-scheme:dark)").addEventListener("change",applyTheme);applyTheme();
 
-/* ---------- HIỆU ỨNG KHÚC XẠ ÁNH SÁNG THEO NGÓN TAY (LIQUID REFRACTION) ---------- */
+/* ---------- KHÚC XẠ ÁNH SÁNG KÍNH LỎNG THEO ĐIỂM CHẠM ---------- */
 document.addEventListener("pointerdown",e=>{
   const el=e.target.closest(".glass,.btn,.chip");
   if(!el)return;
@@ -303,7 +302,7 @@ document.addEventListener("pointermove",e=>{
   el.style.setProperty("--ty",(e.clientY-r.top)+"px");
 },{passive:true});
 
-/* ---------- BỘ LỌC CẮT QUẢNG CÁO TRỰC TIẾP TRONG LUỒNG M3U8 ---------- */
+/* ---------- BỘ LỌC CẮT QUẢNG CÁO TRỰC TIẾP TRONG M3U8 ---------- */
 function stripAdsFromM3u8(text,baseUrl=""){
   if(!text)return text;
   const resolveUrl=u=>{if(!baseUrl||/^https?:\/\//i.test(u))return u;try{return new URL(u,baseUrl).href}catch{return u}};
@@ -401,7 +400,7 @@ async function getCleanM3u8BlobUrl(m3u8Url){
   }catch{return m3u8Url}
 }
 
-/* ---------- HỆ THỐNG NGUỒN PHIM NHÚNG TỐC ĐỘ CAO ---------- */
+/* ---------- NGUỒN PHIM ---------- */
 const PROVIDERS=[
   {
     id:"kkphim",
@@ -570,7 +569,7 @@ const ttl=m=>m.title||m.name||"";
 const cardHTML=(m,i,rank)=>m.media_type=="person"?"":`<button class="card" data-t="${m.media_type||(m.first_air_date?"tv":"movie")}" data-id="${m.id}"><img class="p" loading="lazy" decoding="async" src="${poster(m)}" alt=""><b>${rank?(i+1)+". ":""}${esc(ttl(m))}</b><small>★ ${(m.vote_average||0).toFixed(1)} · ${(m.release_date||m.first_air_date||"").slice(0,4)}</small></button>`;
 const provCardHTML=m=>`<button class="card" data-prov="${esc(m.providerId)}" data-slug="${esc(m.slug)}" data-title="${esc(m.title)}" data-thumb="${esc(m.thumb)}"><img class="p" loading="lazy" decoding="async" src="${esc(m.thumb)}" alt="" onerror="this.src='https://via.placeholder.com/160x240/1c1c1e/98989f?text=CineGlass'"><b>${esc(m.title)}</b><small>${esc(m.providerName)}${m.year?" · "+m.year:""}</small></button>`;
 
-/* ---------- Pages & Thanh Điều Hướng Liquid Pill Trượt Cảm Ứng ---------- */
+/* ---------- Thanh Điều Hướng Liquid Pill Quán Tính Lò Xo ---------- */
 const ICON={home:'<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',lib:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M10 9l5 3-5 3z"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',me:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'};
 const TABS=[["home","Khám phá"],["lib","Thư viện"],["search","Tìm kiếm"],["me","Cài đặt"]];
 let tab="home";
@@ -591,7 +590,7 @@ function syncTabPill(k,animateMorph=true){
   [...tabsEl.querySelectorAll("button")].forEach(b=>b.classList.toggle("on",b.dataset.k===k));
 }
 
-/* Cho phép chạm & miết ngón tay trượt viên kính lỏng trực tiếp trên thanh Tab */
+/* Lướt ngón tay ngang thanh Tab với cảm giác vật lý lỏng */
 (()=>{
   let scrubbing=false,startX=0;
   tabsEl.addEventListener("pointerdown",e=>{
@@ -602,7 +601,7 @@ function syncTabPill(k,animateMorph=true){
 
   window.addEventListener("pointermove",e=>{
     if(!tabsEl.classList.contains("touching"))return;
-    if(Math.abs(e.clientX-startX)>10)scrubbing=true;
+    if(Math.abs(e.clientX-startX)>12)scrubbing=true;
     if(!scrubbing)return;
     tabsEl.classList.add("scrubbing");
     const r=tabsEl.getBoundingClientRect();
@@ -726,7 +725,7 @@ function pMe(){
   $("#cl").onclick=()=>{store.set("prog",{});store.set("ytprog",{});store.set("seen",[]);alert("Đã xoá")};
 }
 
-/* ---------- Detail sheet Kéo Thả Vật Lý Đàn Hồi (Elastic Sheet Physics) ---------- */
+/* ---------- Sheet Kéo Thả Vật Lý Đàn Hồi (Organic Spring Sheet) ---------- */
 let shT,activeStreamData=null,activeSrvIdx=0,activeEpIdx=0;
 const sheetEl=$("#sheet"),sheetPn=$("#sheet .pn"),sheetBd=$("#sheet .bd");
 
@@ -751,7 +750,7 @@ function closeSheet(){
 }
 sheetBd.onclick=closeSheet;
 
-/* Vuốt kéo Sheet bám theo ngón tay theo thời gian thực */
+/* Kéo Sheet bám theo ngón tay mượt mà có quán tính lò xo */
 (()=>{
   let y0=0,dy=0,dragging=false;
   sheetPn.addEventListener("touchstart",e=>{
@@ -764,8 +763,7 @@ sheetBd.onclick=closeSheet;
 
   sheetPn.addEventListener("touchmove",e=>{
     if(!y0)return;
-    const curY=e.touches[0].clientY;
-    const delta=curY-y0;
+    const delta=e.touches[0].clientY-y0;
     if(delta>0&&sheetPn.scrollTop<=0){
       if(!dragging){
         dragging=true;
@@ -773,10 +771,10 @@ sheetBd.onclick=closeSheet;
         document.body.classList.remove("sheeted");
         sheetEl.classList.add("dragging");
       }
-      dy=Math.pow(delta,0.92);
-      const scale=Math.max(0.92,1-dy/2800);
+      dy=Math.pow(delta,0.94);
+      const scale=Math.max(0.93,1-dy/3200);
       sheetPn.style.transform=`translate3d(0,${dy}px,0) scale(${scale})`;
-      sheetBd.style.opacity=String(Math.max(0,1-dy/380));
+      sheetBd.style.opacity=String(Math.max(0,1-dy/400));
     }
   },{passive:true});
 
@@ -784,7 +782,7 @@ sheetBd.onclick=closeSheet;
     if(!dragging)return;
     dragging=false;
     sheetEl.classList.remove("dragging");
-    if(dy>115){
+    if(dy>125){
       closeSheet();
     }else{
       sheetPn.style.transform="";
@@ -931,7 +929,7 @@ document.addEventListener("click",e=>{
   }
 });
 
-/* ---------- Player (Kèm hiệu ứng kéo vuốt thu nhỏ cửa sổ iOS 27) ---------- */
+/* ---------- Player (Cửa sổ lỏng đàn hồi mượt mà) ---------- */
 const V=$("#v"),EMB=$("#emb"),P=$("#player");let list=[],idx=0,idle,saveT=0,hlsInstance=null,playerMode="m3u8";
 const fmt=s=>{s=Math.max(0,s|0);const h=s/3600|0,m=(s%3600)/60|0;return(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(s%60).padStart(2,"0")};
 function toast(t,ms=2500){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),ms)}
@@ -1091,12 +1089,12 @@ $("#fs").onclick=e=>{
 };
 V.addEventListener("dblclick",()=>$("#fs").click());
 
-/* Cử chỉ kéo vuốt xuống đàn hồi để thu nhỏ / đóng trình phát như cửa sổ iOS 27 */
+/* Kéo vuốt màn hình player xuống để thu nhỏ/đóng mượt mà */
 (()=>{
   let py0=0,pdy=0,pDragging=false;
   P.addEventListener("touchstart",e=>{
     if(P.classList.contains("idle"))wake();
-    if(!document.fullscreenElement&&e.touches[0].clientY<120){
+    if(!document.fullscreenElement&&e.touches[0].clientY<130){
       py0=e.touches[0].clientY;
       pdy=0;
       pDragging=false;
@@ -1106,13 +1104,13 @@ V.addEventListener("dblclick",()=>$("#fs").click());
   P.addEventListener("touchmove",e=>{
     if(!py0)return;
     const delta=e.touches[0].clientY-py0;
-    if(delta>12){
+    if(delta>10){
       pDragging=true;
       P.classList.add("dragging");
       pdy=Math.pow(delta,0.92);
-      const sc=Math.max(0.84,1-pdy/1600);
+      const sc=Math.max(0.82,1-pdy/1500);
       P.style.transform=`translate3d(0,${pdy}px,0) scale(${sc})`;
-      P.style.borderRadius=Math.min(36,pdy/4)+"px";
+      P.style.borderRadius=Math.min(40,pdy/3.5)+"px";
     }
   },{passive:true});
 
@@ -1120,7 +1118,7 @@ V.addEventListener("dblclick",()=>$("#fs").click());
     if(!pDragging)return;
     pDragging=false;
     P.classList.remove("dragging");
-    if(pdy>125){
+    if(pdy>115){
       closePlayer();
     }else{
       P.style.transform="";
