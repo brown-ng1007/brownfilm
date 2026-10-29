@@ -18,7 +18,7 @@
 :root{
   --bg:#faf7fa;
   --bg-mesh:radial-gradient(at 10% 6%,rgba(250,45,72,.10),transparent 50%),radial-gradient(at 90% 20%,rgba(255,122,89,.08),transparent 45%),radial-gradient(at 50% 92%,rgba(175,82,222,.08),transparent 55%);
-  --card:rgba(255,255,255,.85);
+  --card:rgba(255,255,255,.76);
   --text:#1c1c1e;--sub:#726e77;
   --glass-rgb:255,255,255;
   --pill-rgb:120,120,128;--pill-a:.18;
@@ -29,12 +29,12 @@
   --line:rgba(250,45,72,.08);
   --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
   --spring:cubic-bezier(.2,1.25,.35,1);
-  --g:.02;
+  --g:.02; /* 0 = siêu trong như kính, 1 = mờ đục */
 }
 :root[data-theme=dark]{
   --bg:#0f0d13;
   --bg-mesh:radial-gradient(at 12% 8%,rgba(250,45,72,.16),transparent 52%),radial-gradient(at 88% 25%,rgba(191,90,242,.11),transparent 48%),radial-gradient(at 50% 90%,rgba(255,100,130,.09),transparent 58%);
-  --card:rgba(32,28,40,.85);
+  --card:rgba(32,28,40,.76);
   --text:#f5f5f7;--sub:#a19ca8;
   --glass-rgb:44,38,56;
   --pill-rgb:255,255,255;--pill-a:.16;
@@ -86,14 +86,6 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 .ep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px;max-height:210px;overflow-y:auto;margin:8px 0 14px;padding:2px}
 .ep-grid button{background:var(--card);border:.5px solid var(--line);border-radius:11px;padding:8px 6px;font-size:12px;font-weight:600;text-align:center}
 .ep-grid button.on{background:var(--accent-grad);color:#fff;border-color:transparent}
-
-/* Banner Hero Fix */
-.hero{margin:0 20px 16px;position:relative;border-radius:28px;overflow:hidden;aspect-ratio:16/9;width:calc(100% - 40px);display:block;text-align:left;color:#fff;box-shadow:var(--glass-shadow);cursor:pointer;border:.5px solid var(--line)}
-.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(15,10,20,.9))}
-.hero div{position:absolute;left:20px;right:20px;bottom:18px;z-index:1}
-.hero b{font-size:24px;letter-spacing:-.5px;display:block;margin-bottom:4px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
-.hero span{opacity:.9;font-size:13.5px}
 
 /* ===== Liquid Glass dock (Apple Music style) ===== */
 .dock{position:fixed;left:16px;right:16px;bottom:max(8px,calc(var(--sab) - 6px));z-index:30;display:flex;gap:10px;align-items:center}
@@ -176,7 +168,7 @@ const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>
 const store={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const norm=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLowerCase().trim();
 
-let cfg=Object.assign({theme:"auto",tmdb:"3309069624518eb702e51e01c9ad58f8",glass:0.02},store.get("cfg",{}));
+let cfg=Object.assign({theme:"auto",tmdb:"3309069624518eb702e51e01c9ad58f8",omdb:"",glass:0.02},store.get("cfg",{}));
 cfg.glass=Math.min(1,Math.max(0,Number(cfg.glass)||0));
 const root=document.documentElement,mq=matchMedia("(prefers-color-scheme:dark)");
 function applyCfg(){
@@ -187,6 +179,7 @@ function applyCfg(){
 }
 const saveCfg=()=>{store.set("cfg",cfg);applyCfg()};
 mq.addEventListener?.("change",applyCfg);applyCfg();
+function vt(fn){if(typeof fn==="function") fn();}
 
 /* ---------- BỘ LỌC CẮT QUẢNG CÁO M3U8 ---------- */
 function stripAdsFromM3u8(text,baseUrl=""){
@@ -338,7 +331,7 @@ const PROVIDERS=[
 const searchCache=new Map(),detailCache=new Map();
 async function fetchWithTimeout(url,ms=3200){
   const ctrl=new AbortController(),id=setTimeout(()=>ctrl.abort(),ms);
-  try{const res=await fetch(url,{signal:ctrl.signal});clearTimeout(id);return await res.json()}catch(e){clearTimeout(id);throw e}
+  try{const res=await fetch(url,{signal:ctrl.signal});clearTimeout(id);if(!res.ok) throw new Error(`HTTP ${res.status}`);return await res.json()}catch(e){clearTimeout(id);throw e}
 }
 async function fetchFromProvider(provider,keyword=""){
   const ck=`${provider.id}:${keyword||"latest"}`;
@@ -488,45 +481,116 @@ addEventListener("resize",()=>{const i=TABS.findIndex(t=>t[0]===tab);if(i>=0)pla
 
 /* ===== Data TMDB & Providers ===== */
 const IMG="https://image.tmdb.org/t/p/";
+async function tmdb(path,q={}){
+  if(!cfg.tmdb)throw new Error("nokey");
+  const u=new URL("https://api.themoviedb.org/3"+path);u.searchParams.set("language","vi-VN");
+  const h={};if(cfg.tmdb.startsWith("eyJ"))h.Authorization="Bearer "+cfg.tmdb;else u.searchParams.set("api_key",cfg.tmdb);
+  for(const k in q)u.searchParams.set(k,q[k]);
+  const r=await fetch(u,{headers:h});if(!r.ok)throw new Error(r.status);return r.json();
+}
+const cache=new Map();const ctmdb=(p,q)=>{const k=p+JSON.stringify(q||{});if(!cache.has(k))cache.set(k,tmdb(p,q).catch(e=>{cache.delete(k);throw e}));return cache.get(k)};
+const ROWS=[
+ {t:"Xu hướng tuần này",f:()=>ctmdb("/trending/all/week").then(d=>d.results)},
+ {t:"Gợi ý cho bạn",f:async()=>{const h=store.get("seen",[]);if(!h.length)return(await ctmdb("/movie/popular")).results;const l=h[0];return(await ctmdb(`/${l.type}/${l.id}/recommendations`)).results},sub:()=>{const h=store.get("seen",[]);return h.length?"Dựa trên: "+h[0].title:""}},
+ {t:"Hay nhất mọi thời đại",f:async()=>{const a=await Promise.all([1,2,3].map(p=>ctmdb("/movie/top_rated",{page:p})));return a.flatMap(x=>x.results).sort((a,b)=>b.vote_average-a.vote_average)},rank:1},
+ {t:"Phim trên Netflix",f:async()=>(await ctmdb("/discover/movie",{with_watch_providers:8,watch_region:"VN",sort_by:"popularity.desc"})).results},
+ {t:"Châu Tinh Trì",f:async()=>{const p=await ctmdb("/search/person",{query:"Stephen Chow"});const id=p.results[0]?.id;return(await ctmdb("/discover/movie",{with_people:id,sort_by:"vote_average.desc","vote_count.gte":100})).results}},
+ {t:"Đang chiếu rạp Việt Nam",f:async()=>(await ctmdb("/movie/now_playing",{region:"VN"})).results},
+ {t:"Đang chiếu rạp quốc tế",f:async()=>(await ctmdb("/movie/now_playing",{region:"US"})).results},
+];
+const poster=(m,w="w342")=>m.poster_path?IMG+w+m.poster_path:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="2" height="3"><rect width="2" height="3" fill="#8884"/></svg>');
+const ttl=m=>m.title||m.name||"";
+const cardHTML=(m,i,rank)=>m.media_type=="person"?"":`<button class="card" data-t="${m.media_type||(m.first_air_date?"tv":"movie")}" data-id="${m.id}"><img class="p" loading="lazy" decoding="async" src="${poster(m)}" alt=""><b>${rank?(i+1)+". ":""}${esc(ttl(m))}</b><small>★ ${(m.vote_average||0).toFixed(1)} · ${(m.release_date||m.first_air_date||"").slice(0,4)}</small></button>`;
+const provCardHTML=m=>`<button class="card" data-prov="${esc(m.providerId)}" data-slug="${esc(m.slug)}" data-title="${esc(m.title)}" data-thumb="${esc(m.thumb)}"><img class="p" loading="lazy" decoding="async" src="${esc(m.thumb)}" alt="" onerror="this.src='https://via.placeholder.com/160x240/1c1c1e/98989f?text=CineGlass'"><b>${esc(m.title)}</b><small>${esc(m.providerName)}${m.year?" · "+m.year:""}</small></button>`;
+
+const keyNote=()=>`<div class="empty">Cần khoá API TMDB miễn phí để hiện danh sách phim.<br><br><button class="btn" onclick="go('me')">Mở Cài đặt</button></div>`;
+const contRow=()=>{
+  const p=store.get("prog",{}),y=store.get("ytprog",{});
+  const a=[...Object.entries(p).map(([id,v])=>({k:"a",id,...v})),...Object.entries(y).map(([id,v])=>({k:"y",id,...v}))].filter(v=>v.t>5&&(!v.d||v.t<v.d-15)).sort((a,b)=>b.u-a.u);
+  if(!a.length)return"";
+  return`<h2>Xem tiếp</h2><div class="scroller">${a.map(v=>v.k=="a"
+   ?`<button class="card wide" data-play="${esc(v.id)}"><img class="p" src="${esc(v.img||"https://via.placeholder.com/230x145/1c1c1e/98989f?text=Play")}" alt=""><b>${esc(v.title)}${v.epName?" · Tập "+esc(v.epName):""}</b><div class="bar"><i style="width:${v.d?Math.min(95,v.t/v.d*100):35}%"></i></div></button>`
+   :`<button class="card wide" data-resume="${v.type}:${v.id}"><img class="p" src="${v.img}" alt=""><b>Trailer · ${esc(v.title)}</b><div class="bar"><i style="width:${v.t/v.d*100}%"></i></div></button>`).join("")}</div>`};
+
 async function pHome(id){
-  const pg=$("#page");pg.innerHTML=`<h1>Khám phá</h1>${contRow()}<div id="rows"><div class="sp"><i></i></div></div>`;
-  try{
-    const d=await tmdb("/trending/all/week");
+  const pg=$("#page");pg.innerHTML=`<h1>Khám phá</h1>${contRow()}<div id="rows"></div>`;
+  if(!cfg.tmdb){$("#rows").innerHTML=keyNote();return}
+  $("#rows").innerHTML=ROWS.map((r,i)=>`<section id="r${i}"><h2>${r.t}</h2>${r.sub?`<div class="note" style="margin:-6px 20px 6px" id="s${i}"></div>`:""}<div class="scroller">${'<div class="sk"></div>'.repeat(4)}</div></section>`).join("");
+  ROWS.forEach(async(r,i)=>{try{let d=(await r.f()).filter(m=>m.poster_path);if(i==0&&d[0]){const h=d[0];$("#page").insertAdjacentHTML("afterbegin",`<button class="hero" data-t="${h.media_type||"movie"}" data-id="${h.id}"><img src="${IMG}w780${h.backdrop_path||h.poster_path}" alt=""><div><span>Nổi bật tuần này</span><b>${esc(ttl(h))}</b><span>★ ${h.vote_average.toFixed(1)}</span></div></button>`);const hh=$("#page h1");$("#page").prepend(hh);}
     if(id!==navId)return;
-    const items=d.results||[];
-    const heroItem=items.find(m=>m.backdrop_path&&m.media_type!=="person")||items[0];
-    let html="";
-    if(heroItem){
-      html+=`<button class="hero" data-t="${heroItem.media_type||"movie"}" data-id="${heroItem.id}"><img alt="" src="${IMG}w780${heroItem.backdrop_path||heroItem.poster_path}"><div><b>${esc(ttl(heroItem))}</b><span>★ ${(heroItem.vote_average||0).toFixed(1)} · Khám phá ngay</span></div></button>`;
-    }
-    html+=`<div class="scroller">${items.filter(m=>m.media_type!=="person"&&m.poster_path).map(cardHTML).join("")}</div>`;
-    $("#rows").innerHTML=html;
-  }catch{if(id===navId)$("#rows").innerHTML=fail()}
+    $(`#r${i} .scroller`).innerHTML=d.slice(0,20).map((m,j)=>cardHTML(m,j,r.rank)).join("")||'<div class="empty">Không có dữ liệu</div>';if(r.sub)$(`#s${i}`).textContent=r.sub()}catch(e){if(id===navId)$(`#r${i} .scroller`).innerHTML=`<div class="empty">${e.message=="401"?"Khoá API không đúng":"Không tải được"}</div>`}});
 }
 
-async function pLib(id){
-  $("#page").innerHTML=`<h1>Thư viện</h1><div class="note" style="margin-top:-8px">Kho phim đa nguồn tốc độ cao (KKPhim CDN, Phim Bộ, Anime & NguonC).</div>${contRow()}<div class="chips" id="libTabs"></div><div id="libWrap"><div class="sp"><i></i></div></div>`;
+let LIB=null,libFilter="all";
+async function loadLib(){
+  if(LIB&&LIB.length)return LIB;
+  const cached=store.get("cg_lib_cache",[]);
+  if(cached.length)LIB=cached;
+  const res=await Promise.all(PROVIDERS.map(p=>fetchFromProvider(p,"")));
+  const items=[],seen=new Set();
+  res.forEach(r=>r.items.forEach(it=>{const k=`${it.providerId}:${it.slug}`;if(!seen.has(k)){seen.add(k);items.push(it)}}));
+  if(items.length){LIB=items;store.set("cg_lib_cache",items)}
+  return LIB||[];
+}
+function renderLibGrid(){
+  const g=$("#libGrid");if(!g||!LIB)return;
+  const list=libFilter==="all"?LIB:LIB.filter(x=>x.providerId===libFilter);
+  g.innerHTML=list.map(m=>provCardHTML(m)).join("")||'<div class="empty">Không có phim</div>';
+}
+async function pLib(){
+  $("#page").innerHTML=`<h1>Thư viện</h1><div class="note" style="margin-top:-8px">Kho phim đa nguồn tốc độ cao (KKPhim CDN, Phim Bộ, Anime & NguonC) – Phát trực tiếp M3U8 sạch quảng cáo.</div>${contRow()}<div class="chips" id="libTabs"></div><div id="libWrap"><div class="sp"><i></i></div></div>`;
   try{
-    const d=await loadLib();if(id!==navId)return;
+    await loadLib();if(tab!="lib")return;
     $("#libTabs").innerHTML=[["all","Tất cả"],...PROVIDERS.map(p=>[p.id,p.name])].map(([id,name])=>`<button class="chip ${libFilter===id?"on":""}" data-lf="${id}">${esc(name)}</button>`).join("");
     $("#libTabs").onclick=e=>{const b=e.target.closest("[data-lf]");if(!b)return;libFilter=b.dataset.lf;[...$("#libTabs").children].forEach(c=>c.classList.toggle("on",c===b));renderLibGrid()};
     $("#libWrap").innerHTML=`<h2>Tất cả phim</h2><div class="grid" id="libGrid"></div>`;
     renderLibGrid();
-  }catch{if(id===navId)$("#libWrap").innerHTML='<div class="empty">Không tải được thư viện</div>'}
+  }catch{$("#libWrap").innerHTML='<div class="empty">Không tải được thư viện</div>'}
 }
 
-async function openItem(type,id){
-  openDetail(type,id);
+let st;
+function pSearch(id){
+  const rec=store.get("recent",[]);
+  $("#page").innerHTML=`<h1>Tìm kiếm</h1><label class="search glass"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="Tên phim, diễn viên…" autocomplete="off" enterkeyhint="search"></label><div id="res">${rec.length?`<h2>Gần đây</h2><div class="chips">${rec.map(r=>`<button class="chip" data-q="${esc(r)}">${esc(r)}</button>`).join("")}</div>`:`<div class="empty">Gõ để tìm trên KKPhim, NguonC & TMDB.</div>`}</div>`;
+  $("#q").oninput=e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value.trim(),id),400)};
+  $("#page").onclick=e=>{const c=e.target.closest("[data-q]");if(c){$("#q").value=c.dataset.q;doSearch(c.dataset.q,id)}};
 }
-document.addEventListener("click",e=>{
-  const pc=e.target.closest("[data-prov]");if(pc){openProviderDetail(pc.dataset.prov,pc.dataset.slug,pc.dataset.title,pc.dataset.thumb);return}
-  const c=e.target.closest(".card[data-id],.hero[data-id]");if(c){openDetail(c.dataset.t||"movie",c.dataset.id);return}
-  const rs=e.target.closest("[data-resume]");if(rs){const[t,i]=rs.dataset.resume.split(":");openDetail(t,i,true);return}
-  const p=e.target.closest("[data-play]");if(p){
-    const pr=store.get("prog",{})[p.dataset.play];
-    if(pr&&pr.providerId&&pr.slug)openProviderDetail(pr.providerId,pr.slug,pr.title,pr.img,pr.sIdx||0,pr.eIdx||0,pr.t||15);
-  }
-});
+async function doSearch(q,id){
+  const res=$("#res");if(!res)return;if(q.length<2){pSearch(id);return}
+  res.innerHTML='<div class="sp"><i></i></div>';let h="";
+  try{
+    const [kk,ng]=await Promise.all([fetchFromProvider(PROVIDERS[0],q),fetchFromProvider(PROVIDERS[4],q)]);
+    if(id!==navId)return;
+    const l=[],seen=new Set();
+    [...kk.items,...ng.items].forEach(it=>{const k=`${it.providerId}:${it.slug}`;if(!seen.has(k)){seen.add(k);l.push(it)}});
+    if(l.length)h+=`<h2>Nguồn phát trực tiếp (${l.length})</h2><div class="grid">${l.map(m=>provCardHTML(m)).join("")}</div>`;
+  }catch{}
+  if(cfg.tmdb){try{const d=(await tmdb("/search/multi",{query:q}));if(id!==navId)return;const resArr=(d.results||[]).filter(m=>m.media_type!="person"&&m.poster_path);if(resArr.length)h+=`<h2>Kết quả TMDB</h2><div class="grid">${resArr.map(m=>cardHTML(m)).join("")}</div>`}catch{}}
+  if($("#q")?.value.trim()!=q||id!==navId)return;
+  res.innerHTML=h||'<div class="empty">Không tìm thấy kết quả.</div>';
+  const r=[q,...store.get("recent",[]).filter(x=>x!=q)].slice(0,8);store.set("recent",r);
+}
+
+function pMe(){
+  const label=()=>cfg.glass===0?"Trong suốt":Math.round(cfg.glass*100)+"%";
+  $("#page").innerHTML=`<h1>Cài đặt</h1>
+  <h2 style="font-size:14px;color:var(--sub);text-transform:uppercase;margin-bottom:6px">Giao diện</h2>
+  <div class="list">
+    <div><span>Chế độ</span><span class="seg" id="th">${[["auto","Hệ thống"],["light","Sáng"],["dark","Tối"]].map(([k,l])=>`<button data-v="${k}" class="${cfg.theme==k?"on":""}">${l}</button>`).join("")}</span></div>
+    <div><span>Độ mờ thanh điều hướng</span><b id="gl" style="color:var(--sub);font-weight:600;font-size:14px">${label()}</b></div>
+    <div><input type="range" id="glRng" min="0.0" max="0.9" step="0.05" value="${cfg.glass}"></div>
+  </div>
+  <h2 style="font-size:14px;color:var(--sub);text-transform:uppercase;margin-bottom:6px">Nguồn dữ liệu</h2>
+  <div class="list"><div><span>TMDB key</span><input type="password" id="k1" placeholder="Dán khoá API" value="${esc(cfg.tmdb)}"></div><div><span>OMDb key</span><input type="password" id="k2" placeholder="Tuỳ chọn – điểm IMDb" value="${esc(cfg.omdb)}"></div></div>
+  <p class="note">Lấy khoá miễn phí tại themoviedb.org/settings/api (TMDB) và omdbapi.com (điểm IMDb). Khoá chỉ lưu trên máy bạn.</p>
+  <div style="padding:0 20px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="sv">Lưu & tải lại</button><button class="btn g" id="cl">Xoá tiến trình xem</button></div>
+  <p class="note" style="margin-top:18px">Thêm vào màn hình chính: Safari → Chia sẻ → Thêm vào MH chính. Đã tích hợp hiệu ứng tương tác Liquid Glass iOS 27 & lọc quảng cáo M3U8.</p>`;
+
+  $("#th").onclick=e=>{const b=e.target.closest("button");if(!b)return;vt(()=>{cfg.theme=b.dataset.v;saveCfg();[...$("#th").children].forEach(x=>x.classList.toggle("on",x==b))})};
+  $("#glRng").oninput=e=>{cfg.glass=Number(e.target.value);$("#gl").textContent=label();saveCfg()};
+  $("#sv").onclick=()=>{cfg.tmdb=$("#k1").value.trim();cfg.omdb=$("#k2").value.trim();saveCfg();cache.clear();go("home")};
+  $("#cl").onclick=()=>{store.set("prog",{});store.set("ytprog",{});store.set("seen",[]);alert("Đã xoá")};
+}
 
 /* ---------- Sheet & Trình phát chi tiết ---------- */
 let shT,activeStreamData=null,activeSrvIdx=0,activeEpIdx=0;
@@ -538,21 +602,75 @@ function openSheet(){
   sheetPn.style.transform="";
   sheetBd.style.opacity="";
   sheetEl.classList.add("show");
-  document.body.classList.add("lock");
+  document.body.classList.add("sheet-OpenVisual");
   requestAnimationFrame(()=>requestAnimationFrame(()=>sheetEl.classList.add("open")));
   shT=setTimeout(()=>document.body.classList.add("sheeted"),480);
 }
 function closeSheet(){
   ytStop();
   clearTimeout(shT);
-  document.body.classList.remove("sheeted","lock");
+  document.body.classList.remove("sheeted","sheet-OpenVisual");
   sheetEl.classList.remove("open","dragging");
   sheetPn.style.transform="";
   sheetBd.style.opacity="";
   setTimeout(()=>{sheetEl.classList.remove("show");$("#sc").innerHTML=""},450);
 }
 sheetBd.onclick=closeSheet;
-document.querySelector(".grab").onclick=closeSheet;
+
+(()=>{
+  let y0=0,dy=0,dragging=false;
+  sheetPn.addEventListener("touchstart",e=>{
+    if(sheetPn.scrollTop<=2){
+      y0=e.touches[0].clientY;
+      dy=0;
+      dragging=false;
+    }else y0=0;
+  },{passive:true});
+
+  sheetPn.addEventListener("touchmove",e=>{
+    if(!y0)return;
+    const delta=e.touches[0].clientY-y0;
+    if(delta>0&&sheetPn.scrollTop<=0){
+      if(!dragging){
+        dragging=true;
+        clearTimeout(shT);
+        document.body.classList.remove("sheeted");
+        sheetEl.classList.add("dragging");
+      }
+      dy=Math.pow(delta,0.92);
+      const scale=Math.max(0.92,1-dy/3000);
+      sheetPn.style.transform=`translate3d(0,${dy}px,0) scale(${scale})`;
+      sheetBd.style.opacity=String(Math.max(0,1-dy/400));
+    }
+  },{passive:true});
+
+  const endSheetDrag=()=>{
+    if(!dragging)return;
+    dragging=false;
+    sheetEl.classList.remove("dragging");
+    if(dy>120){
+      closeSheet();
+    }else{
+      sheetPn.style.transform="";
+      sheetBd.style.opacity="";
+      shT=setTimeout(()=>document.body.classList.add("sheeted"),400);
+    }
+    y0=0;dy=0;
+  };
+  sheetPn.addEventListener("touchend",endSheetDrag,{passive:true});
+  sheetPn.addEventListener("touchcancel",endSheetDrag,{passive:true});
+})();
+
+let YTP=null,ytTimer=null,ytMeta=null,ytReady=null;
+function loadYT(){return ytReady||(ytReady=new Promise(res=>{if(window.YT&&YT.Player)return res();window.onYouTubeIframeAPIReady=res;const s=document.createElement("script");s.src="https://www.youtube.com/iframe_api";document.head.appendChild(s)}))}
+function ytSave(){try{if(!YTP||!ytMeta||!YTP.getDuration)return;const d=YTP.getDuration(),t=YTP.getCurrentTime();if(!d||!(t>=0))return;const p=store.get("ytprog",{});if(t>d-15)delete p[ytMeta.k];else p[ytMeta.k]={t,d,title:ytMeta.title,img:ytMeta.img,type:ytMeta.k.split(":")[0],id:ytMeta.k.split(":")[1],u:Date.now()};store.set("ytprog",p)}catch{}}
+async function ytPlay(key,k,title,img,start){
+  await loadYT();ytMeta={k,title,img};clearInterval(ytTimer);
+  YTP=new YT.Player("ytp",{videoId:key,width:"100%",height:"100%",playerVars:{autoplay:1,playsinline:1,rel:0,start:Math.floor(start||0),origin:location.origin},events:{onStateChange:e=>{if(e.data==2||e.data==0)ytSave()}}});
+  ytTimer=setInterval(ytSave,3000);
+}
+function ytStop(){ytSave();clearInterval(ytTimer);try{YTP?.destroy()}catch{}YTP=null}
+addEventListener("pagehide",ytSave);document.addEventListener("visibilitychange",()=>{if(document.hidden)ytSave()});
 
 function renderStreamBox(det,sIdx=0,eIdx=0){
   activeStreamData=det;
@@ -642,7 +760,7 @@ async function openDetail(type,id,auto){
     const rt=m.runtime?m.runtime+" phút":(m.number_of_seasons?m.number_of_seasons+" mùa":"");
     const bdrop=m.backdrop_path?IMG+"w780"+m.backdrop_path:poster(m,"w500");
     $("#sc").innerHTML=`<div class="bk"><img src="${bdrop}" alt=""></div><div class="dt"><h3>${esc(ttl(m))}</h3>
-    <div class="meta"><span class="rate">★ ${(m.vote_average||0).toFixed(1)} TMDB</span><span id="imdb"></span><span>${(m.release_date||m.first_air_date||"").slice(0,4)}</span><span>${rt}</span><span>${(m.genres||[]).map(g=>esc(g.name)).join(", ")}</span></div>
+    <div class="meta"><span class="rate">★ ${m.vote_average.toFixed(1)} TMDB</span><span id="imdb"></span><span>${(m.release_date||m.first_air_date||"").slice(0,4)}</span><span>${rt}</span><span>${(m.genres||[]).map(g=>esc(g.name)).join(", ")}</span></div>
     <div class="acts"><button class="btn" id="playStreamBtn">⏳ Đang kết nối CDN…</button>${tr?`<button class="btn g" id="tb">▶ Xem trailer</button>`:""}</div>
     <div id="trw"></div>
     <div id="streamBox"><div class="note" style="margin:0 0 8px">⚡ Đang nạp luồng M3U8 sạch quảng cáo...</div></div>
@@ -667,6 +785,16 @@ async function openDetail(type,id,auto){
   }catch(e){$("#sc").innerHTML=`<div class="empty">Không tải được chi tiết.</div>`}
 }
 
+document.addEventListener("click",e=>{
+  const pc=e.target.closest("[data-prov]");if(pc){openProviderDetail(pc.dataset.prov,pc.dataset.slug,pc.dataset.title,pc.dataset.thumb);return}
+  const c=e.target.closest(".card[data-id],.hero[data-id]");if(c){openDetail(c.dataset.t,c.dataset.id);return}
+  const rs=e.target.closest("[data-resume]");if(rs){const[t,i]=rs.dataset.resume.split(":");openDetail(t,i,true);return}
+  const p=e.target.closest("[data-play]");if(p){
+    const pr=store.get("prog",{})[p.dataset.play];
+    if(pr&&pr.providerId&&pr.slug)openProviderDetail(pr.providerId,pr.slug,pr.title,pr.img,pr.sIdx||0,pr.eIdx||0,pr.t||15);
+  }
+});
+
 /* ---------- Player ---------- */
 const V=$("#v"),EMB=$("#emb"),P=$("#player");let list=[],idx=0,idle,saveT=0,hlsInstance=null,playerMode="m3u8";
 const fmt=s=>{s=Math.max(0,s|0);const h=s/3600|0,m=(s%3600)/60|0;return(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(s%60).padStart(2,"0")};
@@ -678,6 +806,19 @@ async function openPlayer(l,i){
   P.style.borderRadius="";
   P.classList.add("show");
   await loadItem();
+}
+
+function startEmbedInPlayer(it){
+  playerMode="embed";
+  P.classList.add("embed-mode");
+  P.classList.remove("idle");
+  clearTimeout(idle);
+  if(hlsInstance){hlsInstance.destroy();hlsInstance=null}
+  V.pause();V.style.display="none";
+  let url=it.embed;
+  if((!url||url.includes("streamc.xyz"))&&it.m3u8)url=`https://player.phimapi.com/player/?url=${encodeURIComponent(it.m3u8)}`;
+  EMB.style.display="block";EMB.src=url||"about:blank";
+  toast("Chế độ VIP • Bấm nút ✕ góc trái trên để đóng");
 }
 
 async function startNativeVideoM3u8(it,resumeSec){
@@ -698,6 +839,15 @@ async function loadItem(){
   const resumeSec=it.resumeTime||((pr&&pr.eIdx===it.eIdx&&pr.sIdx===it.sIdx&&pr.t>10)?pr.t:0);
 
   if(list[idx+1]?.m3u8)setTimeout(()=>getCleanM3u8BlobUrl(list[idx+1].m3u8),2000);
+
+  if(playerMode==="embed"||(!it.m3u8&&it.embed)){
+    startEmbedInPlayer(it);
+    save();
+    return;
+  }
+
+  P.classList.remove("embed-mode");
+  EMB.src="about:blank";EMB.style.display="none";
   V.style.display="block";
 
   if(typeof Hls!=="undefined"&&Hls.isSupported()){
@@ -724,6 +874,8 @@ async function loadItem(){
         }else if(V.canPlayType("application/vnd.apple.mpegurl")){
           hlsInstance.destroy();hlsInstance=null;
           startNativeVideoM3u8(it,resumeSec);
+        }else if(it.embed){
+          startEmbedInPlayer(it);
         }else{
           toast("Luồng phim hiện tại bị lỗi, hãy đổi Server khác.");
         }
@@ -731,15 +883,18 @@ async function loadItem(){
     });
   }else if(V.canPlayType("application/vnd.apple.mpegurl")){
     await startNativeVideoM3u8(it,resumeSec);
+  }else if(it.embed){
+    startEmbedInPlayer(it);
   }
+  wake();
 }
 
 function save(){
   const it=list[idx];if(!it)return;
   const p=store.get("prog",{});
   p[it.identifier]={
-    t:V.currentTime,
-    d:V.duration||0,
+    t:playerMode==="m3u8"?V.currentTime:(it.resumeTime||15),
+    d:playerMode==="m3u8"?(V.duration||0):0,
     title:it.title,
     epName:it.epName,
     img:it.img,
@@ -753,26 +908,91 @@ function save(){
 }
 function closePlayer(){
   save();
+  clearTimeout(idle);
   if(hlsInstance){hlsInstance.destroy();hlsInstance=null}
   V.pause();V.removeAttribute("src");V.load();
+  EMB.src="about:blank";EMB.style.display="none";
   P.style.transform="";P.style.borderRadius="";
-  P.classList.remove("show");
+  P.classList.remove("show","idle","embed-mode","dragging");
   if(document.fullscreenElement||document.webkitFullscreenElement){
     (document.exitFullscreen||document.webkitExitFullscreen)?.call(document);
   }
+  if(!document.body.classList.contains("sheeted")&&(tab=="home"||tab=="lib"))go(tab);
+}
+function wake(){
+  P.classList.remove("idle");
+  clearTimeout(idle);
+  if(!V.paused&&playerMode==="m3u8")idle=setTimeout(()=>P.classList.add("idle"),3500);
 }
 $("#pc").onclick=e=>{e.stopPropagation();closePlayer()};
 $("#pp").onclick=e=>{e.stopPropagation();V.paused?V.play():V.pause()};
 $("#fs").onclick=e=>{
   e.stopPropagation();
   const p=$("#player");
-  if(V.webkitEnterFullscreen&&!p.requestFullscreen)V.webkitEnterFullscreen();
+  if(V.webkitEnterFullscreen && !p.requestFullscreen) V.webkitEnterFullscreen();
   else if(document.fullscreenElement)document.exitFullscreen();
   else(p.requestFullscreen||p.webkitRequestFullscreen).call(p);
 };
 V.onclick=()=>$("#ctl").classList.toggle("hide");
-V.ontimeupdate=()=>{if(V.duration)$("#seek").value=V.currentTime/V.duration*1000};
-$("#seek").oninput=e=>{if(V.duration)V.currentTime=e.target.value/1000*V.duration};
+
+/* Kéo vuốt màn hình player xuống để thu nhỏ mượt mà */
+(()=>{
+  let py0=0,pdy=0,pDragging=false;
+  P.addEventListener("touchstart",e=>{
+    if(P.classList.contains("idle"))wake();
+    if(!document.fullscreenElement&&e.touches[0].clientY<130){
+      py0=e.touches[0].clientY;
+      pdy=0;
+      pDragging=false;
+    }else py0=0;
+  },{passive:true});
+
+  P.addEventListener("touchmove",e=>{
+    if(!py0)return;
+    const delta=e.touches[0].clientY-py0;
+    if(delta>10){
+      pDragging=true;
+      P.classList.add("dragging");
+      pdy=Math.pow(delta,0.92);
+      const sc=Math.max(0.80,1-pdy/1400);
+      P.style.transform=`translate3d(0,${pdy}px,0) scale(${sc})`;
+      P.style.borderRadius=Math.min(42,pdy/3.2)+"px";
+    }
+  },{passive:true});
+
+  const endPlayerDrag=()=>{
+    if(!pDragging)return;
+    pDragging=false;
+    P.classList.remove("dragging");
+    if(pdy>110){
+      closePlayer();
+    }else{
+      P.style.transform="";
+      P.style.borderRadius="";
+    }
+    py0=0;pdy=0;
+  };
+  P.addEventListener("touchend",endPlayerDrag,{passive:true});
+  P.addEventListener("touchcancel",endPlayerDrag,{passive:true});
+})();
+
+document.addEventListener("keydown",e=>{if(!P.classList.contains("show"))return;if(e.key==" "){e.preventDefault();$("#pp").click()}if(e.key=="Escape"&&!document.fullscreenElement)closePlayer()});
+addEventListener("pagehide",save);
+
+
+
+function releaseM3u8Cache(){for(const url of m3u8BlobCache.values()){try{URL.revokeObjectURL(url)}catch{}}m3u8BlobCache.clear();}
+addEventListener("pagehide",releaseM3u8Cache);
+V?.addEventListener?.("ended",()=>{if(idx<list.length-1){idx++;loadItem().catch?.(()=>{})}});
+V?.addEventListener?.("timeupdate",()=>{const s=$("#seek");if(s&&V.duration){s.value=Math.round(V.currentTime/V.duration*1000)}});
+$("#seek")?.addEventListener?.("input",e=>{if(V.duration)V.currentTime=(e.target.value/1000)*V.duration});
+
+
+let mediaRecoverCount=0;
+window.addEventListener("offline",()=>toast?.("Mất kết nối mạng"));
+window.addEventListener("online",()=>toast?.("Đã kết nối lại"));
+window.addEventListener("unhandledrejection",e=>console.error(e.reason));
+window.addEventListener("error",e=>console.error(e.error));
 
 go("home");
 </script>
