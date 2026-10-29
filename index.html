@@ -1003,6 +1003,90 @@ window.addEventListener("unhandledrejection",e=>console.error(e.reason));
 window.addEventListener("error",e=>console.error(e.error));
 
 go("home");
+/* ===== CineGlass player fix ===== */
+(()=>{
+const css=`
+.rb{font-size:16px;background:rgba(28,28,32,.42);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.3),inset 0 -1px 1px rgba(255,255,255,.08)}
+.top b{font-size:16px;font-weight:700;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.bot{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:32px;background:rgba(28,28,32,.42);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.35),inset 0 -1px 1px rgba(255,255,255,.1),0 10px 30px rgba(0,0,0,.45)}
+.pb{flex:none;width:46px;height:46px;padding:0;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.14);transition:transform .35s var(--spring),background .2s}
+.pb:active{transform:scale(.86);background:rgba(255,255,255,.26)}
+.pb svg{width:22px;height:22px;fill:#fff}
+.tm{flex:none;min-width:40px;text-align:center;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:rgba(255,255,255,.82)}
+#seek{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:28px;margin:0;background:transparent;--p:0%}
+#seek::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(90deg,#fff var(--p),rgba(255,255,255,.28) var(--p))}
+#seek::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;margin-top:-5.5px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.55)}
+#seek::-moz-range-track{height:4px;border-radius:2px;background:rgba(255,255,255,.28)}
+#seek::-moz-range-progress{height:4px;border-radius:2px;background:#fff}
+#seek::-moz-range-thumb{width:15px;height:15px;border:0;border-radius:50%;background:#fff}
+.toast{top:calc(var(--sat) + 76px);bottom:auto;white-space:nowrap;max-width:92%;overflow:hidden;text-overflow:ellipsis;font-size:13px;padding:8px 14px;background:rgba(28,28,32,.6);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}`;
+const st=document.createElement("style");st.textContent=css;document.head.appendChild(st);
+
+const PLAY='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>',
+PAUSE='<svg viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>',
+FS='<svg viewBox="0 0 24 24" style="fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+const pp=$("#pp"),fsb=$("#fs"),seek=$("#seek");
+pp.className="pb";pp.setAttribute("aria-label","Phát / Tạm dừng");
+fsb.className="pb";fsb.setAttribute("aria-label","Toàn màn hình");fsb.innerHTML=FS;
+const tcur=document.createElement("span"),tdur=document.createElement("span");
+tcur.className=tdur.className="tm";tcur.textContent=tdur.textContent="0:00";
+seek.before(tcur);seek.after(tdur);
+const setPP=()=>{pp.innerHTML=V.paused?PLAY:PAUSE};setPP();
+V.addEventListener("play",setPP);V.addEventListener("pause",setPP);
+V.addEventListener("timeupdate",()=>{if(!V.duration)return;tcur.textContent=fmt(V.currentTime);tdur.textContent=fmt(V.duration);seek.style.setProperty("--p",(V.currentTime/V.duration*100)+"%")});
+seek.addEventListener("input",e=>seek.style.setProperty("--p",(e.target.value/10)+"%"));
+
+/* Cắt chữ "Tập" thừa trong tên tập (hết lỗi "Tập Tập 01") */
+if(typeof fetchProviderMovieDetail==="function"){
+  const orig=fetchProviderMovieDetail;
+  fetchProviderMovieDetail=async(...a)=>{
+    const r=await orig(...a);
+    (r.servers||[]).forEach(s=>(s.server_data||[]).forEach(ep=>{
+      const n=String(ep.name??"").normalize("NFC").replace(/^\s*t[ậa]p\s*/i,"");
+      if(n)ep.name=n;
+    }));
+    return r;
+  };
+}
+})();
+
+/* ===== Toàn màn hình: tự xoay ngang ===== */
+(()=>{
+const st=document.createElement("style");
+st.textContent=`#player.rot{inset:auto;top:0;left:0;width:100vh;height:100vw;width:100dvh;height:100dvw;transform-origin:0 0;transform:translateX(100vw) rotate(90deg);transform:translateX(100dvw) rotate(90deg);border-radius:0!important}
+#player.rot .ctl{padding:20px calc(var(--sab) + 20px) 20px calc(var(--sat) + 20px)}`;
+document.head.appendChild(st);
+const fsb=$("#fs"),pq=matchMedia("(orientation:portrait)");
+let fsOn=false;
+const real=()=>document.fullscreenElement||document.webkitFullscreenElement;
+function applyRot(){
+  const need=fsOn&&pq.matches;
+  if(need===P.classList.contains("rot"))return;
+  P.style.transition="none";P.classList.toggle("rot",need);void P.offsetWidth;P.style.transition="";
+  if(need)toast("Xoay điện thoại ngang để xem",3500);
+}
+async function enterFS(){
+  fsOn=true;
+  try{const f=P.requestFullscreen||P.webkitRequestFullscreen;if(f)await f.call(P)}catch{}
+  try{await screen.orientation.lock("landscape")}catch{}
+  applyRot();setTimeout(applyRot,400);
+}
+function exitFS(){
+  if(!fsOn)return;fsOn=false;
+  try{screen.orientation.unlock()}catch{}
+  try{if(real())(document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch{}
+  applyRot();
+}
+fsb.onclick=e=>{e.stopPropagation();fsOn?exitFS():enterFS()};
+pq.addEventListener("change",applyRot);
+addEventListener("resize",applyRot);addEventListener("orientationchange",applyRot);
+["fullscreenchange","webkitfullscreenchange"].forEach(t=>document.addEventListener(t,()=>{if(fsOn&&!real())exitFS()}));
+/* đang xoay bằng CSS thì tắt thao tác vuốt xuống để đóng (toạ độ bị đảo) */
+["touchstart","touchmove"].forEach(t=>P.addEventListener(t,e=>{if(P.classList.contains("rot"))e.stopImmediatePropagation()},{capture:true,passive:true}));
+const closeOrig=closePlayer;
+closePlayer=function(){exitFS();closeOrig()};
+})();
+
 </script>
 </body>
 </html>
