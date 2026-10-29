@@ -84,19 +84,18 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 #player{position:fixed;inset:0;z-index:80;background:#000;display:none;color:#fff;user-select:none;-webkit-user-select:none}
 #player.show{display:block;animation:in .4s}
 #player video,#player iframe{width:100%;height:100%;object-fit:contain;background:#000;border:0}
-.ctl{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:calc(var(--sat) + 12px) 16px calc(var(--sab) + 16px);background:linear-gradient(rgba(0,0,0,.6),transparent 28%,transparent 65%,rgba(0,0,0,.75));transition:opacity .3s;z-index:2}
+.ctl{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:calc(var(--sat) + 12px) 16px calc(var(--sab) + 16px);background:linear-gradient(rgba(0,0,0,.6),transparent 28%,transparent 65%,rgba(0,0,0,.75));transition:opacity .3s;z-index:10}
 #player.idle .ctl{opacity:0;pointer-events:none}
-/* Khi ở chế độ Embed Iframe, luôn giữ thanh trên cùng để đóng phim bất cứ lúc nào */
 #player.embed-mode .ctl{background:none;pointer-events:none;opacity:1!important}
 #player.embed-mode .ctl .top,#player.embed-mode .ctl .bot .row2{pointer-events:auto}
 #player.embed-mode .ctl .mid,#player.embed-mode .ctl #seekRow{display:none!important}
-.top{display:flex;align-items:center;gap:12px;z-index:5}.top b{flex:1;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px rgba(0,0,0,.8)}
+.top{display:flex;align-items:center;gap:12px;z-index:12}.top b{flex:1;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px rgba(0,0,0,.8)}
 .rb{width:42px;height:42px;border-radius:50%;display:grid;place-items:center}.rb svg{width:22px;height:22px;fill:#fff}
 .mid{display:flex;justify-content:center;align-items:center;gap:36px}.mid .rb{width:54px;height:54px}.mid .big{width:80px;height:80px}.mid .big svg{width:34px;height:34px}
 .bot .row{display:flex;align-items:center;gap:10px;font-size:12px;font-variant-numeric:tabular-nums}
 .bot input[type=range]{flex:1;accent-color:#fff;height:24px}
 .bot .row2{display:flex;justify-content:space-between;margin-top:6px;gap:6px;flex-wrap:wrap}
-.toast{position:absolute;left:50%;bottom:calc(var(--sab) + 120px);transform:translate(-50%,20px);padding:12px 18px;border-radius:20px;opacity:0;transition:.4s;z-index:6;white-space:nowrap;font-size:14px;pointer-events:none}.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast{position:absolute;left:50%;bottom:calc(var(--sab) + 120px);transform:translate(-50%,20px);padding:12px 18px;border-radius:20px;opacity:0;transition:.4s;z-index:15;white-space:nowrap;font-size:14px;pointer-events:none}.toast.on{opacity:1;transform:translate(-50%,0)}
 .sp{display:flex;justify-content:center;padding:40px}.sp i{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:rot .8s linear infinite}@keyframes rot{to{transform:rotate(360deg)}}
 .empty{color:var(--sub);text-align:center;padding:30px 40px}
 </style>
@@ -185,31 +184,36 @@ function stripAdsFromM3u8(text,baseUrl=""){
   return[...headerLines,...finalBlocks.flatMap((s,i)=>i===0?s.lines:["#EXT-X-DISCONTINUITY",...s.lines]),"#EXT-X-ENDLIST"].join("\n");
 }
 
-/* Custom HLS Loader cắt quảng cáo 0ms ngay trong RAM */
-const CleanHlsLoader=typeof Hls!=="undefined"?class extends Hls.DefaultConfig.loader{
-  constructor(config){
-    super(config);
-    const origLoad=this.load.bind(this);
-    this.load=function(context,config,callbacks){
-      const origSuccess=callbacks.onSuccess;
-      callbacks.onSuccess=function(response,stats,ctx,net){
-        if(typeof response.data==="string"&&response.data.includes("#EXT-X-DISCONTINUITY")){
-          response.data=stripAdsFromM3u8(response.data);
-        }
-        origSuccess(response,stats,ctx,net);
-      };
-      origLoad(context,config,callbacks);
+let CleanHlsLoader=null;
+try{
+  if(typeof Hls!=="undefined"&&Hls.DefaultConfig?.loader){
+    CleanHlsLoader=class extends Hls.DefaultConfig.loader{
+      constructor(config){
+        super(config);
+        const origLoad=this.load.bind(this);
+        this.load=function(context,config,callbacks){
+          const origSuccess=callbacks.onSuccess;
+          callbacks.onSuccess=function(response,stats,ctx,net){
+            if(typeof response.data==="string"&&response.data.includes("#EXT-X-DISCONTINUITY")){
+              response.data=stripAdsFromM3u8(response.data);
+            }
+            origSuccess(response,stats,ctx,net);
+          };
+          origLoad(context,config,callbacks);
+        };
+      }
     };
   }
-}:null;
+}catch{}
 
-/* Nạp trước & làm sạch M3U8 thành Blob URL cho iOS Native HLS */
 const m3u8BlobCache=new Map();
 async function getCleanM3u8BlobUrl(m3u8Url){
   if(!m3u8Url)return"";
   if(m3u8BlobCache.has(m3u8Url))return m3u8BlobCache.get(m3u8Url);
   try{
-    const masterTxt=await fetch(m3u8Url).then(r=>r.text());
+    const ctrl=new AbortController(),tid=setTimeout(()=>ctrl.abort(),2200);
+    const masterTxt=await fetch(m3u8Url,{signal:ctrl.signal}).then(r=>r.text());
+    clearTimeout(tid);
     if(!masterTxt.includes("#EXTM3U"))return m3u8Url;
     if(masterTxt.includes("#EXT-X-STREAM-INF")){
       const lines=masterTxt.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
@@ -219,7 +223,9 @@ async function getCleanM3u8BlobUrl(m3u8Url){
       }
       if(subRel){
         const subUrl=new URL(subRel,m3u8Url).href;
-        const subTxt=await fetch(subUrl).then(r=>r.text());
+        const ctrl2=new AbortController(),tid2=setTimeout(()=>ctrl2.abort(),2200);
+        const subTxt=await fetch(subUrl,{signal:ctrl2.signal}).then(r=>r.text());
+        clearTimeout(tid2);
         const cleaned=stripAdsFromM3u8(subTxt,subUrl);
         const blobUrl=URL.createObjectURL(new Blob([cleaned],{type:"application/vnd.apple.mpegurl"}));
         m3u8BlobCache.set(m3u8Url,blobUrl);
@@ -347,13 +353,11 @@ async function fetchProviderMovieDetail(providerId,slug,fallbackTitle=""){
   if(backdrop&&!backdrop.startsWith("http"))backdrop=provider.imgPrefix+backdrop;
   const res={movie,title,originTitle,overview:movie.content||movie.description||"",year:movie.year||"",thumb,backdrop,servers,providerId,slug};
   detailCache.set(ck,res);
-  /* Nạp trước luồng M3U8 của tập 1 ngay trong nền để bấm Xem là phát tức thì */
   const firstM3u8=servers[0]?.server_data?.[0]?.link_m3u8;
   if(firstM3u8)getCleanM3u8BlobUrl(firstM3u8);
   return res;
 }
 
-/* Quét song song tốc độ cao trên KKPhim trước để luôn ưu tiên luồng M3U8 sạch quảng cáo */
 async function findStreamForTmdb(viTitle,origTitle){
   const queries=[...new Set([viTitle,origTitle].filter(Boolean))];
   const kkSearches=await Promise.all(queries.map(q=>fetchFromProvider(PROVIDERS[0],q)));
@@ -369,7 +373,6 @@ async function findStreamForTmdb(viTitle,origTitle){
       if(det.servers.length&&det.servers[0].server_data?.length)return det;
     }catch{}
   }
-  /* Nếu KKPhim không có mới tìm sang NguonC */
   const ngSearches=await Promise.all(queries.map(q=>fetchFromProvider(PROVIDERS[4],q)));
   const ngItems=ngSearches.flatMap(r=>r.items);
   if(ngItems.length){
@@ -396,7 +399,7 @@ const ROWS=[
  {t:"Gợi ý cho bạn",f:async()=>{const h=store.get("seen",[]);if(!h.length)return(await ctmdb("/movie/popular")).results;const l=h[0];return(await ctmdb(`/${l.type}/${l.id}/recommendations`)).results},sub:()=>{const h=store.get("seen",[]);return h.length?"Dựa trên: "+h[0].title:""}},
  {t:"Hay nhất mọi thời đại",f:async()=>{const a=await Promise.all([1,2,3].map(p=>ctmdb("/movie/top_rated",{page:p})));return a.flatMap(x=>x.results).sort((a,b)=>b.vote_average-a.vote_average)},rank:1},
  {t:"Phim trên Netflix",f:async()=>(await ctmdb("/discover/movie",{with_watch_providers:8,watch_region:"VN",sort_by:"popularity.desc"})).results},
- {t:"Châu Tinh Trì",f:async()=>{const p=await ctmdb("/search/person",{query:"Stephen Chow"});const id=p.results[0]?.id;return(await ctmdb("/discover/movie",{with_people:id,sort_by:"vote_average.desc","vote_count.gte":100})).results},
+ {t:"Châu Tinh Trì",f:async()=>{const p=await ctmdb("/search/person",{query:"Stephen Chow"});const id=p.results[0]?.id;return(await ctmdb("/discover/movie",{with_people:id,sort_by:"vote_average.desc","vote_count.gte":100})).results}},
  {t:"Đang chiếu rạp Việt Nam",f:async()=>(await ctmdb("/movie/now_playing",{region:"VN"})).results},
  {t:"Đang chiếu rạp quốc tế",f:async()=>(await ctmdb("/movie/now_playing",{region:"US"})).results},
 ];
@@ -411,7 +414,7 @@ const TABS=[["home","Khám phá"],["lib","Thư viện"],["search","Tìm kiếm"]
 let tab="home";
 $("#tabs").innerHTML=TABS.map(([k,l])=>`<button data-k="${k}"><svg viewBox="0 0 24 24">${ICON[k]}</svg>${l}</button>`).join("");
 $("#tabs").onclick=e=>{const b=e.target.closest("button");if(b)go(b.dataset.k)};
-function go(k){tab=k;vt(()=>{[...$("#tabs").children].forEach(b=>b.classList.toggle("on",b.dataset.k==k));$("#page").style.animation="none";void $("#page").offsetWidth;$("#page").style.animation="";scrollTo(0,0);({home:pHome,lib:pLib,search:pSearch,me:pMe})[k]()})}
+function go(k){tab=k;document.body.classList.remove("sheeted");vt(()=>{[...$("#tabs").children].forEach(b=>b.classList.toggle("on",b.dataset.k==k));$("#page").style.animation="none";void $("#page").offsetWidth;$("#page").style.animation="";scrollTo(0,0);({home:pHome,lib:pLib,search:pSearch,me:pMe})[k]()})}
 const keyNote=()=>`<div class="empty">Cần khoá API TMDB miễn phí để hiện danh sách phim.<br><br><button class="btn" onclick="go('me')">Mở Cài đặt</button></div>`;
 const contRow=()=>{
   const p=store.get("prog",{}),y=store.get("ytprog",{});
@@ -448,7 +451,7 @@ function renderLibGrid(){
 async function pLib(){
   $("#page").innerHTML=`<h1>Thư viện</h1><div class="note" style="margin-top:-8px">Kho phim đa nguồn tốc độ cao (KKPhim CDN, Phim Bộ, Anime & NguonC) – Phát trực tiếp M3U8 sạch quảng cáo.</div>${contRow()}<div class="chips" id="libTabs"></div><div id="libWrap"><div class="sp"><i></i></div></div>`;
   try{
-    const d=await loadLib();if(tab!="lib")return;
+    await loadLib();if(tab!="lib")return;
     $("#libTabs").innerHTML=[["all","Tất cả"],...PROVIDERS.map(p=>[p.id,p.name])].map(([id,name])=>`<button class="chip ${libFilter===id?"on":""}" data-lf="${id}">${esc(name)}</button>`).join("");
     $("#libTabs").onclick=e=>{const b=e.target.closest("[data-lf]");if(!b)return;libFilter=b.dataset.lf;[...$("#libTabs").children].forEach(c=>c.classList.toggle("on",c===b));renderLibGrid()};
     $("#libWrap").innerHTML=`<h2>Tất cả phim</h2><div class="grid" id="libGrid"></div>`;
@@ -499,7 +502,6 @@ function closeSheet(){ytStop();clearTimeout(shT);document.body.classList.remove(
 $("#sheet .bd").onclick=closeSheet;
 (()=>{let y0=0;const pn=$("#sheet .pn");pn.addEventListener("touchstart",e=>y0=e.touches[0].clientY,{passive:true});pn.addEventListener("touchend",e=>{if(pn.scrollTop<=0&&e.changedTouches[0].clientY-y0>110)closeSheet()})})();
 
-/* YouTube trailer + tiến trình */
 let YTP=null,ytTimer=null,ytMeta=null,ytReady=null;
 function loadYT(){return ytReady||(ytReady=new Promise(res=>{if(window.YT&&YT.Player)return res();window.onYouTubeIframeAPIReady=res;const s=document.createElement("script");s.src="https://www.youtube.com/iframe_api";document.head.appendChild(s)}))}
 function ytSave(){try{if(!YTP||!ytMeta||!YTP.getDuration)return;const d=YTP.getDuration(),t=YTP.getCurrentTime();if(!d||!(t>=0))return;const p=store.get("ytprog",{});if(t>d-15)delete p[ytMeta.k];else p[ytMeta.k]={t,d,title:ytMeta.title,img:ytMeta.img,type:ytMeta.k.split(":")[0],id:ytMeta.k.split(":")[1],u:Date.now()};store.set("ytprog",p)}catch{}}
@@ -521,7 +523,6 @@ function renderStreamBox(det,sIdx=0,eIdx=0){
   activeSrvIdx=sIdx<det.servers.length?sIdx:0;
   const eps=det.servers[activeSrvIdx]?.server_data||[];
   activeEpIdx=eIdx<eps.length?eIdx:0;
-  /* Nạp trước tập đang chọn vào RAM */
   const curM3u8=eps[activeEpIdx]?.link_m3u8;
   if(curM3u8)getCleanM3u8BlobUrl(curM3u8);
 
@@ -673,7 +674,6 @@ async function loadItem(){
   const pr=store.get("prog",{})[it.identifier];
   const resumeSec=it.resumeTime||((pr&&pr.eIdx===it.eIdx&&pr.sIdx===it.sIdx&&pr.t>10)?pr.t:0);
 
-  /* Nạp trước tập tiếp theo vào bộ nhớ đệm */
   if(list[idx+1]?.m3u8)setTimeout(()=>getCleanM3u8BlobUrl(list[idx+1].m3u8),2000);
 
   if(playerMode==="embed"||(!it.m3u8&&it.embed)){
@@ -709,7 +709,6 @@ async function loadItem(){
         if(data.type===Hls.ErrorTypes.MEDIA_ERROR){
           hlsInstance.recoverMediaError();
         }else if(V.canPlayType("application/vnd.apple.mpegurl")){
-          /* Nếu Hls.js lỗi trên iOS, chuyển sang bộ giải mã gốc của iPhone chứ không nhảy sang Iframe */
           hlsInstance.destroy();hlsInstance=null;
           startNativeVideoM3u8(it,resumeSec);
         }else if(it.embed){
@@ -790,7 +789,6 @@ $("#fs").onclick=e=>{
 };
 V.addEventListener("dblclick",()=>$("#fs").click());
 
-/* Đảm bảo chạm vào màn hình hoặc vuốt xuống từ đỉnh đều đánh thức / đóng được Player */
 let py0=0;
 P.addEventListener("touchstart",e=>{
   py0=e.touches[0].clientY;
