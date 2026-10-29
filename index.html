@@ -366,6 +366,22 @@ async function getCleanM3u8BlobUrl(m3u8Url){
   }catch{return m3u8Url}
 }
 
+/* ---------- BỘ LỌC LOẠI BỎ CHƯƠNG TRÌNH GIẢI TRÍ / GAMESHOW VIỆT NAM ---------- */
+const VN_ENTERTAINMENT_REGEX=/(\bgameshow\b|game show|reality|concert|live show|liveshow|talkshow|talk show|podcast|tạp kỹ|tap ky|chương trình|chuong trinh|2 ngay 1 dem|anh trai|chi dep|em xinh|running man|chay di cho chi|nhanh nhu chop|nguoi ay la ai|ca si mat na|masked singer|rap viet|king of rap|thuong vu bac ty|shark tank|mai am gia dinh viet|bo oi minh di dau the|hanh trinh ruc ro|sao nhap ngu|on gioi cau day roi|thach thuc danh hai|dau truong tieng cuoi|ban muon hen ho|vo chong son|ky uc vui ve|7 nu cuoi xuan|me vang nha|ba la sieu nhan|dau truong gia toc|tan binh toan nang|vietnam idol|the face|the voice|giong hat viet|cuoc dua ky thu|amazing race|hoa hau|miss universe|miss grand|miss world|tao quan|gap nhau cuoi nam|vtv awards|wechoice|lan song xanh|hoi ngo danh hai|bi mat dem chu nhat|chon ai day|xuan ha thu dong|bien cua hy vong|nha tro destiny|무한도전)/i;
+
+function isVnEntertainmentShow(item){
+  if(!item)return true;
+  if(item.type==="tvshows")return true;
+  if(Array.isArray(item.category)&&item.category.some(c=>c.slug==="tv-shows"||/tv\s*shows|truyen hinh thực tế|chương trình/i.test(c.name||"")))return true;
+  const gIds=item.genre_ids||(item.genres||[]).map(g=>g.id)||[];
+  /* 10764: Reality, 10767: Talk, 10763: News, 99: Documentary, 10402: Music */
+  if(gIds.some(id=>[10764,10767,10763,99,10402].includes(id)))return true;
+  const t1=norm(item.title||item.name||"");
+  const t2=norm(item.originTitle||item.origin_name||item.original_name||item.original_title||"");
+  if(VN_ENTERTAINMENT_REGEX.test(t1)||VN_ENTERTAINMENT_REGEX.test(t2))return true;
+  return false;
+}
+
 /* ---------- NGUỒN PHIM ---------- */
 const PROVIDERS=[
   {
@@ -381,7 +397,7 @@ const PROVIDERS=[
     id:"kk_vn",
     name:"Phim Việt Nam",
     type:"kkphim",
-    latestUrl:()=>"https://phimapi.com/v1/api/quoc-gia/viet-nam?page=1&limit=20",
+    latestUrl:()=>"https://phimapi.com/v1/api/quoc-gia/viet-nam?page=1&limit=24",
     searchUrl:kw=>`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=18`,
     detailUrl:slug=>`https://phimapi.com/phim/${slug}`,
     imgPrefix:"https://phimimg.com/"
@@ -435,7 +451,8 @@ async function fetchFromProvider(provider,keyword=""){
   try{
     const url=keyword?provider.searchUrl(keyword):provider.latestUrl();
     const json=await fetchWithTimeout(url,3200);
-    const rawItems=json?.data?.items||json?.items||[];
+    let rawItems=json?.data?.items||json?.items||[];
+    if(provider.id==="kk_vn")rawItems=rawItems.filter(it=>!isVnEntertainmentShow(it));
     const imgDomain=json?.data?.APP_DOMAIN_CDN_IMAGE?(json.data.APP_DOMAIN_CDN_IMAGE.endsWith("/")?json.data.APP_DOMAIN_CDN_IMAGE:json.data.APP_DOMAIN_CDN_IMAGE+"/"):provider.imgPrefix;
     const items=rawItems.map(it=>{
       let thumb=it.poster_url||it.thumb_url||"";
@@ -543,7 +560,6 @@ function markCardComingSoon(tmdbId){
   });
 }
 
-/* Quét ngầm nhẹ nhàng để tự gắn nhãn Coming Soon cho các phim không dò được nguồn */
 const checkQueue=[];let checkingBusy=false;
 function queueStreamCheck(cardsScope=document){
   cardsScope.querySelectorAll(".card[data-id]:not([data-checked])").forEach(c=>{
@@ -640,7 +656,7 @@ tabsEl.addEventListener("pointercancel",()=>endDrag(false));
 tabsEl.addEventListener("click",e=>{if(e.detail===0){const b=e.target.closest("button.t");if(b)go(b.dataset.k)}});
 addEventListener("resize",()=>{const i=TABS.findIndex(t=>t[0]===tab);if(i>=0)placePill(i)});
 
-/* ===== Data TMDB & Danh mục Đề Xuất (Fix Netflix + Thêm Phim Việt Nam toàn diện) ===== */
+/* ===== Data TMDB & Danh mục Đề Xuất ===== */
 const IMG="https://image.tmdb.org/t/p/";
 async function tmdb(path,q={}){
   if(!cfg.tmdb)throw new Error("nokey");
@@ -658,43 +674,60 @@ async function getStephenChowId(){
   return stephenChowId=p.results?.[0]?.id||9538;
 }
 
-/* Hàm lấy Phim trên Netflix kết hợp cả Series Netflix Originals (network 213) & Phim lẻ Netflix */
+const getYearNum=m=>{
+  if(m.year)return parseInt(m.year,10)||0;
+  const d=m.first_air_date||m.release_date||"";
+  return parseInt(d.slice(0,4),10)||0;
+};
+const getDateScore=m=>{
+  const d=m.first_air_date||m.release_date||(m.year?`${m.year}-01-01`:"");
+  return d?new Date(d).getTime()||0:0;
+};
+
+/* 1. Phim trên Netflix: Chủ yếu là Phim truyền hình Hàn Quốc (K-Drama) chiếu trên Netflix, sắp xếp theo năm giảm dần */
 async function fetchNetflixRow(pg=1){
-  const [tvNet,mvVN,mvUS]=await Promise.all([
-    ctmdb("/discover/tv",{with_networks:213,sort_by:"popularity.desc",page:pg}).catch(()=>({results:[]})),
-    ctmdb("/discover/movie",{with_watch_providers:8,watch_region:"VN",sort_by:"popularity.desc",page:pg}).catch(()=>({results:[]})),
-    ctmdb("/discover/movie",{with_watch_providers:8,watch_region:"US",sort_by:"popularity.desc",page:pg}).catch(()=>({results:[]}))
+  const today=new Date().toISOString().slice(0,10);
+  const [krNetNew,krNetPop,krWatchVN]=await Promise.all([
+    ctmdb("/discover/tv",{with_networks:213,with_original_language:"ko",without_genres:"10764,10767,10763,99","first_air_date.lte":today,"vote_count.gte":1,sort_by:"first_air_date.desc",page:pg}).catch(()=>({results:[]})),
+    ctmdb("/discover/tv",{with_networks:213,with_original_language:"ko",without_genres:"10764,10767,10763,99","first_air_date.lte":today,sort_by:"popularity.desc",page:pg}).catch(()=>({results:[]})),
+    ctmdb("/discover/tv",{with_watch_providers:8,watch_region:"VN",with_original_language:"ko",without_genres:"10764,10767,10763,99","first_air_date.lte":today,sort_by:"first_air_date.desc",page:pg}).catch(()=>({results:[]}))
   ]);
   const seen=new Set(),merged=[];
   const all=[
-    ...(tvNet.results||[]).map(x=>({...x,media_type:"tv"})),
-    ...(mvVN.results||[]).map(x=>({...x,media_type:"movie"})),
-    ...(mvUS.results||[]).map(x=>({...x,media_type:"movie"}))
+    ...(krNetNew.results||[]),
+    ...(krWatchVN.results||[]),
+    ...(krNetPop.results||[])
   ];
-  all.forEach(m=>{if(m&&m.poster_path&&!seen.has(m.id)){seen.add(m.id);merged.push(m)}});
+  all.forEach(m=>{
+    if(m&&m.poster_path&&!seen.has(m.id)){
+      seen.add(m.id);
+      merged.push({...m,media_type:"tv"});
+    }
+  });
+  merged.sort((a,b)=>(getYearNum(b)-getYearNum(a))||(getDateScore(b)-getDateScore(a))||((b.popularity||0)-(a.popularity||0)));
   return merged;
 }
 
-/* Hàm lấy toàn bộ Phim Việt Nam (Chiếu rạp, Phim lẻ, Phim truyền hình VTV/HTV & Phim Việt Free) */
+/* 2. Phim Việt Nam: Lọc sạch toàn bộ chương trình giải trí / gameshow / thực tế, chỉ giữ lại Phim điện ảnh & Phim bộ Việt */
 async function fetchVietnamRow(pg=1){
   const [mvVi,tvVi,kkVn]=await Promise.all([
-    ctmdb("/discover/movie",{with_original_language:"vi",sort_by:"popularity.desc",page:pg}).catch(()=>({results:[]})),
-    ctmdb("/discover/tv",{with_original_language:"vi",sort_by:"popularity.desc",page:pg}).catch(()=>({results:[]})),
-    fetchWithTimeout(`https://phimapi.com/v1/api/quoc-gia/viet-nam?page=${pg}&limit=20`,3200).catch(()=>null)
+    ctmdb("/discover/movie",{with_original_language:"vi",without_genres:"99,10402",sort_by:"popularity.desc",page:pg}).catch(()=>({results:[]})),
+    ctmdb("/discover/tv",{with_original_language:"vi",with_type:"2|4",without_genres:"10764,10767,10763,99,10402",sort_by:"popularity.desc",page:pg}).catch(()=>({results:[]})),
+    fetchWithTimeout(`https://phimapi.com/v1/api/quoc-gia/viet-nam?page=${pg}&limit=24`,3200).catch(()=>null)
   ]);
   const imgDomain=kkVn?.data?.APP_DOMAIN_CDN_IMAGE?(kkVn.data.APP_DOMAIN_CDN_IMAGE.endsWith("/")?kkVn.data.APP_DOMAIN_CDN_IMAGE:kkVn.data.APP_DOMAIN_CDN_IMAGE+"/"):"https://phimimg.com/";
-  const kkItems=(kkVn?.data?.items||[]).map(it=>{
+  const kkItems=(kkVn?.data?.items||[]).filter(it=>!isVnEntertainmentShow(it)).map(it=>{
     let thumb=it.poster_url||it.thumb_url||"";
     if(thumb&&!thumb.startsWith("http"))thumb=imgDomain+thumb;
-    return{_isProv:true,title:it.name,originTitle:it.origin_name||"",slug:it.slug,year:it.year||"",thumb,providerId:"kk_vn",providerName:"Phim Việt Free",poster_path:thumb};
+    return{_isProv:true,title:it.name,originTitle:it.origin_name||"",slug:it.slug,year:it.year||"",thumb,providerId:"kk_vn",providerName:"Phim Việt",poster_path:thumb};
   });
   const tmdbItems=[
-    ...(mvVi.results||[]).filter(x=>x.poster_path).map(x=>({...x,media_type:"movie"})),
-    ...(tvVi.results||[]).filter(x=>x.poster_path).map(x=>({...x,media_type:"tv"}))
+    ...(mvVi.results||[]).filter(x=>x.poster_path&&!isVnEntertainmentShow(x)).map(x=>({...x,media_type:"movie"})),
+    ...(tvVi.results||[]).filter(x=>x.poster_path&&!isVnEntertainmentShow(x)).map(x=>({...x,media_type:"tv"}))
   ];
   const combined=[],seenNames=new Set();
-  kkItems.forEach(x=>{const n=norm(x.title);if(!seenNames.has(n)){seenNames.add(n);combined.push(x)}});
-  tmdbItems.forEach(x=>{const n=norm(ttl(x));if(!seenNames.has(n)){seenNames.add(n);combined.push(x)}});
+  kkItems.forEach(x=>{const n=norm(x.title);if(n&&!seenNames.has(n)){seenNames.add(n);combined.push(x)}});
+  tmdbItems.forEach(x=>{const n=norm(ttl(x));if(n&&!seenNames.has(n)){seenNames.add(n);combined.push(x)}});
   return combined;
 }
 
@@ -705,16 +738,16 @@ const ROWS=[
     f:()=>ctmdb("/trending/all/week",{page:1}).then(d=>d.results||[])
   },
   {
-    t:"Phim Việt Nam",
-    p:pg=>fetchVietnamRow(pg),
-    f:()=>fetchVietnamRow(1),
-    sub:()=>"Điện ảnh chiếu rạp, Phim truyền hình & Phim Việt miễn phí"
-  },
-  {
     t:"Phim trên Netflix",
     p:pg=>fetchNetflixRow(pg),
     f:()=>fetchNetflixRow(1),
-    sub:()=>"Series độc quyền & Phim lẻ thịnh hành trên Netflix"
+    sub:()=>"Phim truyền hình Hàn Quốc trên Netflix · Xếp theo năm mới nhất"
+  },
+  {
+    t:"Phim Việt Nam",
+    p:pg=>fetchVietnamRow(pg),
+    f:()=>fetchVietnamRow(1),
+    sub:()=>"Phim điện ảnh chiếu rạp & Phim truyện truyền hình Việt Nam"
   },
   {
     t:"Gợi ý cho bạn",
@@ -747,11 +780,6 @@ const ROWS=[
     t:"Hành động & Phiêu lưu",
     p:pg=>ctmdb("/discover/movie",{with_genres:"28,12",sort_by:"popularity.desc",page:pg}).then(d=>d.results||[]),
     f:async()=>(await ctmdb("/discover/movie",{with_genres:"28,12",sort_by:"popularity.desc",page:1})).results||[]
-  },
-  {
-    t:"Hàn Quốc thịnh hành",
-    p:pg=>ctmdb("/discover/tv",{with_original_language:"ko",sort_by:"popularity.desc",page:pg}).then(d=>(d.results||[]).map(x=>({...x,media_type:"tv"}))),
-    f:async()=>((await ctmdb("/discover/tv",{with_original_language:"ko",sort_by:"popularity.desc",page:1})).results||[]).map(x=>({...x,media_type:"tv"}))
   },
   {
     t:"Hoạt hình & Anime",
@@ -850,13 +878,16 @@ async function openCategory(rowIdx){
       curPage+=batchCount;
       const resList=await Promise.all(pages.map(p=>r.p(p).catch(()=>[])));
       if(id!==navId)return;
-      const items=resList.flat().filter(m=>{
+      let items=resList.flat().filter(m=>{
         if(!m||(!m.poster_path&&!m._isProv)||m.media_type==="person")return false;
         const k=m._isProv?`p:${m.slug}`:`t:${m.id}`;
         if(seenKeys.has(k))return false;
         seenKeys.add(k);
         return true;
       });
+      if(r.t==="Phim trên Netflix"){
+        items.sort((a,b)=>(getYearNum(b)-getYearNum(a))||(getDateScore(b)-getDateScore(a))||((b.popularity||0)-(a.popularity||0)));
+      }
       if(!items.length){
         ended=true;
         if(wrap)wrap.innerHTML=seenKeys.size?`<div class="note" style="text-align:center;margin:10px 0">Đã hiển thị toàn bộ ${seenKeys.size} phim trong danh mục này.</div>`:`<div class="empty">Không có dữ liệu</div>`;
@@ -885,7 +916,7 @@ let LIB=null,libFilter="all";
 async function loadLib(){
   if(LIB&&LIB.length)return LIB;
   const cached=store.get("cg_lib_cache",[]);
-  if(cached.length)LIB=cached;
+  if(cached.length)LIB=cached.filter(it=>it.providerId!=="kk_vn"||!isVnEntertainmentShow(it));
   const res=await Promise.all(PROVIDERS.map(p=>fetchFromProvider(p,"")));
   const items=[],seen=new Set();
   res.forEach(r=>r.items.forEach(it=>{const k=`${it.providerId}:${it.slug}`;if(!seen.has(k)){seen.add(k);items.push(it)}}));
