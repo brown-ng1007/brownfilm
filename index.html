@@ -19,25 +19,30 @@
 html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 img{display:block}
-#page{padding:calc(var(--sat) + 12px) 0 calc(var(--sab) + 110px);min-height:100vh;animation:in .45s cubic-bezier(.2,.8,.2,1)}
+#page{padding:calc(var(--sat) + 12px) 0 calc(var(--sab) + 110px);min-height:100vh;animation:fade .28s ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes in{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
 ::view-transition-old(root){animation:.25s ease both fadeout}::view-transition-new(root){animation:.4s cubic-bezier(.2,.8,.2,1) both in}
 @keyframes fadeout{to{opacity:0;transform:scale(.98)}}
-.glass{background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(28px);backdrop-filter:saturate(180%) blur(28px);border:.5px solid var(--line)}
+.glass{background:var(--glass);border:.5px solid var(--line)}
+.tabs.glass{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);transform:translateZ(0);will-change:transform}
+#player .glass{background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.12)}
+#rows section{content-visibility:auto;contain-intrinsic-size:auto 250px}
+body.sheeted #page{visibility:hidden}
 h1{font-size:34px;letter-spacing:-.8px;margin:8px 20px 14px;font-weight:800}
 h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
-.scroller{display:flex;gap:12px;overflow-x:auto;padding:4px 20px 14px;scroll-snap-type:x proximity;scrollbar-width:none}
+.scroller{contain:layout paint;display:flex;gap:12px;overflow-x:auto;padding:4px 20px 14px;scroll-snap-type:x proximity;scrollbar-width:none}
 .scroller::-webkit-scrollbar{display:none}
 .card{flex:0 0 128px;scroll-snap-align:start;text-align:left;transition:transform .25s cubic-bezier(.2,.8,.2,1)}
 .card:active{transform:scale(.94)}
-.card .p{width:128px;aspect-ratio:2/3;border-radius:16px;object-fit:cover;background:var(--card);box-shadow:var(--shadow)}
+.card .p{width:128px;aspect-ratio:2/3;border-radius:16px;object-fit:cover;background:var(--card)}
 .card b{display:block;font-size:13px;margin-top:8px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .card small{color:var(--sub);font-size:12px}
 .card.wide{flex-basis:230px}.card.wide .p{width:230px;aspect-ratio:16/10}
 .bar{position:relative;height:3px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:6px;overflow:hidden}.bar i{position:absolute;inset:0 auto 0 0;background:var(--accent)}
-.sk{background:linear-gradient(90deg,var(--card),var(--line),var(--card));background-size:200% 100%;animation:sh 1.2s infinite;border-radius:16px;flex:0 0 128px;aspect-ratio:2/3}
+.sk{background:var(--card);border-radius:16px;flex:0 0 128px;aspect-ratio:2/3}
 @keyframes sh{to{background-position:-200% 0}}
-.hero{margin:0 20px;position:relative;border-radius:30px;overflow:hidden;aspect-ratio:4/5;max-height:62vh;width:calc(100% - 40px);display:block;box-shadow:var(--shadow);text-align:left;color:#fff}
+.hero{margin:0 20px;position:relative;border-radius:30px;overflow:hidden;aspect-ratio:4/5;max-height:62vh;width:calc(100% - 40px);display:block;text-align:left;color:#fff}
 .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hero:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(0,0,0,.85))}
 .hero div{position:absolute;left:20px;right:20px;bottom:20px;z-index:1}.hero b{font-size:28px;letter-spacing:-.6px;display:block}.hero span{opacity:.8;font-size:14px}
@@ -59,8 +64,8 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 #sheet{position:fixed;inset:0;z-index:50;display:none}
 #sheet.show{display:block}
 #sheet .bd{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0;transition:opacity .35s}
-#sheet .pn{position:absolute;left:0;right:0;bottom:0;top:calc(var(--sat) + 22px);background:var(--bg);border-radius:30px 30px 0 0;overflow-y:auto;transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.9,.2,1);box-shadow:0 -10px 50px rgba(0,0,0,.4);padding-bottom:calc(var(--sab) + 30px)}
-#sheet.open .bd{opacity:1}#sheet.open .pn{transform:none}
+#sheet .pn{position:absolute;left:0;right:0;bottom:0;top:calc(var(--sat) + 22px);background:var(--bg);border-radius:30px 30px 0 0;overflow-y:auto;transform:translate3d(0,100%,0);transition:transform .42s cubic-bezier(.2,.9,.2,1);will-change:transform;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(var(--sab) + 30px)}
+#sheet.open .bd{opacity:1}#sheet.open .pn{transform:translate3d(0,0,0)}
 .grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:8px auto;position:sticky;top:6px;z-index:3}
 .bk{position:relative;aspect-ratio:16/10;margin-top:-18px}.bk img{width:100%;height:100%;object-fit:cover}.bk:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 50%,var(--bg))}
 .dt{padding:0 20px;margin-top:-34px;position:relative;z-index:1}.dt h3{font-size:28px;letter-spacing:-.6px;margin:0 0 6px}.meta{color:var(--sub);font-size:14px;display:flex;gap:10px;flex-wrap:wrap}
@@ -101,7 +106,7 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const store={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const norm=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLowerCase();
-const vt=fn=>document.startViewTransition?document.startViewTransition(fn):fn();
+const vt=fn=>fn();
 let cfg=Object.assign({theme:"auto",tmdb:"",omdb:"",autonext:true},store.get("cfg",{}));
 const DEFAULT_TMDB="3309069624518eb702e51e01c9ad58f8";if(!cfg.tmdb)cfg.tmdb=DEFAULT_TMDB;if(!cfg.omdb)cfg.omdb="8299aee2";
 const saveCfg=()=>{store.set("cfg",cfg);applyTheme()};
@@ -129,7 +134,7 @@ const ROWS=[
 ];
 const poster=(m,w="w342")=>m.poster_path?IMG+w+m.poster_path:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="2" height="3"><rect width="2" height="3" fill="#8884"/></svg>');
 const ttl=m=>m.title||m.name||"";
-const cardHTML=(m,i,rank)=>m.media_type=="person"?"":`<button class="card" data-t="${m.media_type||(m.first_air_date?"tv":"movie")}" data-id="${m.id}"><img class="p" loading="lazy" src="${poster(m)}" alt=""><b>${rank?(i+1)+". ":""}${esc(ttl(m))}</b><small>★ ${(m.vote_average||0).toFixed(1)} · ${(m.release_date||m.first_air_date||"").slice(0,4)}</small></button>`;
+const cardHTML=(m,i,rank)=>m.media_type=="person"?"":`<button class="card" data-t="${m.media_type||(m.first_air_date?"tv":"movie")}" data-id="${m.id}"><img class="p" loading="lazy" decoding="async" src="${poster(m)}" alt=""><b>${rank?(i+1)+". ":""}${esc(ttl(m))}</b><small>★ ${(m.vote_average||0).toFixed(1)} · ${(m.release_date||m.first_air_date||"").slice(0,4)}</small></button>`;
 
 /* ---------- Pages ---------- */
 const ICON={home:'<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',lib:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M10 9l5 3-5 3z"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',me:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'};
@@ -157,7 +162,7 @@ let LIB=null;
 async function loadLib(){if(LIB)return LIB;const u="https://archive.org/advancedsearch.php?q=collection%3Afeature_films+AND+mediatype%3Amovies&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=year&rows=60&sort%5B%5D=downloads+desc&output=json";const r=await fetch(u).then(r=>r.json());return LIB=r.response.docs}
 async function pLib(){
   $("#page").innerHTML=`<h1>Thư viện</h1><div class="note" style="margin-top:-8px">Phim phạm vi công cộng từ Internet Archive – xem miễn phí, hợp pháp.</div>${contRow()}<div class="sp"><i></i></div>`;
-  try{const d=await loadLib();if(tab!="lib")return;$("#page .sp").outerHTML=`<h2>Tất cả phim</h2><div class="grid">${d.map((m,i)=>`<button class="card" data-lib="${i}"><img class="p" loading="lazy" src="https://archive.org/services/img/${m.identifier}" alt=""><b>${esc(m.title)}</b><small>${m.year||""}</small></button>`).join("")}</div>`}catch{$("#page .sp").outerHTML='<div class="empty">Không tải được thư viện</div>'}
+  try{const d=await loadLib();if(tab!="lib")return;$("#page .sp").outerHTML=`<h2>Tất cả phim</h2><div class="grid">${d.map((m,i)=>`<button class="card" data-lib="${i}"><img class="p" loading="lazy" decoding="async" src="https://archive.org/services/img/${m.identifier}" alt=""><b>${esc(m.title)}</b><small>${m.year||""}</small></button>`).join("")}</div>`}catch{$("#page .sp").outerHTML='<div class="empty">Không tải được thư viện</div>'}
 }
 let st;
 function pSearch(){
@@ -192,8 +197,8 @@ function pMe(){
 }
 
 /* ---------- Detail sheet ---------- */
-function openSheet(){const s=$("#sheet");s.classList.add("show");requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.add("open")))}
-function closeSheet(){ytStop();const s=$("#sheet");s.classList.remove("open");setTimeout(()=>{s.classList.remove("show");$("#sc").innerHTML=""},450)}
+let shT;function openSheet(){const s=$("#sheet");clearTimeout(shT);s.classList.add("show");requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.add("open")));shT=setTimeout(()=>document.body.classList.add("sheeted"),480)}
+function closeSheet(){ytStop();clearTimeout(shT);document.body.classList.remove("sheeted");const s=$("#sheet");s.classList.remove("open");setTimeout(()=>{s.classList.remove("show");$("#sc").innerHTML=""},450)}
 $("#sheet .bd").onclick=closeSheet;
 (()=>{let y0=0;const pn=$("#sheet .pn");pn.addEventListener("touchstart",e=>y0=e.touches[0].clientY,{passive:true});pn.addEventListener("touchend",e=>{if(pn.scrollTop<=0&&e.changedTouches[0].clientY-y0>110)closeSheet()})})();
 /* YouTube trailer + tiến trình */
@@ -217,8 +222,8 @@ async function openDetail(type,id,auto){
     const rt=m.runtime?m.runtime+" phút":(m.number_of_seasons?m.number_of_seasons+" mùa":"");
     $("#sc").innerHTML=`<div class="bk"><img src="${m.backdrop_path?IMG+"w780"+m.backdrop_path:poster(m,"w500")}" alt=""></div><div class="dt"><h3>${esc(ttl(m))}</h3>
     <div class="meta"><span class="rate">★ ${m.vote_average.toFixed(1)} TMDB</span><span id="imdb"></span><span>${(m.release_date||m.first_air_date||"").slice(0,4)}</span><span>${rt}</span><span>${(m.genres||[]).map(g=>esc(g.name)).join(", ")}</span></div>
-    <div class="acts">${tr?`<button class="btn" id="tb">▶ Xem trailer</button>`:""}${pv.link?`<a class="btn g" style="text-decoration:none" href="${pv.link}" target="_blank" rel="noopener">Nơi xem hợp pháp</a>`:""}</div>
-    <div id="trw"></div>${names.length?`<b>Có thể xem trên</b><div class="prov">${names.map(n=>`<span>${esc(n)}</span>`).join("")}</div>`:""}
+    <div class="acts"><a class="btn" style="text-decoration:none" href="${pv.link||`https://www.themoviedb.org/${type}/${id}/watch?locale=VN`}" target="_blank" rel="noopener">🎬 Xem phim</a>${tr?`<button class="btn g" id="tb">▶ Xem trailer</button>`:""}</div>
+    <div id="trw"></div>${names.length?`<b>Có thể xem trên</b><div class="prov">${names.map(n=>`<span>${esc(n)}</span>`).join("")}</div>`:`<div class="note" style="margin:0 0 8px">Chưa có dịch vụ hợp pháp nào tại Việt Nam cho phim này. Phim đang chiếu rạp thì xem ở rạp.</div>`}
     <p>${esc(m.overview||"Chưa có mô tả tiếng Việt.")}</p>
     ${m.recommendations?.results?.length?`<h2 style="margin-left:0">Tương tự</h2><div class="scroller" style="margin:0 -20px">${m.recommendations.results.filter(x=>x.poster_path).slice(0,12).map(x=>cardHTML({...x,media_type:type})).join("")}</div>`:""}</div>`;
     const yk=type+":"+id,old=store.get("ytprog",{})[yk];
