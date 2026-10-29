@@ -28,11 +28,10 @@
   --accent-grad:linear-gradient(135deg,#ff375f 0%,#fa2d48 55%,#ff5e3a 100%);
   --line:rgba(250,45,72,.08);
   --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
-  /* Hệ thống lò xo iOS: mượt, có độ lún đàn hồi tự nhiên */
   --uikit:cubic-bezier(.32,.72,0,1);
-  --ios-spring:cubic-bezier(.20,1.14,.32,1);
-  --ios-bounce:cubic-bezier(.18,1.24,.34,1);
-  --spring:cubic-bezier(.20,1.16,.32,1);
+  --ios-spring:cubic-bezier(.20,1.12,.32,1);
+  --ios-bounce:cubic-bezier(.18,1.22,.34,1);
+  --spring:cubic-bezier(.20,1.14,.32,1);
   --g:.02;
 }
 :root[data-theme=dark]{
@@ -56,34 +55,43 @@ html,body{
 body.playing,html.playing{background:#000!important;background-image:none!important}
 
 #page{
+  position:relative;z-index:26;
   padding:calc(var(--sat) + 12px) 0 calc(var(--sab) + 110px);
   min-height:100vh;min-height:100dvh;
   background-color:var(--bg);background-image:var(--bg-mesh);
   transform:translate3d(0,0,0);
+  will-change:transform;
   backface-visibility:hidden;-webkit-backface-visibility:hidden;
 }
 
-/* Lớp xem trước trang trước đó khi vuốt quay lại kiểu iOS */
+/* Lớp nền Pre-composited cho cử chỉ vuốt quay lại 120fps (Dùng visibility thay vì display:none để giữ nguyên texture trên GPU) */
 #edgeBack{
-  position:fixed;inset:0;z-index:25;pointer-events:none;display:none;overflow:hidden;
-  contain:layout paint style;
+  position:fixed;inset:0;z-index:24;pointer-events:none;
+  visibility:hidden;overflow:hidden;
+  contain:strict;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
 }
-#edgeBack.on{display:block}
+#edgeBack.on{visibility:visible}
 #edgePrev{
   position:absolute;inset:0;
   background-color:var(--bg);background-image:var(--bg-mesh);
-  overflow:hidden;transform:translate3d(-28%,0,0) scale(.96);
-  will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  overflow:hidden;
+  transform:translate3d(-30%,0,0);
+  will-change:transform;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
 }
 #edgeDim{
-  position:absolute;inset:0;background:rgba(0,0,0,.18);opacity:1;will-change:opacity;
+  position:absolute;inset:0;background:rgba(0,0,0,.15);
+  opacity:0;will-change:opacity;
 }
-body.edge-swiping #page{
-  position:relative;z-index:26;
-  will-change:transform;
-  border-radius:28px;
-  box-shadow:-14px 0 36px rgba(0,0,0,.22);
+/* Dải bóng đổ cạnh trang tách rời 100dvh siêu nhẹ (thay cho box-shadow trên #page dài 4000px) */
+#edgeShadow{
+  position:fixed;top:0;bottom:0;left:-24px;width:24px;z-index:27;
+  pointer-events:none;visibility:hidden;
+  background:linear-gradient(to right,transparent,rgba(0,0,0,.16));
+  transform:translate3d(0,0,0);will-change:transform,opacity;
 }
+#edgeShadow.on{visibility:visible}
 
 h1{font-size:34px;margin:8px 20px 14px;font-weight:800;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;width:fit-content}
 h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
@@ -94,7 +102,7 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 .more-link svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .scroller{display:flex;gap:13px;overflow-x:auto;padding:8px 20px 16px;scrollbar-width:none;align-items:flex-start;-webkit-overflow-scrolling:touch;contain:content}
 .scroller::-webkit-scrollbar{display:none}
-.card{position:relative;flex:0 0 128px;text-align:left;transition:transform .42s var(--ios-bounce);transform:translateZ(0)}
+.card{position:relative;flex:0 0 128px;text-align:left;transition:transform .4s var(--ios-bounce);transform:translateZ(0)}
 .card:active{transform:scale(.90)}
 .card .p{display:block;width:128px;aspect-ratio:2/3;border-radius:18px;object-fit:cover;background:var(--card);border:.5px solid var(--line);box-shadow:0 4px 12px rgba(20,10,20,.07)}
 .card b{margin-top:8px;font-size:13px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -127,7 +135,7 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
   box-shadow:0 4px 14px rgba(250,45,72,.07),inset 0 1px 1px var(--rim-hi);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
   padding:14px;text-align:center;
-  transition:transform .42s var(--ios-bounce);
+  transition:transform .4s var(--ios-bounce);
 }
 .card.more-card:active .more-box{transform:scale(.90)}
 .more-ic{
@@ -221,24 +229,24 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 .sbtn.on{color:var(--accent)}
 .sbtn.on svg{stroke-width:2.4}
 
-/* ===== Sheet (Đàn hồi lò xo iOS + Hỗ trợ thu nhỏ về Góc Phải hoặc Góc Dưới) ===== */
+/* ===== Sheet (Cố định transform-origin: 50% 50% để không bao giờ bị giật nhảy khi đổi hướng thu nhỏ) ===== */
 #sheet{position:fixed;inset:0;z-index:50;display:none;overflow:hidden;contain:layout style}
 #sheet.show{display:block}
 #sheet .bd{
   position:absolute;inset:0;background:rgba(12,10,18,.52);
-  opacity:0;transition:opacity .42s var(--uikit);will-change:opacity;
+  opacity:0;transition:opacity .38s var(--uikit);will-change:opacity;
 }
 #sheet .pn{
   position:absolute;left:0;right:0;bottom:0;top:calc(var(--sat) + 12px);
-  background:var(--bg);border-radius:32px 32px 0 0;
+  background:var(--bg);border-radius:32px;
   overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
   overscroll-behavior:none;
   padding-bottom:calc(var(--sab) + 50px);
-  transform-origin:50% 100%;
-  transform:translate3d(0,102%,0) scale(.94);
+  transform-origin:50% 50%;
+  transform:translate3d(0,100%,0) scale(.95);
   opacity:1;
-  transition:transform .54s var(--ios-spring),opacity .36s ease,border-radius .3s ease;
-  box-shadow:0 -10px 36px rgba(0,0,0,.26);
+  transition:transform .50s var(--ios-spring),opacity .32s ease;
+  box-shadow:0 -8px 30px rgba(0,0,0,.22);
   will-change:transform,opacity;backface-visibility:hidden;-webkit-backface-visibility:hidden;
 }
 #sheet.open .bd{opacity:1}
@@ -282,18 +290,18 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 .tr{aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:#000;margin:10px 0}.tr iframe{width:100%;height:100%;border:0}
 .dt p{color:var(--sub);line-height:1.5}
 
-/* ===== Player (Đàn hồi lò xo iOS + Hỗ trợ thu nhỏ theo hướng vuốt) ===== */
+/* ===== Player ===== */
 #player{
   position:fixed;top:50%;left:50%;
   width:100vw;height:100vh;width:100dvw;height:100dvh;
   transform:translate3d(-50%,-50%,0) rotate(0deg) scale(1);
   transform-origin:center center;
   z-index:80;background:#000;display:none;color:#fff;
-  transition:transform .52s var(--ios-spring),opacity .36s ease,border-radius .35s ease;
+  transition:transform .50s var(--ios-spring),opacity .34s ease,border-radius .3s ease;
   user-select:none;-webkit-user-select:none;overflow:hidden;
   will-change:transform,opacity;backface-visibility:hidden;-webkit-backface-visibility:hidden;
 }
-#player.show{display:block;animation:playerIn .46s var(--ios-spring)}
+#player.show{display:block;animation:playerIn .44s var(--ios-spring)}
 @keyframes playerIn{from{opacity:0;transform:translate3d(-50%,-44%,0) scale(.90)}to{opacity:1;transform:translate3d(-50%,-50%,0) scale(1)}}
 #player.dragging{transition:none!important}
 #player video,#player iframe{width:100%;height:100%;object-fit:contain;background:#000;border:0}
@@ -319,8 +327,10 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 </style>
 </head>
 <body>
-<div id="edgeBack"><div id="edgePrev"></div><div id="edgeDim"></div></div>
+<!-- Đặt #page đứng trước #edgeBack để document.querySelector luôn ưu tiên trúng #page -->
 <div id="page"></div>
+<div id="edgeBack"><div id="edgePrev"></div><div id="edgeDim"></div></div>
+<div id="edgeShadow"></div>
 <div class="dock">
   <nav class="tabs glass" id="tabs" aria-label="Điều hướng"><i id="tabPill"></i></nav>
   <button class="sbtn glass" id="sBtn" aria-label="Tìm kiếm"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
@@ -659,7 +669,7 @@ async function findStreamForTmdb(viTitle,origTitle,tmdbId=""){
 }
 
 function markCardComingSoon(tmdbId){
-  document.querySelectorAll(`.card[data-id="${tmdbId}"]`).forEach(card=>{
+  $("#page")?.querySelectorAll(`.card[data-id="${tmdbId}"]`).forEach(card=>{
     if(!card.querySelector(".cs-tag")){
       card.insertAdjacentHTML("afterbegin",`<span class="cs-tag">Coming Soon</span>`);
     }
@@ -706,25 +716,34 @@ function scheduleIdleCheck(){
   setTimeout(step,400);
 }
 
-/* ===== Quản lý Lịch sử Điều hướng bằng DOM Cache ===== */
+/* ===== Quản lý Lịch sử Điều hướng với Pre-Mounted GPU Layer (#edgePrev) ===== */
 const ICONS={
   home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
   lib:'<rect x="4" y="9" width="16" height="11" rx="2.5"/><path d="M7 5.5h10M9.5 2.5h5"/>',
   me:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/>'
 };
 const TABS=[["home","Khám phá"],["lib","Thư viện"],["me","Cài đặt"]];
-const tabsEl=$("#tabs"),pill=$("#tabPill"),sBtn=$("#sBtn");
+const tabsEl=$("#tabs"),pill=$("#tabPill"),sBtn=$("#sBtn"),edgePrevEl=$("#edgePrev");
 tabsEl.insertAdjacentHTML("beforeend",TABS.map(([k,l])=>`<button class="t" data-k="${k}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg>${l}</button>`).join(""));
 const tbs=[...tabsEl.querySelectorAll("button.t")];
 let tab="home",navId=0,curView={type:"tab",key:"home"};
 const pageHistory=[];
+
+function mountTopHistoryToEdgePrev(){
+  edgePrevEl.innerHTML="";
+  const topSnap=pageHistory[pageHistory.length-1];
+  if(topSnap&&topSnap.holder){
+    topSnap.holder.style.transform=`translate3d(0,-${topSnap.scrollY||0}px,0)`;
+    edgePrevEl.appendChild(topSnap.holder);
+  }
+}
 
 function saveCurrentViewSnapshot(){
   const pg=$("#page");
   if(!pg||!pg.firstChild)return;
   const scrollers=[...pg.querySelectorAll(".scroller")].map(el=>el.scrollLeft);
   const holder=document.createElement("div");
-  holder.style.cssText="padding:calc(var(--sat) + 12px) 0 calc(var(--sab) + 110px);min-height:100dvh";
+  holder.style.cssText="padding:calc(var(--sat) + 12px) 0 calc(var(--sab) + 110px);min-height:100dvh;will-change:transform";
   while(pg.firstChild)holder.appendChild(pg.firstChild);
   pageHistory.push({
     type:curView.type,
@@ -734,7 +753,9 @@ function saveCurrentViewSnapshot(){
     scrollers,
     holder
   });
-  if(pageHistory.length>10)pageHistory.shift();
+  if(pageHistory.length>8)pageHistory.shift();
+  /* Gắn sẵn trang vừa lưu vào #edgePrev ngay lập tức để GPU rasterize sẵn trước khi người dùng vuốt */
+  mountTopHistoryToEdgePrev();
 }
 
 function syncTabUI(k){
@@ -782,35 +803,29 @@ function restorePreviousPage(){
   const scEls=[...pg.querySelectorAll(".scroller")];
   (prev.scrollers||[]).forEach((sl,idx)=>{if(scEls[idx])scEls[idx].scrollLeft=sl});
   window.scrollTo(0,prev.scrollY||0);
+  mountTopHistoryToEdgePrev();
   return true;
 }
 
-let drag=null,tabRaf=0;
+let drag=null;
 const idxAt=x=>{let best=0,d=1e9;tbs.forEach((b,n)=>{const c=b.offsetLeft+b.offsetWidth/2,dd=Math.abs(c-x);if(dd<d){d=dd;best=n}});return best};
 tabsEl.addEventListener("pointerdown",e=>{
   const r=tabsEl.getBoundingClientRect();
-  drag={r,idx:idxAt(e.clientX-r.left),x:e.clientX};
+  drag={r,idx:idxAt(e.clientX-r.left)};
   tabsEl.setPointerCapture(e.pointerId);
   pill.classList.remove("off");pill.classList.add("press");tabsEl.classList.add("press");
   moveDrag(e);
 });
 function moveDrag(e){
   if(!drag)return;
-  drag.x=e.clientX;
-  if(tabRaf)return;
-  tabRaf=requestAnimationFrame(()=>{
-    tabRaf=0;
-    if(!drag)return;
-    const x=drag.x-drag.r.left,w=tbs[0].offsetWidth;
-    const px=Math.min(tbs[tbs.length-1].offsetLeft,Math.max(tbs[0].offsetLeft,x-w/2));
-    drag.idx=idxAt(x);pill.style.width=tbs[drag.idx].offsetWidth+"px";pill.style.setProperty("--px",px+"px");
-    tbs.forEach((b,n)=>b.classList.toggle("hov",n===drag.idx));
-  });
+  const x=e.clientX-drag.r.left,w=tbs[0].offsetWidth;
+  const px=Math.min(tbs[tbs.length-1].offsetLeft,Math.max(tbs[0].offsetLeft,x-w/2));
+  drag.idx=idxAt(x);pill.style.width=tbs[drag.idx].offsetWidth+"px";pill.style.setProperty("--px",px+"px");
+  tbs.forEach((b,n)=>b.classList.toggle("hov",n===drag.idx));
 }
 tabsEl.addEventListener("pointermove",e=>{if(drag)moveDrag(e)});
 function endDrag(commit){
   if(!drag)return;const i=drag.idx;drag=null;
-  if(tabRaf){cancelAnimationFrame(tabRaf);tabRaf=0}
   pill.classList.remove("press");tabsEl.classList.remove("press");
   commit?go(TABS[i][0]):syncTabUI(tab);
 }
@@ -998,12 +1013,13 @@ async function pHome(id){
   $("#rows").innerHTML=ROWS.map((r,i)=>`<section id="r${i}"><div class="sec-hd"><h2>${r.t}</h2><button class="more-link" data-more="${i}">Xem thêm <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>${r.sub?`<div class="note" style="margin:-6px 20px 6px" id="s${i}"></div>`:""}<div class="scroller">${'<div class="sk"></div>'.repeat(4)}</div></section>`).join("");
   ROWS.forEach(async(r,i)=>{try{let d=(await r.f()).filter(m=>m&&(m.poster_path||m._isProv));if(i==0&&d[0]){const h=d[0];$("#page").insertAdjacentHTML("afterbegin",`<button class="hero" data-t="${h.media_type||"movie"}" data-id="${h.id}"><img src="${IMG}w780${h.backdrop_path||h.poster_path}" alt=""><div><span>Nổi bật tuần này</span><b>${esc(ttl(h))}</b><span>★ ${(h.vote_average||0).toFixed(1)}</span></div></button>`);const hh=$("#page h1");$("#page").prepend(hh);}
     if(id!==navId)return;
-    const rowEl=$(`#r${i} .scroller`);
+    const rowEl=$(`#page #r${i} .scroller`);
+    if(!rowEl)return;
     const cards=d.slice(0,20).map((m,j)=>cardHTML(m,j,r.rank)).join("");
     rowEl.innerHTML=cards?(cards+moreCardHTML(i)):'<div class="empty">Không có dữ liệu</div>';
-    if(r.sub)$(`#s${i}`).textContent=r.sub();
+    if(r.sub)$(`#page #s${i}`).textContent=r.sub();
     queueStreamCheck(rowEl);
-  }catch(e){if(id===navId)$(`#r${i} .scroller`).innerHTML=`<div class="empty">${e.message=="401"?"Khoá API không đúng":"Không tải được"}</div>`}});
+  }catch(e){if(id===navId){const el=$(`#page #r${i} .scroller`);if(el)el.innerHTML=`<div class="empty">${e.message=="401"?"Khoá API không đúng":"Không tải được"}</div>`}}});
 }
 
 /* Mở toàn bộ danh sách phim theo đúng thể loại đã lọc ở mục đề xuất */
@@ -1021,7 +1037,7 @@ async function openCategory(rowIdx,pushHist=true){
     <div class="grid" id="catGrid"></div>
     <div id="catMoreWrap" style="text-align:center;padding:18px 20px"><div class="sp"><i></i></div></div>
   `;
-  $("#catBack").onclick=()=>{if(!restorePreviousPage())go("home",false)};
+  $("#page #catBack").onclick=()=>{if(!restorePreviousPage())go("home",false)};
 
   let curPage=0,loading=false,ended=false;
   const seenKeys=new Set();
@@ -1029,7 +1045,7 @@ async function openCategory(rowIdx,pushHist=true){
   async function loadNextBatch(batchCount=3){
     if(loading||ended||id!==navId)return;
     loading=true;
-    const wrap=$("#catMoreWrap");
+    const wrap=$("#page #catMoreWrap");
     if(wrap)wrap.innerHTML=`<div class="sp"><i></i></div>`;
     try{
       const pages=[];
@@ -1052,7 +1068,7 @@ async function openCategory(rowIdx,pushHist=true){
         if(wrap)wrap.innerHTML=seenKeys.size?`<div class="note" style="text-align:center;margin:10px 0">Đã hiển thị toàn bộ ${seenKeys.size} phim trong danh mục này.</div>`:`<div class="empty">Không có dữ liệu</div>`;
         return;
       }
-      const grid=$("#catGrid");
+      const grid=$("#page #catGrid");
       if(grid){
         const startRank=seenKeys.size-items.length;
         grid.insertAdjacentHTML("beforeend",items.map((m,idx)=>cardHTML(m,startRank+idx,r.rank)).join(""));
@@ -1060,7 +1076,7 @@ async function openCategory(rowIdx,pushHist=true){
       }
       if(wrap){
         wrap.innerHTML=`<button class="btn g" id="loadMoreCatBtn">Tải thêm phim <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M9 6l6 6-6 6"/></svg></button>`;
-        $("#loadMoreCatBtn").onclick=()=>loadNextBatch(2);
+        $("#page #loadMoreCatBtn").onclick=()=>loadNextBatch(2);
       }
     }catch{
       if(wrap)wrap.innerHTML=`<div class="empty">Không tải thêm được dữ liệu</div>`;
@@ -1083,7 +1099,7 @@ async function loadLib(){
   return LIB||[];
 }
 function renderLibGrid(){
-  const g=$("#libGrid");if(!g||!LIB)return;
+  const g=$("#page #libGrid");if(!g||!LIB)return;
   const list=libFilter==="all"?LIB:LIB.filter(x=>x.providerId===libFilter);
   g.innerHTML=list.map(m=>provCardHTML(m)).join("")||'<div class="empty">Không có phim</div>';
 }
@@ -1091,22 +1107,24 @@ async function pLib(){
   $("#page").innerHTML=`<h1>Thư viện</h1><div class="note" style="margin-top:-8px">Kho phim đa nguồn tốc độ cao (KKPhim CDN, Phim Việt, Phim Bộ, Anime & NguonC) – Phát trực tiếp M3U8 sạch quảng cáo.</div>${contRow()}<div class="chips" id="libTabs"></div><div id="libWrap"><div class="sp"><i></i></div></div>`;
   try{
     await loadLib();if(tab!="lib")return;
-    $("#libTabs").innerHTML=[["all","Tất cả"],...PROVIDERS.map(p=>[p.id,p.name])].map(([id,name])=>`<button class="chip ${libFilter===id?"on":""}" data-lf="${id}">${esc(name)}</button>`).join("");
-    $("#libTabs").onclick=e=>{const b=e.target.closest("[data-lf]");if(!b)return;libFilter=b.dataset.lf;[...$("#libTabs").children].forEach(c=>c.classList.toggle("on",c===b));renderLibGrid()};
-    $("#libWrap").innerHTML=`<h2>Tất cả phim</h2><div class="grid" id="libGrid"></div>`;
+    const lt=$("#page #libTabs");
+    if(!lt)return;
+    lt.innerHTML=[["all","Tất cả"],...PROVIDERS.map(p=>[p.id,p.name])].map(([id,name])=>`<button class="chip ${libFilter===id?"on":""}" data-lf="${id}">${esc(name)}</button>`).join("");
+    lt.onclick=e=>{const b=e.target.closest("[data-lf]");if(!b)return;libFilter=b.dataset.lf;[...lt.children].forEach(c=>c.classList.toggle("on",c===b));renderLibGrid()};
+    $("#page #libWrap").innerHTML=`<h2>Tất cả phim</h2><div class="grid" id="libGrid"></div>`;
     renderLibGrid();
-  }catch{$("#libWrap").innerHTML='<div class="empty">Không tải được thư viện</div>'}
+  }catch{const lw=$("#page #libWrap");if(lw)lw.innerHTML='<div class="empty">Không tải được thư viện</div>'}
 }
 
 let st;
 function pSearch(id=navId){
   const rec=store.get("recent",[]);
   $("#page").innerHTML=`<h1>Tìm kiếm</h1><label class="search glass"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="Tên phim, diễn viên…" autocomplete="off" enterkeyhint="search"></label><div id="res">${rec.length?`<h2>Gần đây</h2><div class="chips">${rec.map(r=>`<button class="chip" data-q="${esc(r)}">${esc(r)}</button>`).join("")}</div>`:`<div class="empty">Gõ để tìm trên KKPhim, NguonC & TMDB.</div>`}</div>`;
-  $("#q").oninput=e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value.trim(),id),350)};
-  $("#page").onclick=e=>{const c=e.target.closest("[data-q]");if(c){$("#q").value=c.dataset.q;doSearch(c.dataset.q,id)}};
+  $("#page #q").oninput=e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value.trim(),id),350)};
+  $("#page").onclick=e=>{const c=e.target.closest("[data-q]");if(c){$("#page #q").value=c.dataset.q;doSearch(c.dataset.q,id)}};
 }
 async function doSearch(q,id=navId){
-  const res=$("#res");if(!res)return;if(q.length<2){pSearch(id);return}
+  const res=$("#page #res");if(!res)return;if(q.length<2){pSearch(id);return}
   res.innerHTML='<div class="sp"><i></i></div>';let h="";
   try{
     const nguoncP=PROVIDERS.find(p=>p.id==="nguonc")||PROVIDERS[5];
@@ -1117,9 +1135,9 @@ async function doSearch(q,id=navId){
     if(l.length)h+=`<h2>Nguồn phát trực tiếp (${l.length})</h2><div class="grid">${l.map(m=>provCardHTML(m)).join("")}</div>`;
   }catch{}
   if(cfg.tmdb){try{const d=(await tmdb("/search/multi",{query:q}));if(id!==navId)return;const resArr=(d.results||[]).filter(m=>m.media_type!="person"&&m.poster_path);if(resArr.length)h+=`<h2>Kết quả TMDB</h2><div class="grid" id="tmdbSearchGrid">${resArr.map(m=>cardHTML(m)).join("")}</div>`}catch{}}
-  if($("#q")?.value.trim()!=q||id!==navId)return;
+  if($("#page #q")?.value.trim()!=q||id!==navId)return;
   res.innerHTML=h||'<div class="empty">Không tìm thấy kết quả.</div>';
-  const tg=$("#tmdbSearchGrid");if(tg)queueStreamCheck(tg);
+  const tg=$("#page #tmdbSearchGrid");if(tg)queueStreamCheck(tg);
   const r=[q,...store.get("recent",[]).filter(x=>x!=q)].slice(0,8);store.set("recent",r);
 }
 
@@ -1136,17 +1154,15 @@ function pMe(){
   <div class="list"><div><span>TMDB key</span><input type="password" id="k1" placeholder="Dán khoá API" value="${esc(cfg.tmdb)}"></div><div><span>OMDb key</span><input type="password" id="k2" placeholder="Tuỳ chọn – điểm IMDb" value="${esc(cfg.omdb)}"></div></div>
   <p class="note">Lấy khoá miễn phí tại themoviedb.org/settings/api (TMDB) và omdbapi.com (điểm IMDb). Khoá chỉ lưu trên máy bạn.</p>
   <div style="padding:0 20px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="sv">Lưu & tải lại</button><button class="btn g" id="cl">Xoá tiến trình xem</button></div>
-  <p class="note" style="margin-top:18px">Thêm vào màn hình chính: Safari → Chia sẻ → Thêm vào MH chính. Hỗ trợ vuốt từ cạnh trái hoặc giữa màn hình để quay lại chuẩn iOS.</p>`;
+  <p class="note" style="margin-top:18px">Thêm vào màn hình chính: Safari → Chia sẻ → Thêm vào MH chính. Hỗ trợ vuốt 120fps từ cạnh trái hoặc giữa màn hình để quay lại chuẩn iOS.</p>`;
 
-  $("#th").onclick=e=>{const b=e.target.closest("button");if(!b)return;vt(()=>{cfg.theme=b.dataset.v;saveCfg();[...$("#th").children].forEach(x=>x.classList.toggle("on",x==b))})};
-  $("#glRng").oninput=e=>{cfg.glass=Number(e.target.value);$("#gl").textContent=label();saveCfg()};
-  $("#sv").onclick=()=>{cfg.tmdb=$("#k1").value.trim();cfg.omdb=$("#k2").value.trim();saveCfg();cache.clear();go("home")};
-  $("#cl").onclick=()=>{store.set("prog",{});store.set("ytprog",{});store.set("seen",[]);alert("Đã xoá")};
+  $("#page #th").onclick=e=>{const b=e.target.closest("button");if(!b)return;vt(()=>{cfg.theme=b.dataset.v;saveCfg();[...$("#page #th").children].forEach(x=>x.classList.toggle("on",x==b))})};
+  $("#page #glRng").oninput=e=>{cfg.glass=Number(e.target.value);$("#page #gl").textContent=label();saveCfg()};
+  $("#page #sv").onclick=()=>{cfg.tmdb=$("#page #k1").value.trim();cfg.omdb=$("#page #k2").value.trim();saveCfg();cache.clear();go("home")};
+  $("#page #cl").onclick=()=>{store.set("prog",{});store.set("ytprog",{});store.set("seen",[]);alert("Đã xoá")};
 }
 
-/* ---------- Sheet Chi Tiết Phim:
-   - Vuốt từ bên trái sang phải -> Thu nhỏ về góc phải
-   - Vuốt từ trên xuống hoặc bấm ✕ -> Thu nhỏ xuống góc dưới ---------- */
+/* ---------- Sheet Chi Tiết Phim (Giữ cố định transform-origin: 50% 50% để không bị nhảy khung khi thu nhỏ về góc phải hoặc góc dưới) ---------- */
 let shT,activeStreamData=null,activeSrvIdx=0,activeEpIdx=0;
 const sheetEl=$("#sheet"),sheetPn=$("#sheet .pn"),sheetBd=$("#sheet .bd"),shClose=$("#shClose"),shBack=$("#shBack"),shGrab=$("#shGrab");
 const sheetHistory=[];
@@ -1161,8 +1177,6 @@ sheetBd.addEventListener("touchmove",e=>{if(e.cancelable)e.preventDefault()},{pa
 function resetSheetInlineStyles(){
   sheetPn.style.transition="";
   sheetPn.style.transform="";
-  sheetPn.style.transformOrigin="";
-  sheetPn.style.borderRadius="";
   sheetPn.style.opacity="";
   sheetBd.style.transition="";
   sheetBd.style.opacity="";
@@ -1183,9 +1197,9 @@ function openSheet(){
   }
 }
 
-/* dir = "down" (mặc định khi bấm ✕ hoặc vuốt từ trên xuống) | "right" (khi vuốt từ góc trái sang phải) */
+/* dir = "down" (thu nhỏ xuống dưới) | "right" (thu nhỏ về góc phải) */
 function closeSheet(dir="down"){
-  markInteraction(500);
+  markInteraction(450);
   ytStop();
   clearTimeout(shT);
   sheetHistory.length=0;
@@ -1193,31 +1207,23 @@ function closeSheet(dir="down"){
   updateSheetBackBtn();
   sheetEl.classList.remove("dragging");
 
+  sheetPn.style.transition="transform .36s cubic-bezier(.22,1,.36,1), opacity .30s ease";
+  sheetBd.style.transition="opacity .32s ease";
   if(dir==="right"){
-    /* Thu nhỏ mượt về phía góc phải màn hình, KHÔNG nhảy xuống dưới */
-    sheetPn.style.transformOrigin="92% 52%";
-    sheetPn.style.borderRadius="36px";
-    sheetPn.style.transition="transform .44s cubic-bezier(.22,1,.34,1), opacity .36s ease, border-radius .3s ease";
-    sheetBd.style.transition="opacity .38s ease";
-    sheetPn.style.transform="translate3d(48%, 6%, 0) scale(.34)";
-    sheetPn.style.opacity="0";
-    sheetBd.style.opacity="0";
+    /* Thu nhỏ liên tục về phía góc phải với cùng tâm 50% 50%, không nhảy khung */
+    sheetPn.style.transform="translate3d(54%, 8%, 0) scale(.32)";
   }else{
-    /* Thu nhỏ mượt xuống phía dưới / góc dưới màn hình */
-    sheetPn.style.transformOrigin="50% 96%";
-    sheetPn.style.borderRadius="36px";
-    sheetPn.style.transition="transform .46s cubic-bezier(.22,1,.34,1), opacity .38s ease, border-radius .3s ease";
-    sheetBd.style.transition="opacity .38s ease";
-    sheetPn.style.transform="translate3d(0, 62%, 0) scale(.42)";
-    sheetPn.style.opacity="0";
-    sheetBd.style.opacity="0";
+    /* Thu nhỏ liên tục xuống phía dưới với cùng tâm 50% 50% */
+    sheetPn.style.transform="translate3d(0, 68%, 0) scale(.38)";
   }
+  sheetPn.style.opacity="0";
+  sheetBd.style.opacity="0";
 
   shT=setTimeout(()=>{
     sheetEl.classList.remove("open","show");
     resetSheetInlineStyles();
     $("#sc").innerHTML="";
-  },430);
+  },360);
 }
 
 function backOrCloseSheet(dir="down"){
@@ -1235,11 +1241,9 @@ shClose.onclick=e=>{e.stopPropagation();closeSheet("down")};
 shGrab.onclick=e=>{e.stopPropagation();closeSheet("down")};
 shBack.onclick=e=>{e.stopPropagation();backOrCloseSheet("right")};
 
-/* Xử lý cử chỉ vuốt trên Sheet:
-   - Vuốt từ nửa trái màn hình sang phải (edge-x) -> thu nhỏ dần về góc phải
-   - Vuốt từ trên xuống (pull-y) -> thu nhỏ dần xuống phía dưới */
+/* Cử chỉ vuốt trên Sheet: Cập nhật trực tiếp 1:1 không qua rAF trễ nhịp, giữ cố định transform-origin 50% 50% */
 (()=>{
-  let x0=0,y0=0,dx=0,dy=0,t0=0,mode="",canPullDown=false,canSwipeRight=false,shRaf=0;
+  let x0=0,y0=0,dx=0,dy=0,t0=0,mode="",canPullDown=false,canSwipeRight=false;
 
   sheetPn.addEventListener("touchstart",e=>{
     if(e.touches.length!==1)return;
@@ -1248,8 +1252,7 @@ shBack.onclick=e=>{e.stopPropagation();backOrCloseSheet("right")};
     const onHeader=!!e.target.closest(".sh-bar,.grab,.bk");
     const inHorizScroller=!!e.target.closest(".scroller");
     canPullDown=(sheetPn.scrollTop<=2)||onHeader;
-    /* Cho phép vuốt từ góc trái / nửa bên trái (x0 <= 48% màn hình) nếu không chạm vào hàng cuộn ngang */
-    canSwipeRight=(x0<=52)||(!inHorizScroller&&x0<=window.innerWidth*0.48);
+    canSwipeRight=(x0<=56)||(!inHorizScroller&&x0<=window.innerWidth*0.52);
   },{passive:true});
 
   sheetPn.addEventListener("touchmove",e=>{
@@ -1258,17 +1261,13 @@ shBack.onclick=e=>{e.stopPropagation();backOrCloseSheet("right")};
     const curX=t.clientX-x0,curY=t.clientY-y0;
 
     if(!mode){
-      if(canSwipeRight&&curX>10&&Math.abs(curX)>Math.abs(curY)*1.18){
+      if(canSwipeRight&&curX>8&&Math.abs(curX)>Math.abs(curY)*1.15){
         mode="edge-x";
         sheetEl.classList.add("dragging");
-        sheetPn.style.transformOrigin="92% 52%";
-        sheetPn.style.borderRadius="34px";
       }else if(canPullDown&&curY>8&&curY>Math.abs(curX)*1.12){
         mode="pull-y";
         sheetEl.classList.add("dragging");
-        sheetPn.style.transformOrigin="50% 96%";
-        sheetPn.style.borderRadius="34px";
-      }else if(Math.abs(curY)>9||Math.abs(curX)>9){
+      }else if(Math.abs(curY)>8||Math.abs(curX)>8){
         mode="scroll";
       }
     }
@@ -1285,65 +1284,53 @@ shBack.onclick=e=>{e.stopPropagation();backOrCloseSheet("right")};
     if(mode==="pull-y"){
       if(e.cancelable)e.preventDefault();
       dy=Math.max(0,curY);
-      if(!shRaf)shRaf=requestAnimationFrame(()=>{
-        shRaf=0;
-        if(mode!=="pull-y")return;
-        const damp=dy<180?dy:180+(dy-180)*0.52;
-        const p=Math.min(1,damp/window.innerHeight);
-        const sc=Math.max(0.62,1-p*0.36);
-        sheetPn.style.transform=`translate3d(0,${damp.toFixed(1)}px,0) scale(${sc.toFixed(3)})`;
-        sheetBd.style.opacity=String(Math.max(0,1-damp/420).toFixed(3));
-      });
+      const damp=dy<180?dy:180+(dy-180)*0.52;
+      const p=Math.min(1,damp/window.innerHeight);
+      const sc=1-p*0.36;
+      sheetPn.style.transform=`translate3d(0,${damp}px,0) scale(${sc})`;
+      sheetBd.style.opacity=String(Math.max(0,1-p*1.2));
     }else if(mode==="edge-x"){
       if(e.cancelable)e.preventDefault();
       dx=Math.max(0,curX);
-      if(!shRaf)shRaf=requestAnimationFrame(()=>{
-        shRaf=0;
-        if(mode!=="edge-x")return;
-        const p=Math.min(1,dx/window.innerWidth);
-        const sc=Math.max(0.55,1-p*0.42);
-        sheetPn.style.transform=`translate3d(${(dx*0.65).toFixed(1)}px,${(p*16).toFixed(1)}px,0) scale(${sc.toFixed(3)})`;
-        sheetBd.style.opacity=String(Math.max(0,1-p*1.05).toFixed(3));
-      });
+      const p=Math.min(1,dx/window.innerWidth);
+      const sc=1-p*0.44;
+      /* Dịch chuyển tâm sang phải kết hợp thu nhỏ đồng thời về góc phải */
+      sheetPn.style.transform=`translate3d(${dx*0.78}px,${dx*0.08}px,0) scale(${sc})`;
+      sheetBd.style.opacity=String(Math.max(0,1-p*1.1));
     }
   },{passive:false});
 
   const endSheetTouch=()=>{
-    if(shRaf){cancelAnimationFrame(shRaf);shRaf=0}
     if(!mode||mode==="scroll"){y0=0;mode="";return}
     const dt=Math.max(1,Date.now()-t0);
     sheetEl.classList.remove("dragging");
 
     if(mode==="pull-y"){
       const vy=dy/dt;
-      if(dy>80||vy>0.38){
+      if(dy>75||vy>0.35){
         closeSheet("down");
       }else{
-        /* Bật nảy lò xo mượt về vị trí cũ */
-        sheetPn.style.transition="transform .52s var(--ios-bounce), border-radius .35s ease";
+        sheetPn.style.transition="transform .48s var(--ios-bounce)";
         sheetPn.style.transform="translate3d(0,0,0) scale(1)";
-        sheetPn.style.borderRadius="";
         sheetBd.style.opacity="1";
       }
     }else if(mode==="edge-x"){
       const vx=dx/dt;
-      if(dx>window.innerWidth*0.22||vx>0.36){
+      if(dx>window.innerWidth*0.20||vx>0.32){
         if(sheetHistory.length>0){
-          sheetPn.style.transition="transform .36s cubic-bezier(.22,1,.34,1), opacity .3s ease";
-          sheetPn.style.transform="translate3d(45%, 5%, 0) scale(.38)";
+          sheetPn.style.transition="transform .30s cubic-bezier(.22,1,.36,1), opacity .26s ease";
+          sheetPn.style.transform="translate3d(54%, 8%, 0) scale(.32)";
           sheetPn.style.opacity="0";
           setTimeout(()=>{
             resetSheetInlineStyles();
             backOrCloseSheet("right");
-          },260);
+          },250);
         }else{
           closeSheet("right");
         }
       }else{
-        /* Bật nảy lò xo mượt về vị trí cũ */
-        sheetPn.style.transition="transform .52s var(--ios-bounce), border-radius .35s ease";
+        sheetPn.style.transition="transform .48s var(--ios-bounce)";
         sheetPn.style.transform="translate3d(0,0,0) scale(1)";
-        sheetPn.style.borderRadius="";
         sheetBd.style.opacity="1";
       }
     }
@@ -1483,7 +1470,7 @@ async function openDetail(type,id,auto){
           pb.classList.add("cs-btn");
           pb.disabled=true;
           pb.insertAdjacentHTML("afterend",`<button class="btn g" id="manualSearchBtn">🔍 Tìm thủ công</button>`);
-          $("#manualSearchBtn").onclick=()=>{closeSheet("down");go("search");setTimeout(()=>{$("#q").value=ttl(m);doSearch(ttl(m),navId)},50)};
+          $("#manualSearchBtn").onclick=()=>{closeSheet("down");go("search");setTimeout(()=>{$("#page #q").value=ttl(m);doSearch(ttl(m),navId)},50)};
         }
         if($("#streamBox"))$("#streamBox").innerHTML=`<div class="note" style="margin:0 0 8px">⏳ <b>Coming Soon</b> — Phim hiện chưa có nguồn phát trực tuyến (đang chiếu rạp hoặc sắp ra mắt).</div>`;
       }
@@ -1502,15 +1489,14 @@ document.addEventListener("click",e=>{
   }
 });
 
-/* ---------- Cử Chỉ Vuốt Sang Phải Để Quay Lại Trang Trước / Trang Chủ:
-   - Ở giao diện mở rộng đề xuất (curView.type === "cat"): Cho phép vuốt từ GIỮA MÀN HÌNH (hoặc bất kỳ đâu) về phía cạnh phải
-   - Ở các trang khác: Cho phép vuốt từ cạnh trái hoặc vùng trống không chứa thanh cuộn ngang ---------- */
+/* ---------- Cử Chỉ Vuốt Sang Phải 120fps Không Độ Trễ (Zero-Allocation & Pre-Composited GPU Layer) ---------- */
 (()=>{
-  const edgeWrap=$("#edgeBack"),edgePrev=$("#edgePrev"),edgeDim=$("#edgeDim"),pg=$("#page");
-  let x0=0,y0=0,dx=0,t0=0,swiping=false,aborted=false,edgeRaf=0;
+  const edgeWrap=$("#edgeBack"),edgePrev=$("#edgePrev"),edgeDim=$("#edgeDim"),edgeShadow=$("#edgeShadow"),pg=$("#page");
+  let x0=0,y0=0,dx=0,lastX=0,lastT=0,vx=0,swiping=false,aborted=false,animating=false,W=window.innerWidth;
+  addEventListener("resize",()=>{W=window.innerWidth});
 
   window.addEventListener("touchstart",e=>{
-    if(e.touches.length!==1)return;
+    if(animating||e.touches.length!==1)return;
     if(P.classList.contains("show")||sheetEl.classList.contains("show"))return;
     if(!pageHistory.length&&curView.type!=="cat")return;
     const t=e.touches[0];
@@ -1518,85 +1504,95 @@ document.addEventListener("click",e=>{
 
     const inHorizScroller=!!e.target.closest(".scroller");
     const isCatView=(curView.type==="cat");
-    /* Trong giao diện mở rộng đề xuất (isCatView), cho phép đặt ngón tay từ bất kỳ vị trí nào (tới 85% chiều ngang màn hình, bao gồm giữa màn hình) để vuốt sang phải quay lại */
-    const maxStartX=isCatView?(window.innerWidth*0.85):(inHorizScroller?40:(window.innerWidth*0.55));
+    /* Trong giao diện mở rộng đề xuất (isCatView), cho phép vuốt từ giữa màn hình (tới 85% màn hình); ở các trang khác vuốt từ cạnh trái hoặc vùng không có thanh trượt ngang */
+    const maxStartX=isCatView?(W*0.85):(inHorizScroller?42:(W*0.52));
     if(t.clientX>maxStartX)return;
 
-    x0=t.clientX;y0=t.clientY;dx=0;t0=Date.now();swiping=false;aborted=false;
+    x0=t.clientX;y0=t.clientY;dx=0;
+    lastX=x0;lastT=performance.now();vx=0;
+    swiping=false;aborted=false;
   },{passive:true});
 
   window.addEventListener("touchmove",e=>{
-    if(!x0||aborted||P.classList.contains("show")||sheetEl.classList.contains("show"))return;
+    if(!x0||aborted||animating)return;
     const t=e.touches[0];
     const curX=t.clientX-x0,curY=t.clientY-y0;
 
     if(!swiping){
-      if(Math.abs(curY)>Math.abs(curX)*0.85||curX<8){
-        if(Math.abs(curY)>10)aborted=true;
+      if(Math.abs(curY)>Math.abs(curX)*0.85||curX<6){
+        if(Math.abs(curY)>9)aborted=true;
         return;
       }
       swiping=true;
-      const topSnap=pageHistory[pageHistory.length-1];
-      if(topSnap&&topSnap.holder){
-        topSnap.holder.style.transform=`translate3d(0,-${topSnap.scrollY||0}px,0)`;
-        edgePrev.innerHTML="";
-        edgePrev.appendChild(topSnap.holder);
-      }
-      edgeWrap.classList.add("on");
-      document.body.classList.add("edge-swiping");
+      x0=t.clientX; /* Đặt lại mốc 0 ngay tại điểm bắt đầu nhận diện để không bị giật nhảy 6px đầu */
       pg.style.transition="none";
       edgePrev.style.transition="none";
       edgeDim.style.transition="none";
+      edgeShadow.style.transition="none";
+      edgeWrap.classList.add("on");
+      edgeShadow.classList.add("on");
     }
 
     if(swiping){
       if(e.cancelable)e.preventDefault();
-      dx=Math.max(0,Math.min(window.innerWidth,curX));
-      if(!edgeRaf)edgeRaf=requestAnimationFrame(()=>{
-        edgeRaf=0;
-        if(!swiping)return;
-        const p=dx/window.innerWidth;
-        const prevSc=0.96+0.04*p;
-        pg.style.transform=`translate3d(${dx.toFixed(1)}px,0,0) scale(${(1-p*0.04).toFixed(3)})`;
-        edgePrev.style.transform=`translate3d(${(-28*(1-p)).toFixed(2)}%,0,0) scale(${prevSc.toFixed(3)})`;
-        edgeDim.style.opacity=String((1-p).toFixed(3));
-      });
+      const now=performance.now();
+      const dt=now-lastT;
+      if(dt>4){
+        vx=(t.clientX-lastX)/dt;
+        lastX=t.clientX;lastT=now;
+      }
+      dx=Math.max(0,Math.min(W,t.clientX-x0));
+      const p=dx/W;
+      /* Trượt ngang 1:1 thuần translate3d trên GPU (không scale #page, không reflow) */
+      pg.style.transform=`translate3d(${dx}px,0,0)`;
+      edgeShadow.style.transform=`translate3d(${dx}px,0,0)`;
+      edgeShadow.style.opacity=String(1-p);
+      edgePrev.style.transform=`translate3d(${(-30*(1-p))}%,0,0)`;
+      edgeDim.style.opacity=String((1-p)*0.9);
     }
   },{passive:false});
 
   const endEdgeSwipe=()=>{
-    if(edgeRaf){cancelAnimationFrame(edgeRaf);edgeRaf=0}
     if(!swiping){x0=0;return}
     swiping=false;x0=0;
-    const dt=Math.max(1,Date.now()-t0);
-    const vx=dx/dt;
-    const commit=(dx>window.innerWidth*0.22)||(vx>0.34&&dx>28);
-    const springDur="0.44s cubic-bezier(.20,1.12,.32,1)";
-    pg.style.transition=`transform ${springDur}`;
-    edgePrev.style.transition=`transform ${springDur}`;
-    edgeDim.style.transition=`opacity 0.34s ease`;
+    const commit=(dx>W*0.24)||(vx>0.35&&dx>24);
+    /* Thời gian hoàn tất tự động khớp với vận tốc hất ngón tay */
+    const rem=commit?(W-dx):dx;
+    const ms=Math.max(190,Math.min(320,Math.round(rem/Math.max(0.75,Math.abs(vx))*0.55)));
+    const ease=`${ms}ms cubic-bezier(.20,1,.30,1)`;
+
+    animating=true;
+    pg.style.transition=`transform ${ease}`;
+    edgeShadow.style.transition=`transform ${ease}, opacity ${ms}ms ease`;
+    edgePrev.style.transition=`transform ${ease}`;
+    edgeDim.style.transition=`opacity ${ms}ms ease`;
 
     if(commit){
-      pg.style.transform=`translate3d(102%,0,0) scale(.94)`;
-      edgePrev.style.transform=`translate3d(0%,0,0) scale(1)`;
+      pg.style.transform=`translate3d(${W}px,0,0)`;
+      edgeShadow.style.transform=`translate3d(${W}px,0,0)`;
+      edgeShadow.style.opacity="0";
+      edgePrev.style.transform=`translate3d(0%,0,0)`;
       edgeDim.style.opacity="0";
       setTimeout(()=>{
         pg.style.transition="none";
-        pg.style.transform="";
+        pg.style.transform="translate3d(0,0,0)";
         edgeWrap.classList.remove("on");
-        document.body.classList.remove("edge-swiping");
+        edgeShadow.classList.remove("on");
         restorePreviousPage();
-      },360);
+        animating=false;
+      },ms+10);
     }else{
-      pg.style.transform=`translate3d(0px,0,0) scale(1)`;
-      edgePrev.style.transform=`translate3d(-28%,0,0) scale(.96)`;
+      pg.style.transform=`translate3d(0px,0,0)`;
+      edgeShadow.style.transform=`translate3d(0px,0,0)`;
+      edgePrev.style.transform=`translate3d(-30%,0,0)`;
       edgeDim.style.opacity="1";
       setTimeout(()=>{
         pg.style.transition="none";
-        pg.style.transform="";
+        pg.style.transform="translate3d(0,0,0)";
         edgeWrap.classList.remove("on");
-        document.body.classList.remove("edge-swiping");
-      },420);
+        edgeShadow.classList.remove("on");
+        animating=false;
+      },ms+10);
     }
   };
   window.addEventListener("touchend",endEdgeSwipe,{passive:true});
@@ -1724,7 +1720,7 @@ function save(){
   store.set("prog",p);
 }
 
-/* Đóng Player theo hướng: "right" (thu nhỏ về góc phải) | "down" (thu nhỏ xuống dưới khi vuốt xuống hoặc bấm ✕) */
+/* Đóng Player theo hướng: "right" (thu nhỏ về góc phải) | "down" (thu nhỏ xuống dưới) */
 function closePlayer(dir="down"){
   save();
   clearTimeout(idle);
@@ -1734,12 +1730,12 @@ function closePlayer(dir="down"){
   if(document.fullscreenElement||document.webkitFullscreenElement){
     (document.exitFullscreen||document.webkitExitFullscreen)?.call(document);
   }
-  P.style.borderRadius="38px";
-  P.style.transition="transform .42s cubic-bezier(.22,1,.34,1), opacity .34s ease, border-radius .3s ease";
+  P.style.borderRadius="36px";
+  P.style.transition="transform .36s cubic-bezier(.22,1,.36,1), opacity .30s ease";
   if(dir==="right"){
-    P.style.transform="translate3d(22%, -46%, 0) scale(.32)";
+    P.style.transform="translate3d(4%, -42%, 0) scale(.30)";
   }else{
-    P.style.transform="translate3d(-50%, 18%, 0) scale(.36)";
+    P.style.transform="translate3d(-50%, 16%, 0) scale(.34)";
   }
   P.style.opacity="0";
 
@@ -1751,7 +1747,7 @@ function closePlayer(dir="down"){
     CTL.classList.remove("hide");
     applyCfg();
     if(!sheetEl.classList.contains("show")&&curView.type==="tab"&&(tab=="home"||tab=="lib"))go(tab,false);
-  },390);
+  },350);
 }
 function hideControls(){
   clearTimeout(idle);
@@ -1767,12 +1763,12 @@ function wake(){
 $("#pc").onclick=e=>{e.stopPropagation();closePlayer("down")};
 $("#pp").onclick=e=>{e.stopPropagation();V.paused?V.play():V.pause();wake()};
 
-/* Vuốt Player:
+/* Vuốt Player trực tiếp 1:1:
    - Vuốt từ góc/cạnh trái sang phải -> Thu nhỏ về góc phải
    - Vuốt từ trên xuống -> Thu nhỏ xuống góc dưới */
 let pDragging=false;
 (()=>{
-  let px0=0,py0=0,pdx=0,pdy=0,pMode="",pRaf=0;
+  let px0=0,py0=0,pdx=0,pdy=0,pMode="";
   P.addEventListener("touchstart",e=>{
     if(P.classList.contains("rot")||document.fullscreenElement)return;
     const t=e.touches[0];
@@ -1788,41 +1784,33 @@ let pDragging=false;
     const t=e.touches[0];
     const dx=t.clientX-px0,dy=t.clientY-py0;
     if(!pMode){
-      if(px0<65&&dx>10&&Math.abs(dx)>Math.abs(dy)){pMode="x"}
-      else if(py0<150&&dy>10&&Math.abs(dy)>Math.abs(dx)){pMode="y"}
+      if(px0<65&&dx>8&&Math.abs(dx)>Math.abs(dy)){pMode="x"}
+      else if(py0<150&&dy>8&&Math.abs(dy)>Math.abs(dx)){pMode="y"}
       else return;
       pDragging=true;
       P.classList.add("dragging");
+      P.style.borderRadius="34px";
     }
     if(pMode==="y"&&dy>0){
       pdy=Math.pow(dy,0.92);
-      if(!pRaf)pRaf=requestAnimationFrame(()=>{
-        pRaf=0;
-        const sc=Math.max(0.68,1-pdy/1100);
-        P.style.transform=`translate3d(-50%,calc(-50% + ${pdy.toFixed(1)}px),0) scale(${sc.toFixed(3)})`;
-        P.style.borderRadius=Math.min(40,pdy/3)+"px";
-      });
+      const sc=Math.max(0.68,1-pdy/1100);
+      P.style.transform=`translate3d(-50%,calc(-50% + ${pdy}px),0) scale(${sc})`;
     }else if(pMode==="x"&&dx>0){
       pdx=dx;
-      if(!pRaf)pRaf=requestAnimationFrame(()=>{
-        pRaf=0;
-        const sc=Math.max(0.62,1-pdx/950);
-        P.style.transform=`translate3d(calc(-50% + ${(pdx*0.85).toFixed(1)}px),calc(-50% + ${(pdx*0.08).toFixed(1)}px),0) scale(${sc.toFixed(3)})`;
-        P.style.borderRadius=Math.min(38,pdx/3)+"px";
-      });
+      const sc=Math.max(0.62,1-pdx/950);
+      P.style.transform=`translate3d(calc(-50% + ${pdx*0.85}px),calc(-50% + ${pdx*0.08}px),0) scale(${sc})`;
     }
   },{passive:true});
 
   const endPlayerDrag=()=>{
-    if(pRaf){cancelAnimationFrame(pRaf);pRaf=0}
     if(!pDragging)return;
     P.classList.remove("dragging");
-    if(pMode==="x"&&pdx>85){
+    if(pMode==="x"&&pdx>80){
       closePlayer("right");
-    }else if(pMode==="y"&&pdy>85){
+    }else if(pMode==="y"&&pdy>80){
       closePlayer("down");
     }else{
-      P.style.transition="transform .5s var(--ios-bounce), border-radius .35s ease";
+      P.style.transition="transform .48s var(--ios-bounce), border-radius .3s ease";
       P.style.transform="";
       P.style.borderRadius="";
     }
