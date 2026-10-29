@@ -30,7 +30,7 @@ img{display:block}
 @keyframes fadeout{to{opacity:0;transform:scale(.98)}}
 .glass{background:var(--glass);border:.5px solid var(--line)}
 .tabs.glass{-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);transform:translateZ(0);will-change:transform}
-#player .glass{background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.12)}
+#player .glass{background:rgba(0,0,0,.55);border-color:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 #rows section{content-visibility:auto;contain-intrinsic-size:auto 250px}
 body.sheeted #page{visibility:hidden}
 h1{font-size:34px;letter-spacing:-.8px;margin:8px 20px 14px;font-weight:800}
@@ -84,16 +84,19 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 #player{position:fixed;inset:0;z-index:80;background:#000;display:none;color:#fff;user-select:none;-webkit-user-select:none}
 #player.show{display:block;animation:in .4s}
 #player video,#player iframe{width:100%;height:100%;object-fit:contain;background:#000;border:0}
-.ctl{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:calc(var(--sat) + 12px) 16px calc(var(--sab) + 16px);background:linear-gradient(rgba(0,0,0,.55),transparent 30%,transparent 60%,rgba(0,0,0,.7));transition:opacity .35s;pointer-events:none}
-.ctl .top,.ctl .mid,.ctl .bot{pointer-events:auto}
-#player.idle .ctl{opacity:0}.idle .ctl .top,.idle .ctl .mid,.idle .ctl .bot{pointer-events:none}
-.top{display:flex;align-items:center;gap:12px}.top b{flex:1;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctl{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:calc(var(--sat) + 12px) 16px calc(var(--sab) + 16px);background:linear-gradient(rgba(0,0,0,.6),transparent 28%,transparent 65%,rgba(0,0,0,.75));transition:opacity .3s;z-index:2}
+#player.idle .ctl{opacity:0;pointer-events:none}
+/* Khi ở chế độ Embed Iframe, luôn giữ thanh trên cùng để đóng phim bất cứ lúc nào */
+#player.embed-mode .ctl{background:none;pointer-events:none;opacity:1!important}
+#player.embed-mode .ctl .top,#player.embed-mode .ctl .bot .row2{pointer-events:auto}
+#player.embed-mode .ctl .mid,#player.embed-mode .ctl #seekRow{display:none!important}
+.top{display:flex;align-items:center;gap:12px;z-index:5}.top b{flex:1;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px rgba(0,0,0,.8)}
 .rb{width:42px;height:42px;border-radius:50%;display:grid;place-items:center}.rb svg{width:22px;height:22px;fill:#fff}
 .mid{display:flex;justify-content:center;align-items:center;gap:36px}.mid .rb{width:54px;height:54px}.mid .big{width:80px;height:80px}.mid .big svg{width:34px;height:34px}
 .bot .row{display:flex;align-items:center;gap:10px;font-size:12px;font-variant-numeric:tabular-nums}
 .bot input[type=range]{flex:1;accent-color:#fff;height:24px}
 .bot .row2{display:flex;justify-content:space-between;margin-top:6px;gap:6px;flex-wrap:wrap}
-.toast{position:absolute;left:50%;bottom:calc(var(--sab) + 120px);transform:translate(-50%,20px);padding:12px 18px;border-radius:20px;opacity:0;transition:.4s;z-index:3;white-space:nowrap;font-size:14px;pointer-events:none}.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast{position:absolute;left:50%;bottom:calc(var(--sab) + 120px);transform:translate(-50%,20px);padding:12px 18px;border-radius:20px;opacity:0;transition:.4s;z-index:6;white-space:nowrap;font-size:14px;pointer-events:none}.toast.on{opacity:1;transform:translate(-50%,0)}
 .sp{display:flex;justify-content:center;padding:40px}.sp i{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:rot .8s linear infinite}@keyframes rot{to{transform:rotate(360deg)}}
 .empty{color:var(--sub);text-align:center;padding:30px 40px}
 </style>
@@ -104,19 +107,34 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 <div id="sheet"><div class="bd"></div><div class="pn"><div class="grab"></div><div id="sc"></div></div></div>
 <div id="player">
   <video id="v" playsinline webkit-playsinline preload="auto"></video>
-  <iframe id="emb" style="display:none" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>
+  <iframe id="emb" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>
   <div class="ctl" id="ctl">
-    <div class="top"><button class="rb glass" id="pc" aria-label="Đóng"><svg viewBox="0 0 24 24"><path d="M6.4 5L5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg></button><b id="pt"></b><button class="rb glass" id="pn" aria-label="Tập sau"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zM16 6h2v12h-2z"/></svg></button></div>
-    <div class="mid" id="midCtl"><button class="rb glass" id="bk10"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 11-6 6H4a8 8 0 108-8z"/></svg></button><button class="rb big glass" id="pp"><svg viewBox="0 0 24 24" id="ppi"><path d="M8 5v14l11-7z"/></svg></button><button class="rb glass" id="fw10"><svg viewBox="0 0 24 24" style="transform:scaleX(-1)"><path d="M12 5V1L7 6l5 5V7a6 6 0 11-6 6H4a8 8 0 108-8z"/></svg></button></div>
-    <div class="bot"><div class="row" id="seekRow"><span id="tc">0:00</span><input type="range" id="sk" min="0" max="1000" value="0"><span id="td">0:00</span></div>
-    <div class="row2"><button class="chip glass" id="spd">1×</button><button class="chip glass" id="modeBtn">Chế độ: M3U8</button><button class="chip glass" id="an">Tự chuyển: Bật</button><button class="rb glass" id="fs" aria-label="Toàn màn hình"><svg viewBox="0 0 24 24"><path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zM5 14h2v3h3v2H5zm12 0h2v5h-5v-2h3z"/></svg></button></div></div>
+    <div class="top">
+      <button class="rb glass" id="pc" aria-label="Đóng"><svg viewBox="0 0 24 24"><path d="M6.4 5L5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg></button>
+      <b id="pt"></b>
+      <button class="rb glass" id="pn" aria-label="Tập sau"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zM16 6h2v12h-2z"/></svg></button>
+    </div>
+    <div class="mid" id="midCtl">
+      <button class="rb glass" id="bk10"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 11-6 6H4a8 8 0 108-8z"/></svg></button>
+      <button class="rb big glass" id="pp"><svg viewBox="0 0 24 24" id="ppi"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="rb glass" id="fw10"><svg viewBox="0 0 24 24" style="transform:scaleX(-1)"><path d="M12 5V1L7 6l5 5V7a6 6 0 11-6 6H4a8 8 0 108-8z"/></svg></button>
+    </div>
+    <div class="bot">
+      <div class="row" id="seekRow"><span id="tc">0:00</span><input type="range" id="sk" min="0" max="1000" value="0"><span id="td">0:00</span></div>
+      <div class="row2">
+        <button class="chip glass" id="spd">1×</button>
+        <button class="chip glass" id="modeBtn">Luồng: M3U8 Sạch QC</button>
+        <button class="chip glass" id="an">Tự chuyển: Bật</button>
+        <button class="rb glass" id="fs" aria-label="Toàn màn hình"><svg viewBox="0 0 24 24"><path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zM5 14h2v3h3v2H5zm12 0h2v5h-5v-2h3z"/></svg></button>
+      </div>
+    </div>
   </div>
   <div class="toast glass" id="toast"></div>
 </div>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const store={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const norm=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLowerCase();
+const norm=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLowerCase().trim();
 const vt=fn=>fn();
 let cfg=Object.assign({theme:"auto",tmdb:"",omdb:"",autonext:true},store.get("cfg",{}));
 const DEFAULT_TMDB="3309069624518eb702e51e01c9ad58f8";if(!cfg.tmdb)cfg.tmdb=DEFAULT_TMDB;if(!cfg.omdb)cfg.omdb="8299aee2";
@@ -124,7 +142,98 @@ const saveCfg=()=>{store.set("cfg",cfg);applyTheme()};
 function applyTheme(){document.documentElement.dataset.theme=cfg.theme;const dark=cfg.theme=="dark"||(cfg.theme=="auto"&&matchMedia("(prefers-color-scheme:dark)").matches);document.querySelector('meta[name=theme-color]').content=dark?"#000000":"#f2f2f7"}
 matchMedia("(prefers-color-scheme:dark)").addEventListener("change",applyTheme);applyTheme();
 
-/* ---------- HỆ THỐNG NGUỒN PHIM NHÚNG (KKPHIM & NGUONC) ---------- */
+/* ---------- BỘ LỌC CẮT QUẢNG CÁO TRỰC TIẾP TRONG LUỒNG M3U8 ---------- */
+function stripAdsFromM3u8(text,baseUrl=""){
+  if(!text)return text;
+  const resolveUrl=u=>{if(!baseUrl||/^https?:\/\//i.test(u))return u;try{return new URL(u,baseUrl).href}catch{return u}};
+  if(!text.includes("#EXT-X-DISCONTINUITY")){
+    if(!baseUrl)return text;
+    return text.split(/\r?\n/).map(l=>{const t=l.trim();return(!t||t.startsWith("#"))?l:resolveUrl(t)}).join("\n");
+  }
+  const lines=text.split(/\r?\n/),headerLines=[],blocks=[];
+  let cur=[],inBody=false;
+  for(const raw of lines){
+    const l=raw.trim();if(!l||l==="#EXT-X-ENDLIST")continue;
+    if(!inBody&&!l.startsWith("#EXTINF:")&&l!=="#EXT-X-DISCONTINUITY"){headerLines.push(l)}
+    else{
+      inBody=true;
+      if(l==="#EXT-X-DISCONTINUITY"){if(cur.length)blocks.push(cur);cur=[]}
+      else cur.push(l.startsWith("#")?l:resolveUrl(l));
+    }
+  }
+  if(cur.length)blocks.push(cur);
+  if(blocks.length<=1)return[...headerLines,...(blocks[0]||[]),"#EXT-X-ENDLIST"].join("\n");
+
+  const stats=blocks.map(b=>{
+    const urls=b.filter(x=>!x.startsWith("#"));
+    const dur=b.filter(x=>x.startsWith("#EXTINF:")).reduce((s,x)=>s+(parseFloat(x.slice(8))||0),0);
+    const sample=urls[0]||"";
+    const prefix=sample.slice(0,Math.max(0,sample.lastIndexOf("/")));
+    return{lines:b,count:urls.length,dur,prefix,sample};
+  });
+  const pCounts={};stats.forEach(s=>{pCounts[s.prefix]=(pCounts[s.prefix]||0)+s.count});
+  let mainPrefix="",maxC=-1;
+  for(const p in pCounts){if(pCounts[p]>maxC){maxC=pCounts[p];mainPrefix=p}}
+
+  const cleanBlocks=stats.filter(s=>{
+    if(/quangcao|adjump|ads|bet|casino|宣传/i.test(s.sample))return false;
+    if(s.prefix!==mainPrefix&&maxC>15)return false;
+    if(s.count<=12&&s.dur<45&&maxC>25)return false;
+    return true;
+  });
+  const finalBlocks=cleanBlocks.length?cleanBlocks:stats;
+  return[...headerLines,...finalBlocks.flatMap((s,i)=>i===0?s.lines:["#EXT-X-DISCONTINUITY",...s.lines]),"#EXT-X-ENDLIST"].join("\n");
+}
+
+/* Custom HLS Loader cắt quảng cáo 0ms ngay trong RAM */
+const CleanHlsLoader=typeof Hls!=="undefined"?class extends Hls.DefaultConfig.loader{
+  constructor(config){
+    super(config);
+    const origLoad=this.load.bind(this);
+    this.load=function(context,config,callbacks){
+      const origSuccess=callbacks.onSuccess;
+      callbacks.onSuccess=function(response,stats,ctx,net){
+        if(typeof response.data==="string"&&response.data.includes("#EXT-X-DISCONTINUITY")){
+          response.data=stripAdsFromM3u8(response.data);
+        }
+        origSuccess(response,stats,ctx,net);
+      };
+      origLoad(context,config,callbacks);
+    };
+  }
+}:null;
+
+/* Nạp trước & làm sạch M3U8 thành Blob URL cho iOS Native HLS */
+const m3u8BlobCache=new Map();
+async function getCleanM3u8BlobUrl(m3u8Url){
+  if(!m3u8Url)return"";
+  if(m3u8BlobCache.has(m3u8Url))return m3u8BlobCache.get(m3u8Url);
+  try{
+    const masterTxt=await fetch(m3u8Url).then(r=>r.text());
+    if(!masterTxt.includes("#EXTM3U"))return m3u8Url;
+    if(masterTxt.includes("#EXT-X-STREAM-INF")){
+      const lines=masterTxt.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+      let subRel="";
+      for(let i=0;i<lines.length;i++){
+        if(lines[i].startsWith("#EXT-X-STREAM-INF")&&lines[i+1]&&!lines[i+1].startsWith("#")){subRel=lines[i+1];break}
+      }
+      if(subRel){
+        const subUrl=new URL(subRel,m3u8Url).href;
+        const subTxt=await fetch(subUrl).then(r=>r.text());
+        const cleaned=stripAdsFromM3u8(subTxt,subUrl);
+        const blobUrl=URL.createObjectURL(new Blob([cleaned],{type:"application/vnd.apple.mpegurl"}));
+        m3u8BlobCache.set(m3u8Url,blobUrl);
+        return blobUrl;
+      }
+    }
+    const cleaned=stripAdsFromM3u8(masterTxt,m3u8Url);
+    const blobUrl=URL.createObjectURL(new Blob([cleaned],{type:"application/vnd.apple.mpegurl"}));
+    m3u8BlobCache.set(m3u8Url,blobUrl);
+    return blobUrl;
+  }catch{return m3u8Url}
+}
+
+/* ---------- HỆ THỐNG NGUỒN PHIM NHÚNG TỐC ĐỘ CAO ---------- */
 const PROVIDERS=[
   {
     id:"kkphim",
@@ -174,7 +283,7 @@ const PROVIDERS=[
 ];
 
 const searchCache=new Map(),detailCache=new Map();
-async function fetchWithTimeout(url,ms=4500){
+async function fetchWithTimeout(url,ms=3200){
   const ctrl=new AbortController(),id=setTimeout(()=>ctrl.abort(),ms);
   try{const res=await fetch(url,{signal:ctrl.signal});clearTimeout(id);return await res.json()}catch(e){clearTimeout(id);throw e}
 }
@@ -183,7 +292,7 @@ async function fetchFromProvider(provider,keyword=""){
   if(searchCache.has(ck))return searchCache.get(ck);
   try{
     const url=keyword?provider.searchUrl(keyword):provider.latestUrl();
-    const json=await fetchWithTimeout(url,4500);
+    const json=await fetchWithTimeout(url,3200);
     const rawItems=json?.data?.items||json?.items||[];
     const imgDomain=json?.data?.APP_DOMAIN_CDN_IMAGE?(json.data.APP_DOMAIN_CDN_IMAGE.endsWith("/")?json.data.APP_DOMAIN_CDN_IMAGE:json.data.APP_DOMAIN_CDN_IMAGE+"/"):provider.imgPrefix;
     const items=rawItems.map(it=>{
@@ -194,32 +303,35 @@ async function fetchFromProvider(provider,keyword=""){
     const resObj={provider,items};searchCache.set(ck,resObj);return resObj;
   }catch{return{provider,items:[],error:true}}
 }
-async function rescueKkphimM3u8(slug,title){
+async function rescueKkphimM3u8(slug,title,originTitle=""){
   try{
-    const d=await fetchWithTimeout(`https://phimapi.com/phim/${slug}`,3500);
+    const d=await fetchWithTimeout(`https://phimapi.com/phim/${slug}`,2500);
     if(d?.episodes?.length&&d.episodes[0]?.server_data?.length)return d.episodes.map(s=>({server_name:`⚡ KKPhim (${s.server_name})`,server_data:s.server_data}));
   }catch{}
-  if(!title)return[];
-  try{
-    const s=await fetchWithTimeout(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(title)}&limit=1`,3500);
-    const first=s?.data?.items?.[0];
-    if(first?.slug){
-      const d2=await fetchWithTimeout(`https://phimapi.com/phim/${first.slug}`,3500);
-      if(d2?.episodes?.length)return d2.episodes.map(srv=>({server_name:`⚡ KKPhim (${srv.server_name})`,server_data:srv.server_data}));
-    }
-  }catch{}
+  const queries=[title,originTitle].filter(Boolean);
+  for(const q of queries){
+    try{
+      const s=await fetchWithTimeout(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(q)}&limit=2`,2500);
+      const first=s?.data?.items?.[0];
+      if(first?.slug){
+        const d2=await fetchWithTimeout(`https://phimapi.com/phim/${first.slug}`,2500);
+        if(d2?.episodes?.length)return d2.episodes.map(srv=>({server_name:`⚡ KKPhim (${srv.server_name})`,server_data:srv.server_data}));
+      }
+    }catch{}
+  }
   return[];
 }
 async function fetchProviderMovieDetail(providerId,slug,fallbackTitle=""){
   const ck=`${providerId}:${slug}`;
   if(detailCache.has(ck))return detailCache.get(ck);
   const provider=PROVIDERS.find(p=>p.id===providerId)||PROVIDERS[0];
-  const data=await fetchWithTimeout(provider.detailUrl(slug),4500);
+  const data=await fetchWithTimeout(provider.detailUrl(slug),3500);
   const movie=data.movie||data?.data?.item||{};
   const title=movie.name||fallbackTitle||"Phim";
+  const originTitle=movie.origin_name||movie.original_name||"";
   let servers=[];
   if(provider.type==="nguonc"){
-    const rescued=await rescueKkphimM3u8(slug,title);
+    const rescued=await rescueKkphimM3u8(slug,title,originTitle);
     const nguoncSrv=(movie.episodes||[]).map(s=>({
       server_name:`🔗 NguonC (${s.server_name})`,
       server_data:(s.items||[]).map(ep=>({name:ep.name,link_m3u8:ep.m3u8||"",link_embed:ep.embed||""}))
@@ -233,23 +345,38 @@ async function fetchProviderMovieDetail(providerId,slug,fallbackTitle=""){
   if(thumb&&!thumb.startsWith("http"))thumb=provider.imgPrefix+thumb;
   let backdrop=movie.thumb_url||movie.poster_url||thumb;
   if(backdrop&&!backdrop.startsWith("http"))backdrop=provider.imgPrefix+backdrop;
-  const res={movie,title,originTitle:movie.origin_name||movie.original_name||"",overview:movie.content||movie.description||"",year:movie.year||"",thumb,backdrop,servers,providerId,slug};
+  const res={movie,title,originTitle,overview:movie.content||movie.description||"",year:movie.year||"",thumb,backdrop,servers,providerId,slug};
   detailCache.set(ck,res);
+  /* Nạp trước luồng M3U8 của tập 1 ngay trong nền để bấm Xem là phát tức thì */
+  const firstM3u8=servers[0]?.server_data?.[0]?.link_m3u8;
+  if(firstM3u8)getCleanM3u8BlobUrl(firstM3u8);
   return res;
 }
+
+/* Quét song song tốc độ cao trên KKPhim trước để luôn ưu tiên luồng M3U8 sạch quảng cáo */
 async function findStreamForTmdb(viTitle,origTitle){
-  const queries=[viTitle,origTitle].filter(Boolean);
-  for(const q of queries){
-    const [kk,ng]=await Promise.all([fetchFromProvider(PROVIDERS[0],q),fetchFromProvider(PROVIDERS[4],q)]);
-    const combined=[...kk.items,...ng.items];
-    if(combined.length){
-      const nq=norm(q);
-      const best=combined.find(x=>norm(x.title).includes(nq)||norm(x.originTitle).includes(nq))||combined[0];
-      try{
-        const det=await fetchProviderMovieDetail(best.providerId,best.slug,best.title);
-        if(det.servers.length&&det.servers[0].server_data?.length)return det;
-      }catch{}
-    }
+  const queries=[...new Set([viTitle,origTitle].filter(Boolean))];
+  const kkSearches=await Promise.all(queries.map(q=>fetchFromProvider(PROVIDERS[0],q)));
+  const kkItems=kkSearches.flatMap(r=>r.items);
+  if(kkItems.length){
+    const nVi=norm(viTitle),nOr=norm(origTitle);
+    const best=kkItems.find(x=>
+      (nVi&&(norm(x.title).includes(nVi)||nVi.includes(norm(x.title))))||
+      (nOr&&(norm(x.originTitle).includes(nOr)||nOr.includes(norm(x.originTitle))))
+    )||kkItems[0];
+    try{
+      const det=await fetchProviderMovieDetail(best.providerId,best.slug,best.title);
+      if(det.servers.length&&det.servers[0].server_data?.length)return det;
+    }catch{}
+  }
+  /* Nếu KKPhim không có mới tìm sang NguonC */
+  const ngSearches=await Promise.all(queries.map(q=>fetchFromProvider(PROVIDERS[4],q)));
+  const ngItems=ngSearches.flatMap(r=>r.items);
+  if(ngItems.length){
+    try{
+      const det=await fetchProviderMovieDetail(ngItems[0].providerId,ngItems[0].slug,ngItems[0].title);
+      if(det.servers.length&&det.servers[0].server_data?.length)return det;
+    }catch{}
   }
   return null;
 }
@@ -269,7 +396,7 @@ const ROWS=[
  {t:"Gợi ý cho bạn",f:async()=>{const h=store.get("seen",[]);if(!h.length)return(await ctmdb("/movie/popular")).results;const l=h[0];return(await ctmdb(`/${l.type}/${l.id}/recommendations`)).results},sub:()=>{const h=store.get("seen",[]);return h.length?"Dựa trên: "+h[0].title:""}},
  {t:"Hay nhất mọi thời đại",f:async()=>{const a=await Promise.all([1,2,3].map(p=>ctmdb("/movie/top_rated",{page:p})));return a.flatMap(x=>x.results).sort((a,b)=>b.vote_average-a.vote_average)},rank:1},
  {t:"Phim trên Netflix",f:async()=>(await ctmdb("/discover/movie",{with_watch_providers:8,watch_region:"VN",sort_by:"popularity.desc"})).results},
- {t:"Châu Tinh Trì",f:async()=>{const p=await ctmdb("/search/person",{query:"Stephen Chow"});const id=p.results[0]?.id;return(await ctmdb("/discover/movie",{with_people:id,sort_by:"vote_average.desc","vote_count.gte":100})).results}},
+ {t:"Châu Tinh Trì",f:async()=>{const p=await ctmdb("/search/person",{query:"Stephen Chow"});const id=p.results[0]?.id;return(await ctmdb("/discover/movie",{with_people:id,sort_by:"vote_average.desc","vote_count.gte":100})).results},
  {t:"Đang chiếu rạp Việt Nam",f:async()=>(await ctmdb("/movie/now_playing",{region:"VN"})).results},
  {t:"Đang chiếu rạp quốc tế",f:async()=>(await ctmdb("/movie/now_playing",{region:"US"})).results},
 ];
@@ -319,7 +446,7 @@ function renderLibGrid(){
   g.innerHTML=list.map(m=>provCardHTML(m)).join("")||'<div class="empty">Không có phim</div>';
 }
 async function pLib(){
-  $("#page").innerHTML=`<h1>Thư viện</h1><div class="note" style="margin-top:-8px">Kho phim đa nguồn tốc độ cao (KKPhim CDN, Phim Bộ, Anime & NguonC) – Phát trực tiếp M3U8 & VIP.</div>${contRow()}<div class="chips" id="libTabs"></div><div id="libWrap"><div class="sp"><i></i></div></div>`;
+  $("#page").innerHTML=`<h1>Thư viện</h1><div class="note" style="margin-top:-8px">Kho phim đa nguồn tốc độ cao (KKPhim CDN, Phim Bộ, Anime & NguonC) – Phát trực tiếp M3U8 sạch quảng cáo.</div>${contRow()}<div class="chips" id="libTabs"></div><div id="libWrap"><div class="sp"><i></i></div></div>`;
   try{
     const d=await loadLib();if(tab!="lib")return;
     $("#libTabs").innerHTML=[["all","Tất cả"],...PROVIDERS.map(p=>[p.id,p.name])].map(([id,name])=>`<button class="chip ${libFilter===id?"on":""}" data-lf="${id}">${esc(name)}</button>`).join("");
@@ -333,7 +460,7 @@ let st;
 function pSearch(){
   const rec=store.get("recent",[]);
   $("#page").innerHTML=`<h1>Tìm kiếm</h1><label class="search glass"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICON.search}</svg><input id="q" placeholder="Tên phim, diễn viên…" autocomplete="off" enterkeyhint="search"></label><div id="res">${rec.length?`<h2>Gần đây</h2><div class="chips">${rec.map(r=>`<button class="chip" data-q="${esc(r)}">${esc(r)}</button>`).join("")}</div>`:`<div class="empty">Gõ để tìm trên KKPhim, NguonC & TMDB.</div>`}</div>`;
-  $("#q").oninput=e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value.trim()),300)};
+  $("#q").oninput=e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value.trim()),250)};
   $("#page").onclick=e=>{const c=e.target.closest("[data-q]");if(c){$("#q").value=c.dataset.q;doSearch(c.dataset.q)}};
 }
 async function doSearch(q){
@@ -359,7 +486,7 @@ function pMe(){
   <div class="list"><div><span>TMDB key</span><input type="password" id="k1" placeholder="Dán khoá API" value="${esc(cfg.tmdb)}"></div><div><span>OMDb key</span><input type="password" id="k2" placeholder="Tuỳ chọn – điểm IMDb" value="${esc(cfg.omdb)}"></div></div>
   <p class="note">Lấy khoá miễn phí tại themoviedb.org/settings/api (TMDB) và omdbapi.com (điểm IMDb). Khoá chỉ lưu trên máy bạn.</p>
   <div style="padding:0 20px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="sv">Lưu & tải lại</button><button class="btn g" id="cl">Xoá tiến trình xem</button></div>
-  <p class="note" style="margin-top:18px">Thêm vào màn hình chính: Safari → Chia sẻ → Thêm vào MH chính. Nguồn phát trực tiếp tự động đồng bộ từ KKPhim CDN & NguonC.</p>`;
+  <p class="note" style="margin-top:18px">Thêm vào màn hình chính: Safari → Chia sẻ → Thêm vào MH chính. Đã tích hợp bộ lọc cắt quảng cáo M3U8 trực tiếp.</p>`;
   $("#th").onclick=e=>{const b=e.target.closest("button");if(!b)return;vt(()=>{cfg.theme=b.dataset.v;saveCfg();[...$("#th").children].forEach(x=>x.classList.toggle("on",x==b))})};
   $("#sv").onclick=()=>{cfg.tmdb=$("#k1").value.trim();cfg.omdb=$("#k2").value.trim();saveCfg();cache.clear();go("home")};
   $("#cl").onclick=()=>{store.set("prog",{});store.set("ytprog",{});store.set("seen",[]);alert("Đã xoá")};
@@ -394,6 +521,10 @@ function renderStreamBox(det,sIdx=0,eIdx=0){
   activeSrvIdx=sIdx<det.servers.length?sIdx:0;
   const eps=det.servers[activeSrvIdx]?.server_data||[];
   activeEpIdx=eIdx<eps.length?eIdx:0;
+  /* Nạp trước tập đang chọn vào RAM */
+  const curM3u8=eps[activeEpIdx]?.link_m3u8;
+  if(curM3u8)getCleanM3u8BlobUrl(curM3u8);
+
   box.innerHTML=`
     <b>Chọn Server (${det.servers.length})</b>
     <div class="prov" id="srvList">${det.servers.map((s,i)=>`<button class="${i===activeSrvIdx?"on":""}" data-sidx="${i}">${esc(s.server_name)}</button>`).join("")}</div>
@@ -427,10 +558,21 @@ function startStreamFromDetail(sIdx,eIdx,resumeTime=0){
   }));
   if(!epList.length)return;
   ytStop();
+  playerMode="m3u8";
   openPlayer(epList,eIdx);
 }
 
 async function openProviderDetail(providerId,slug,fallbackTitle="",fallbackThumb="",sIdx=0,eIdx=0,resumeTime=0){
+  if(resumeTime>0){
+    try{
+      const det=await fetchProviderMovieDetail(providerId,slug,fallbackTitle);
+      if(!det.thumb&&fallbackThumb)det.thumb=fallbackThumb;
+      if(!det.backdrop&&fallbackThumb)det.backdrop=fallbackThumb;
+      activeStreamData=det;
+      startStreamFromDetail(sIdx,eIdx,resumeTime);
+      return;
+    }catch{}
+  }
   $("#sc").innerHTML='<div class="sp"><i></i></div>';openSheet();
   try{
     const det=await fetchProviderMovieDetail(providerId,slug,fallbackTitle);
@@ -444,7 +586,6 @@ async function openProviderDetail(providerId,slug,fallbackTitle="",fallbackThumb
     <p>${esc((det.overview||"Phát trực tiếp tốc độ cao từ hệ thống CDN đa nguồn.").replace(/<[^>]*>/g,""))}</p>
     </div>`;
     renderStreamBox(det,sIdx,eIdx);
-    if(resumeTime>0)startStreamFromDetail(sIdx,eIdx,resumeTime);
   }catch{
     $("#sc").innerHTML=`<div class="empty">Không tải được chi tiết nguồn phim.</div>`;
   }
@@ -460,9 +601,9 @@ async function openDetail(type,id,auto){
     const bdrop=m.backdrop_path?IMG+"w780"+m.backdrop_path:poster(m,"w500");
     $("#sc").innerHTML=`<div class="bk"><img src="${bdrop}" alt=""></div><div class="dt"><h3>${esc(ttl(m))}</h3>
     <div class="meta"><span class="rate">★ ${m.vote_average.toFixed(1)} TMDB</span><span id="imdb"></span><span>${(m.release_date||m.first_air_date||"").slice(0,4)}</span><span>${rt}</span><span>${(m.genres||[]).map(g=>esc(g.name)).join(", ")}</span></div>
-    <div class="acts"><button class="btn" id="playStreamBtn">⏳ Đang tìm nguồn phim…</button>${tr?`<button class="btn g" id="tb">▶ Xem trailer</button>`:""}</div>
+    <div class="acts"><button class="btn" id="playStreamBtn">⏳ Đang kết nối CDN…</button>${tr?`<button class="btn g" id="tb">▶ Xem trailer</button>`:""}</div>
     <div id="trw"></div>
-    <div id="streamBox"><div class="note" style="margin:0 0 8px">⚡ Đang quét luồng phát M3U8 / VIP từ KKPhim & NguonC...</div></div>
+    <div id="streamBox"><div class="note" style="margin:0 0 8px">⚡ Đang nạp luồng M3U8 sạch quảng cáo...</div></div>
     <p>${esc(m.overview||"Chưa có mô tả tiếng Việt.")}</p>
     ${m.recommendations?.results?.length?`<h2 style="margin-left:0">Tương tự</h2><div class="scroller" style="margin:0 -20px">${m.recommendations.results.filter(x=>x.poster_path).slice(0,12).map(x=>cardHTML({...x,media_type:type})).join("")}</div>`:""}</div>`;
     const yk=type+":"+id,old=store.get("ytprog",{})[yk];
@@ -471,7 +612,6 @@ async function openDetail(type,id,auto){
     if(auto&&$("#tb"))$("#tb").click();
     const iid=m.external_ids?.imdb_id;if(cfg.omdb&&iid)fetch(`https://www.omdbapi.com/?apikey=${cfg.omdb}&i=${iid}`).then(r=>r.json()).then(o=>{if(o.imdbRating&&o.imdbRating!="N/A")$("#imdb").innerHTML=`<b class="rate">IMDb ${o.imdbRating}</b>`}).catch(()=>{});
 
-    /* Tự động khớp nguồn KKPhim / NguonC cho phim TMDB */
     findStreamForTmdb(ttl(m),m.original_title||m.original_name||"").then(det=>{
       if(det){
         det.backdrop=bdrop;
@@ -491,11 +631,11 @@ document.addEventListener("click",e=>{
   const rs=e.target.closest("[data-resume]");if(rs){const[t,i]=rs.dataset.resume.split(":");openDetail(t,i,true);return}
   const p=e.target.closest("[data-play]");if(p){
     const pr=store.get("prog",{})[p.dataset.play];
-    if(pr&&pr.providerId&&pr.slug)openProviderDetail(pr.providerId,pr.slug,pr.title,pr.img,pr.sIdx||0,pr.eIdx||0,pr.t||0);
+    if(pr&&pr.providerId&&pr.slug)openProviderDetail(pr.providerId,pr.slug,pr.title,pr.img,pr.sIdx||0,pr.eIdx||0,pr.t||15);
   }
 });
 
-/* ---------- Player (Tích hợp HLS M3U8 & VIP Embed) ---------- */
+/* ---------- Player (Ưu tiên 100% Trình phát gốc CineGlass + Lọc QC M3U8) ---------- */
 const V=$("#v"),EMB=$("#emb"),P=$("#player");let list=[],idx=0,idle,saveT=0,hlsInstance=null,playerMode="m3u8";
 const fmt=s=>{s=Math.max(0,s|0);const h=s/3600|0,m=(s%3600)/60|0;return(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(s%60).padStart(2,"0")};
 function toast(t,ms=2500){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),ms)}
@@ -504,23 +644,37 @@ async function openPlayer(l,i){list=l;idx=i;P.classList.add("show");await loadIt
 
 function startEmbedInPlayer(it){
   playerMode="embed";
-  $("#modeBtn").textContent="Chế độ: VIP";
+  P.classList.add("embed-mode");
+  P.classList.remove("idle");
+  clearTimeout(idle);
+  $("#modeBtn").textContent="Luồng: VIP Iframe";
   if(hlsInstance){hlsInstance.destroy();hlsInstance=null}
   V.pause();V.style.display="none";
-  $("#midCtl").style.display="none";$("#seekRow").style.visibility="hidden";
   let url=it.embed;
   if((!url||url.includes("streamc.xyz"))&&it.m3u8)url=`https://player.phimapi.com/player/?url=${encodeURIComponent(it.m3u8)}`;
   EMB.style.display="block";EMB.src=url||"about:blank";
-  toast("Đang phát chế độ VIP Iframe");
-  wake();
+  toast("Chế độ VIP • Bấm nút ✕ góc trái trên để đóng");
+}
+
+async function startNativeVideoM3u8(it,resumeSec){
+  const cleanUrl=await getCleanM3u8BlobUrl(it.m3u8);
+  V.src=cleanUrl||it.m3u8;
+  V.onloadedmetadata=()=>{
+    if(resumeSec>10&&resumeSec<V.duration-20){V.currentTime=resumeSec;toast("Tiếp tục từ "+fmt(resumeSec))}
+    else toast("Đang phát Tập "+it.epName+" (Đã lọc QC)");
+  };
+  try{await V.play()}catch{}
 }
 
 async function loadItem(){
   const it=list[idx];if(!it)return;
   $("#pt").textContent=`${it.title}${it.epName?" · Tập "+it.epName:""}`;
-  toast("Đang tải luồng phim…",5000);
+  toast("Đang nạp luồng siêu tốc…",4000);
   const pr=store.get("prog",{})[it.identifier];
   const resumeSec=it.resumeTime||((pr&&pr.eIdx===it.eIdx&&pr.sIdx===it.sIdx&&pr.t>10)?pr.t:0);
+
+  /* Nạp trước tập tiếp theo vào bộ nhớ đệm */
+  if(list[idx+1]?.m3u8)setTimeout(()=>getCleanM3u8BlobUrl(list[idx+1].m3u8),2000);
 
   if(playerMode==="embed"||(!it.m3u8&&it.embed)){
     startEmbedInPlayer(it);
@@ -528,31 +682,45 @@ async function loadItem(){
     return;
   }
 
+  P.classList.remove("embed-mode");
   EMB.src="about:blank";EMB.style.display="none";
-  V.style.display="block";$("#midCtl").style.display="flex";$("#seekRow").style.visibility="visible";
-  $("#modeBtn").textContent="Chế độ: M3U8";
+  V.style.display="block";
+  $("#modeBtn").textContent="Luồng: M3U8 Sạch QC";
 
-  if(Hls.isSupported()){
+  if(typeof Hls!=="undefined"&&Hls.isSupported()){
     if(hlsInstance)hlsInstance.destroy();
-    hlsInstance=new Hls({maxBufferLength:10,startFragPrefetch:true});
+    hlsInstance=new Hls({
+      loader:CleanHlsLoader||Hls.DefaultConfig.loader,
+      startFragPrefetch:true,
+      maxBufferLength:20,
+      maxMaxBufferLength:40,
+      manifestLoadingTimeOut:8000,
+      fragLoadingTimeOut:10000
+    });
     hlsInstance.loadSource(it.m3u8);
     hlsInstance.attachMedia(V);
     hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{
-      if(resumeSec>10){V.currentTime=resumeSec;toast("Tiếp tục từ "+fmt(resumeSec))}else toast("Bắt đầu phát Tập "+it.epName);
+      if(resumeSec>10){V.currentTime=resumeSec;toast("Tiếp tục từ "+fmt(resumeSec))}
+      else toast("Đang phát Tập "+it.epName+" (Đã lọc QC)");
       V.play().catch(()=>{});
     });
     hlsInstance.on(Hls.Events.ERROR,(_,data)=>{
       if(data.fatal){
-        if(it.embed){toast("Chuyển sang luồng VIP dự phòng…");startEmbedInPlayer(it)}
-        else toast("Luồng phim hiện tại bị lỗi, hãy đổi Server khác.");
+        if(data.type===Hls.ErrorTypes.MEDIA_ERROR){
+          hlsInstance.recoverMediaError();
+        }else if(V.canPlayType("application/vnd.apple.mpegurl")){
+          /* Nếu Hls.js lỗi trên iOS, chuyển sang bộ giải mã gốc của iPhone chứ không nhảy sang Iframe */
+          hlsInstance.destroy();hlsInstance=null;
+          startNativeVideoM3u8(it,resumeSec);
+        }else if(it.embed){
+          startEmbedInPlayer(it);
+        }else{
+          toast("Luồng phim hiện tại bị lỗi, hãy đổi Server khác.");
+        }
       }
     });
   }else if(V.canPlayType("application/vnd.apple.mpegurl")){
-    V.src=it.m3u8;
-    V.onloadedmetadata=()=>{
-      if(resumeSec>10){V.currentTime=resumeSec;toast("Tiếp tục từ "+fmt(resumeSec))}else toast("Bắt đầu phát Tập "+it.epName);
-    };
-    await V.play().catch(()=>{if(it.embed)startEmbedInPlayer(it)});
+    await startNativeVideoM3u8(it,resumeSec);
   }else if(it.embed){
     startEmbedInPlayer(it);
   }
@@ -578,32 +746,64 @@ function save(){
 }
 function closePlayer(){
   save();
+  clearTimeout(idle);
   if(hlsInstance){hlsInstance.destroy();hlsInstance=null}
   V.pause();V.removeAttribute("src");V.load();
   EMB.src="about:blank";EMB.style.display="none";
-  if(document.fullscreenElement)document.exitFullscreen?.();
-  P.classList.remove("show");
-  if(tab=="home"||tab=="lib")go(tab);
+  P.classList.remove("show","idle","embed-mode");
+  if(document.fullscreenElement||document.webkitFullscreenElement){
+    (document.exitFullscreen||document.webkitExitFullscreen)?.call(document);
+  }
+  if(!document.body.classList.contains("sheeted")&&(tab=="home"||tab=="lib"))go(tab);
 }
-function wake(){P.classList.remove("idle");clearTimeout(idle);if(!V.paused||playerMode==="embed")idle=setTimeout(()=>P.classList.add("idle"),3200)}
+function wake(){
+  P.classList.remove("idle");
+  clearTimeout(idle);
+  if(!V.paused&&playerMode==="m3u8")idle=setTimeout(()=>P.classList.add("idle"),3500);
+}
 const setIcon=()=>$("#ppi").innerHTML=V.paused?'<path d="M8 5v14l11-7z"/>':'<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>';
 V.onplay=V.onpause=()=>{setIcon();wake();save()};
 V.ontimeupdate=()=>{if(V.duration){$("#sk").value=V.currentTime/V.duration*1000;$("#tc").textContent=fmt(V.currentTime);$("#td").textContent=fmt(V.duration)}if(Date.now()-saveT>3000){saveT=Date.now();save()}};
-V.onended=()=>{if(cfg.autonext&&idx<list.length-1){toast("Tự chuyển sang: Tập "+list[idx+1].epName,3000);setTimeout(()=>{idx++;loadItem()},2000)}else P.classList.remove("idle")};
+V.onended=()=>{if(cfg.autonext&&idx<list.length-1){toast("Tự chuyển sang: Tập "+list[idx+1].epName,3000);setTimeout(()=>{idx++;loadItem()},1500)}else P.classList.remove("idle")};
 $("#sk").oninput=e=>{if(V.duration)V.currentTime=e.target.value/1000*V.duration;wake()};
-$("#pp").onclick=()=>{V.paused?V.play():V.pause()};
-$("#bk10").onclick=()=>{V.currentTime-=10;wake()};$("#fw10").onclick=()=>{V.currentTime+=10;wake()};
-$("#pc").onclick=closePlayer;$("#pn").onclick=()=>{if(idx<list.length-1){save();idx++;loadItem()}else toast("Đã là tập cuối")};
-const SP=[1,1.25,1.5,2,.75];$("#spd").onclick=()=>{const n=SP[(SP.indexOf(V.playbackRate)+1)%SP.length];V.playbackRate=n;$("#spd").textContent=n+"×"};
-$("#modeBtn").onclick=()=>{
+$("#pp").onclick=e=>{e.stopPropagation();V.paused?V.play():V.pause()};
+$("#bk10").onclick=e=>{e.stopPropagation();V.currentTime-=10;wake()};
+$("#fw10").onclick=e=>{e.stopPropagation();V.currentTime+=10;wake()};
+$("#pc").onclick=e=>{e.stopPropagation();closePlayer()};
+$("#pn").onclick=e=>{e.stopPropagation();if(idx<list.length-1){save();idx++;loadItem()}else toast("Đã là tập cuối")};
+const SP=[1,1.25,1.5,2,.75];
+$("#spd").onclick=e=>{e.stopPropagation();const n=SP[(SP.indexOf(V.playbackRate)+1)%SP.length];V.playbackRate=n;$("#spd").textContent=n+"×";wake()};
+$("#modeBtn").onclick=e=>{
+  e.stopPropagation();
   const it=list[idx];if(!it)return;
   if(playerMode==="m3u8"){if(it.embed||it.m3u8)startEmbedInPlayer(it)}
   else if(it.m3u8){playerMode="m3u8";loadItem()}
 };
-$("#an").onclick=()=>{cfg.autonext=!cfg.autonext;saveCfg();$("#an").textContent="Tự chuyển: "+(cfg.autonext?"Bật":"Tắt")};$("#an").textContent="Tự chuyển: "+(cfg.autonext?"Bật":"Tắt");
-$("#fs").onclick=()=>{if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else if(playerMode==="m3u8"&&V.webkitEnterFullscreen)V.webkitEnterFullscreen();else if(P.requestFullscreen)P.requestFullscreen().catch(()=>V.webkitEnterFullscreen?.());else if(P.webkitRequestFullscreen)P.webkitRequestFullscreen()};
+$("#an").onclick=e=>{e.stopPropagation();cfg.autonext=!cfg.autonext;saveCfg();$("#an").textContent="Tự chuyển: "+(cfg.autonext?"Bật":"Tắt");wake()};
+$("#an").textContent="Tự chuyển: "+(cfg.autonext?"Bật":"Tắt");
+$("#fs").onclick=e=>{
+  e.stopPropagation();
+  if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}
+  else if(playerMode==="m3u8"&&V.webkitEnterFullscreen)V.webkitEnterFullscreen();
+  else if(P.requestFullscreen)P.requestFullscreen().catch(()=>V.webkitEnterFullscreen?.());
+  else if(P.webkitRequestFullscreen)P.webkitRequestFullscreen();
+};
 V.addEventListener("dblclick",()=>$("#fs").click());
-P.addEventListener("pointerdown",e=>{if(e.target==V||e.target==$("#ctl"))P.classList.contains("idle")?wake():(V.paused?wake():P.classList.add("idle"));else wake()});
+
+/* Đảm bảo chạm vào màn hình hoặc vuốt xuống từ đỉnh đều đánh thức / đóng được Player */
+let py0=0;
+P.addEventListener("touchstart",e=>{
+  py0=e.touches[0].clientY;
+  if(P.classList.contains("idle"))wake();
+},{passive:true});
+P.addEventListener("touchend",e=>{
+  if(py0<90&&e.changedTouches[0].clientY-py0>120&&!document.fullscreenElement)closePlayer();
+},{passive:true});
+P.addEventListener("pointerdown",e=>{
+  if(e.target===V||e.target===$("#ctl")||e.target===P){
+    P.classList.contains("idle")?wake():(V.paused?wake():P.classList.add("idle"));
+  }else wake();
+});
 document.addEventListener("keydown",e=>{if(!P.classList.contains("show"))return;if(e.key==" "){e.preventDefault();$("#pp").click()}if(e.key=="ArrowRight")V.currentTime+=10;if(e.key=="ArrowLeft")V.currentTime-=10;if(e.key=="f")$("#fs").click();if(e.key=="Escape"&&!document.fullscreenElement)closePlayer()});
 addEventListener("pagehide",save);
 
