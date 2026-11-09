@@ -190,7 +190,8 @@ function pMe(){
   <div class="list"><div><span>TMDB key</span><input type="password" id="k1" placeholder="Dán khoá API" value="${esc(cfg.tmdb)}"></div><div><span>OMDb key</span><input type="password" id="k2" placeholder="Tuỳ chọn – điểm IMDb" value="${esc(cfg.omdb)}"></div></div>
   <p class="note">Lấy khoá miễn phí tại themoviedb.org/settings/api (TMDB) và omdbapi.com (điểm IMDb). Khoá chỉ lưu trên máy bạn.</p>
   <div style="padding:0 20px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="sv">Lưu & tải lại</button><button class="btn g" id="cl">Xoá tiến trình xem</button></div>
-  <p class="note" style="margin-top:18px">Thêm vào màn hình chính: Safari → Chia sẻ → Thêm vào MH chính. Phim trên Netflix/rạp được hiển thị thông tin và nơi xem hợp pháp, không phát lại trong app.</p>`;
+  <p class="note" style="margin-top:18px"><b>Phiên bản v3.1 · 09/11</b> · thêm nút tua 10 giây, tập trước/sau; giữ nguyên các chức năng cũ.</p>
+  <p class="note">Thêm vào màn hình chính: Safari → Chia sẻ → Thêm vào MH chính. Phim trên Netflix/rạp được hiển thị thông tin và nơi xem hợp pháp, không phát lại trong app.</p>`;
   $("#th").onclick=e=>{const b=e.target.closest("button");if(!b)return;vt(()=>{cfg.theme=b.dataset.v;saveCfg();[...$("#th").children].forEach(x=>x.classList.toggle("on",x==b))})};
   $("#sv").onclick=()=>{cfg.tmdb=$("#k1").value.trim();cfg.omdb=$("#k2").value.trim();saveCfg();cache.clear();go("home")};
   $("#cl").onclick=()=>{store.set("prog",{});store.set("seen",[]);alert("Đã xoá")};
@@ -281,26 +282,9 @@ $("#bk10").onclick=()=>{V.currentTime-=10;wake()};$("#fw10").onclick=()=>{V.curr
 $("#pc").onclick=closePlayer;$("#pn").onclick=()=>{if(idx<list.length-1){save();idx++;loadItem()}};$("#pv").onclick=()=>{if(V.currentTime>5){V.currentTime=0;wake();return}if(idx>0){save();idx--;loadItem()}};
 const SP=[1,1.25,1.5,2,.75];$("#spd").onclick=()=>{const n=SP[(SP.indexOf(V.playbackRate)+1)%SP.length];V.playbackRate=n;$("#spd").textContent=n+"×"};
 $("#an").onclick=()=>{cfg.autonext=!cfg.autonext;saveCfg();$("#an").textContent="Tự chuyển: "+(cfg.autonext?"Bật":"Tắt")};$("#an").textContent="Tự chuyển: "+(cfg.autonext?"Bật":"Tắt");
-$("#fs").onclick=()=>{
-  const d=document;
-  if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d);return}
-  const rq=P.requestFullscreen||P.webkitRequestFullscreen;
-  if(rq){Promise.resolve(rq.call(P)).catch(()=>{});return}
-  const on=P.classList.toggle("pfs");
-  toast(on?"Lấp đầy màn hình. Thêm vào MH chính để xem toàn màn hình thật":"Về khung gốc",3200);
-};
-const tapL=document.createElement("div"),tapR=document.createElement("div");tapL.className="tap";tapR.className="tap";tapL.style.left="12%";tapR.style.right="12%";tapL.textContent="−10";tapR.textContent="+10";P.append(tapL,tapR);
-function flash(e){e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),450)}
-let lastTap=0,lastX=0,sgl;
-P.addEventListener("pointerdown",e=>{
-  const onVid=e.target==V||e.target==$("#ctl");
-  if(!onVid){wake();return}
-  const now=Date.now(),w=innerWidth,dbl=now-lastTap<320&&Math.abs(e.clientX-lastX)<60;
-  clearTimeout(sgl);
-  if(dbl){lastTap=0;const x=e.clientX/w;if(x<.35){V.currentTime-=10;flash(tapL);wake()}else if(x>.65){V.currentTime+=10;flash(tapR);wake()}else $("#fs").click();return}
-  lastTap=now;lastX=e.clientX;
-  sgl=setTimeout(()=>{P.classList.contains("idle")?wake():(V.paused?wake():P.classList.add("idle"))},300);
-});
+$("#fs").onclick=()=>{if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else if(P.requestFullscreen)P.requestFullscreen().catch(()=>V.webkitEnterFullscreen?.());else if(P.webkitRequestFullscreen)P.webkitRequestFullscreen();else V.webkitEnterFullscreen?.()};
+P.addEventListener("pointerdown",e=>{if(e.target==V||e.target==$("#ctl"))P.classList.contains("idle")?wake():(V.paused?wake():P.classList.add("idle"));else wake()});
+V.addEventListener("dblclick",()=>$("#fs").click());
 document.addEventListener("keydown",e=>{if(!P.classList.contains("show"))return;if(e.key==" "){e.preventDefault();$("#pp").click()}if(e.key=="ArrowRight")V.currentTime+=10;if(e.key=="ArrowLeft")V.currentTime-=10;if(e.key=="f")$("#fs").click();if(e.key=="Escape"&&!document.fullscreenElement)closePlayer()});
 addEventListener("pagehide",save);
 
