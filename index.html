@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="vi" data-theme="light">
 <head>
@@ -424,9 +425,232 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
   .lib-detail-controls select{flex:1}
 }
 
+
+
+/* ===== CineGlass 2.1 · Frosted cinema dashboard ===== */
+:root{
+  --bg:#e7e7e4;
+  --bg-mesh:radial-gradient(ellipse at 12% 12%,rgba(255,255,255,.8),transparent 40%),radial-gradient(ellipse at 90% 18%,rgba(190,195,202,.42),transparent 38%),radial-gradient(ellipse at 72% 88%,rgba(216,204,211,.42),transparent 42%);
+  --card:rgba(255,255,255,.72);
+  --text:#24242a;--sub:#777780;
+  --glass-rgb:245,245,244;
+  --pill-rgb:255,255,255;--pill-a:.48;
+  --rim-hi:rgba(255,255,255,.92);--rim-lo:rgba(255,255,255,.32);
+  --glass-shadow:0 16px 42px rgba(44,45,50,.12),0 2px 8px rgba(44,45,50,.06);
+  --accent:#fa526d;
+  --accent-grad:linear-gradient(135deg,#ff7188 0%,#fa526d 58%,#eb765c 100%);
+  --line:rgba(70,70,80,.10);
+}
+:root[data-theme=dark]{
+  --bg:#111116;
+  --bg-mesh:radial-gradient(ellipse at 15% 8%,rgba(118,96,135,.24),transparent 43%),radial-gradient(ellipse at 88% 23%,rgba(77,91,119,.2),transparent 40%),radial-gradient(ellipse at 55% 95%,rgba(139,74,91,.17),transparent 48%);
+  --card:rgba(34,33,42,.82);--text:#f6f4f6;--sub:#aaa7b1;
+  --glass-rgb:38,37,45;--pill-rgb:255,255,255;--pill-a:.15;
+  --rim-hi:rgba(255,255,255,.3);--rim-lo:rgba(255,255,255,.12);
+  --glass-shadow:0 18px 48px rgba(0,0,0,.4),0 2px 8px rgba(0,0,0,.2);
+  --accent:#ff6b85;--line:rgba(255,255,255,.1);
+}
+html,body{min-height:100%;background:var(--bg);background-image:var(--bg-mesh);background-attachment:fixed}
+body{position:relative;min-height:100vh}
+.cg-ambient{position:fixed;inset:-7%;z-index:0;pointer-events:none;opacity:.62;filter:blur(34px);background:radial-gradient(ellipse at 20% 28%,rgba(255,255,255,.82),transparent 28%),radial-gradient(ellipse at 75% 32%,rgba(173,181,189,.55),transparent 28%),radial-gradient(ellipse at 62% 84%,rgba(225,171,182,.42),transparent 28%)}
+:root[data-theme=dark] .cg-ambient{opacity:.4}
+.cg-topbar{position:sticky;top:12px;z-index:35;width:min(1300px,calc(100% - 126px));min-height:72px;margin:14px auto 14px;padding:10px 14px;display:grid;grid-template-columns:auto minmax(155px,220px) minmax(0,1fr) auto;align-items:center;gap:16px;border:1px solid rgba(255,255,255,.72);border-radius:25px;background:rgba(248,248,247,.56);-webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%);box-shadow:0 12px 36px rgba(40,42,48,.09),inset 0 1px 0 rgba(255,255,255,.85)}
+:root[data-theme=dark] .cg-topbar{background:rgba(27,26,34,.72);border-color:rgba(255,255,255,.14);box-shadow:0 14px 40px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.1)}
+.cg-brand{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none;color:var(--text)}
+.cg-brand-mark{width:38px;height:38px;display:grid;place-items:center;flex:none;border-radius:13px;background:var(--accent-grad);color:#fff;font-size:21px;font-weight:900;box-shadow:0 7px 18px rgba(250,82,109,.26)}
+.cg-brand-copy{display:flex;flex-direction:column;line-height:1.05;white-space:nowrap}
+.cg-brand-copy b{font-size:15px;letter-spacing:-.4px;font-weight:850}
+.cg-brand-copy small{margin-top:4px;color:var(--sub);font-size:8px;letter-spacing:1.15px;font-weight:850}
+.cg-global-search{height:40px;min-width:0;display:flex;align-items:center;gap:8px;padding:0 11px;border:1px solid rgba(100,100,110,.08);border-radius:14px;background:rgba(120,120,128,.10)}
+.cg-global-search svg,.cg-top-actions svg,.cg-heading-search svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;color:var(--sub)}
+.cg-global-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font:600 12px/1.2 inherit}
+.cg-global-search input::placeholder{color:var(--sub)}
+.cg-global-search kbd{flex:none;padding:3px 5px;border-radius:6px;background:rgba(120,120,128,.14);color:var(--sub);font:700 10px/1.2 inherit}
+.cg-category-nav{display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.cg-category-nav::-webkit-scrollbar{display:none}
+.cg-category-btn{flex:none;padding:9px 12px;border-radius:99px;color:var(--sub);font-size:11px;font-weight:750;white-space:nowrap;transition:background .2s,color .2s,transform .25s var(--spring)}
+.cg-category-btn:hover{background:rgba(255,255,255,.42);color:var(--text)}
+.cg-category-btn.on{background:rgba(255,255,255,.75);color:var(--text);box-shadow:inset 0 1px rgba(255,255,255,.9),0 2px 8px rgba(40,40,50,.06)}
+:root[data-theme=dark] .cg-category-btn.on{background:rgba(255,255,255,.13);color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.16)}
+.cg-top-actions{display:flex;align-items:center;gap:9px}
+.cg-icon-btn,.cg-profile-btn{width:38px;height:38px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:rgba(255,255,255,.38);color:var(--text);position:relative}
+.cg-profile-btn{border-radius:14px;background:rgba(255,255,255,.54);font-size:11px;font-weight:900}
+.cg-profile-btn span{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#8e9eb6,#596b84);color:white}
+.cg-profile-btn i{position:absolute;right:5px;top:5px;width:6px;height:6px;border-radius:50%;background:#67c9a3;border:1px solid rgba(255,255,255,.9)}
+.cg-rail{position:fixed;left:max(14px,calc((100vw - 1420px)/2));top:50%;z-index:32;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;padding:9px;border:1px solid rgba(255,255,255,.7);border-radius:23px;background:rgba(246,246,245,.45);-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);box-shadow:0 12px 32px rgba(30,30,40,.1),inset 0 1px rgba(255,255,255,.8)}
+:root[data-theme=dark] .cg-rail{background:rgba(26,25,33,.7);border-color:rgba(255,255,255,.13)}
+.cg-rail-btn{width:40px;height:40px;display:grid;place-items:center;border-radius:14px;color:var(--sub);transition:background .2s,color .2s,transform .3s var(--spring)}
+.cg-rail-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cg-rail-btn:hover,.cg-rail-btn.on{background:rgba(255,255,255,.7);color:var(--accent);box-shadow:0 3px 10px rgba(35,35,45,.06)}
+:root[data-theme=dark] .cg-rail-btn:hover,:root[data-theme=dark] .cg-rail-btn.on{background:rgba(255,255,255,.1)}
+#page{width:min(1300px,calc(100% - 126px));min-height:calc(100dvh - 112px);margin:0 auto 28px;padding:23px;border:1px solid rgba(255,255,255,.74);border-radius:32px;background:linear-gradient(140deg,rgba(250,250,249,.62),rgba(239,239,238,.34));-webkit-backdrop-filter:blur(30px) saturate(155%);backdrop-filter:blur(30px) saturate(155%);box-shadow:0 20px 58px rgba(38,40,48,.10),inset 0 1px 0 rgba(255,255,255,.88);overflow:visible}
+:root[data-theme=dark] #page{background:linear-gradient(140deg,rgba(34,33,42,.79),rgba(22,22,29,.58));border-color:rgba(255,255,255,.13);box-shadow:0 22px 60px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.12)}
+#page h1{margin:0;color:var(--text);background:none;-webkit-text-fill-color:currentColor;font-size:clamp(27px,3vw,36px);letter-spacing:-1.2px}
+#page h2{font-size:17px;letter-spacing:-.35px}
+#page .note{color:var(--sub)}
+#page .btn{box-shadow:0 5px 16px rgba(250,82,109,.14)}
+.dock{display:none}
+.cg-home-layout{display:grid;grid-template-columns:minmax(205px,245px) minmax(0,1fr);gap:21px;align-items:start;max-width:100%;margin:0 auto}
+.cg-home-sidebar{display:flex;flex-direction:column;gap:13px;min-width:0}
+.cg-side-panel{padding:14px;border:1px solid rgba(255,255,255,.72);border-radius:21px;background:linear-gradient(145deg,rgba(255,255,255,.58),rgba(255,255,255,.27));box-shadow:0 10px 26px rgba(40,40,50,.06),inset 0 1px rgba(255,255,255,.9);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);min-width:0}
+:root[data-theme=dark] .cg-side-panel{background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border-color:rgba(255,255,255,.11);box-shadow:0 10px 26px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.08)}
+.cg-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 11px}
+.cg-panel-heading>b{font-size:12px;font-weight:850;letter-spacing:-.15px}
+.cg-panel-heading>span,.cg-panel-heading>button{font-size:9px;color:var(--sub);font-weight:800;letter-spacing:.5px}
+.cg-panel-heading>button{white-space:nowrap}
+.cg-recent-list{display:flex;flex-direction:column;gap:7px}
+.cg-recent-item{display:flex;align-items:center;gap:9px;width:100%;min-width:0;padding:7px;border:1px solid transparent;border-radius:13px;text-align:left;background:rgba(255,255,255,.27);transition:background .2s,transform .25s var(--spring)}
+.cg-recent-item:hover{background:rgba(255,255,255,.63)}
+:root[data-theme=dark] .cg-recent-item{background:rgba(255,255,255,.045)}
+.cg-recent-poster{width:34px;height:45px;display:grid;place-items:center;flex:none;border-radius:8px;overflow:hidden;background:var(--accent-grad);color:#fff;font-size:12px;font-weight:900}
+.cg-recent-poster img{width:100%;height:100%;object-fit:cover}
+.cg-recent-copy{flex:1;min-width:0}
+.cg-recent-copy b{display:block;font-size:10.5px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cg-recent-copy small{display:block;margin-top:4px;color:var(--sub);font-size:9px}
+.cg-recent-arrow{font-size:12px;color:var(--sub)}
+.cg-empty-note{padding:14px 6px;color:var(--sub);font-size:10.5px;line-height:1.55}
+.cg-home-sidebar .cg-side-continue .scroller{display:flex;flex-direction:column;overflow:visible;padding:0;gap:8px}
+.cg-home-sidebar .cg-side-continue h2{margin:0 0 9px;font-size:12px}
+.cg-home-sidebar .cg-side-continue .card.wide{display:grid;grid-template-columns:66px minmax(0,1fr);grid-template-rows:auto auto;gap:3px 9px;width:100%;flex:none;align-items:center;padding:7px;border:1px solid transparent;border-radius:13px;background:rgba(255,255,255,.28)}
+.cg-home-sidebar .cg-side-continue .card.wide .p{grid-row:1/3;width:66px;height:44px;aspect-ratio:3/2;border-radius:8px;object-fit:cover}
+.cg-home-sidebar .cg-side-continue .card.wide b{align-self:end;margin:0;font-size:10px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.cg-home-sidebar .cg-side-continue .card.wide .bar{align-self:start;width:100%;margin-top:4px}
+.cg-shortcut{display:flex;align-items:center;gap:9px;width:100%;padding:8px 5px;text-align:left;border-top:1px solid var(--line)}
+.cg-shortcut>span:first-child{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:rgba(255,255,255,.52);color:var(--accent);font-size:17px}
+.cg-shortcut>span:nth-child(2){flex:1;min-width:0}
+.cg-shortcut b,.cg-shortcut small{display:block}
+.cg-shortcut b{font-size:10px}.cg-shortcut small{font-size:9px;color:var(--sub);margin-top:3px}.cg-shortcut i{font-style:normal;color:var(--sub)}
+.cg-home-main{min-width:0;display:flex;flex-direction:column;gap:15px}
+.cg-home-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:1px 2px 0}
+.cg-eyebrow{display:block;margin-bottom:5px;color:var(--accent);font-size:9px;font-weight:900;letter-spacing:1.3px}
+.cg-home-heading p{margin:6px 0 0;color:var(--sub);font-size:11px}
+.cg-heading-search{display:flex;align-items:center;gap:7px;padding:10px 13px;border:1px solid rgba(255,255,255,.8);border-radius:13px;background:rgba(255,255,255,.62);font-size:10px;font-weight:800;white-space:nowrap;box-shadow:0 4px 13px rgba(30,30,40,.05)}
+:root[data-theme=dark] .cg-heading-search{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.1)}
+.cg-feature-placeholder{position:relative;isolation:isolate;display:flex;align-items:flex-end;min-height:260px;padding:24px;border:1px solid rgba(255,255,255,.38);border-radius:25px;overflow:hidden;color:#fff;background:linear-gradient(120deg,#252531,#5b5967 55%,#a47f89);box-shadow:0 14px 32px rgba(30,30,40,.13)}
+.cg-feature-placeholder>div{display:flex;flex-direction:column;gap:7px;position:relative;z-index:1}
+.cg-feature-placeholder small{font-size:9px;letter-spacing:1px;font-weight:900;color:rgba(255,255,255,.8)}
+.cg-feature-placeholder b{font-size:23px;letter-spacing:-.6px}.cg-feature-placeholder span:not(.cg-feature-glow){font-size:11px;color:rgba(255,255,255,.76)}
+.cg-feature-glow{position:absolute;inset:-20%;z-index:-1;background:radial-gradient(circle at 76% 28%,rgba(255,255,255,.35),transparent 28%),radial-gradient(circle at 24% 84%,rgba(255,84,116,.4),transparent 30%);filter:blur(16px)}
+.cg-featured-hero{width:100%;height:clamp(240px,28vw,330px);margin:0;border-radius:25px;text-align:left;box-shadow:0 16px 38px rgba(20,20,30,.16);border:1px solid rgba(255,255,255,.4)}
+.cg-featured-hero img{height:100%;object-fit:cover}
+.cg-featured-hero::after{background:linear-gradient(90deg,rgba(9,9,16,.84),rgba(9,9,16,.4) 52%,rgba(9,9,16,.06)),linear-gradient(0deg,rgba(0,0,0,.35),transparent 60%)}
+.cg-featured-hero div{left:23px;right:23px;bottom:23px;max-width:560px}
+.cg-featured-hero div span{font-size:10px;color:rgba(255,255,255,.82);font-weight:750;letter-spacing:.6px}
+.cg-featured-hero div b{font-size:clamp(22px,3vw,34px);line-height:1.04;letter-spacing:-.8px}
+.cg-featured-hero div i{display:inline-flex;margin-top:10px;padding:9px 13px;border:1px solid rgba(255,255,255,.4);border-radius:99px;background:rgba(255,255,255,.16);font-size:10px;font-style:normal;font-weight:800;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.cg-movie-row{padding:1px 0 0}
+.cg-movie-row .sec-hd{margin:7px 1px 7px;align-items:center}
+.cg-movie-row .sec-hd h2{font-size:14px}
+.cg-movie-row .scroller{padding:7px 1px 13px;gap:12px}
+.cg-movie-row .card{flex-basis:112px}
+.cg-movie-row .card .p{width:112px;border-radius:14px}
+.cg-movie-row .card b{font-size:11px}
+.cg-movie-row .card small{font-size:9px}
+.cg-movie-row .card.more-card .more-box{width:112px}
+.library-shell{width:100%;max-width:none;margin:0;padding:0 2px 26px}
+.lib-heading{margin:0 0 17px}
+.lib-heading p{font-size:11px}
+.lib-layout{grid-template-columns:minmax(210px,245px) minmax(0,1fr);gap:16px}
+.lib-sidebar,.lib-panel{border-radius:22px;background:linear-gradient(145deg,rgba(255,255,255,.6),rgba(255,255,255,.27));border-color:rgba(255,255,255,.78);box-shadow:0 12px 30px rgba(35,35,45,.07),inset 0 1px rgba(255,255,255,.9)}
+:root[data-theme=dark] .lib-sidebar,:root[data-theme=dark] .lib-panel{background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border-color:rgba(255,255,255,.1)}
+.lib-sidebar{top:96px}
+.lib-stat{background:rgba(255,255,255,.38)}
+:root[data-theme=dark] .lib-stat{background:rgba(255,255,255,.05)}
+.lib-hero{min-height:clamp(235px,27vw,320px);border-radius:25px}
+.lib-hero h2{font-size:clamp(25px,3vw,36px)}
+.lib-section-head h2{font-size:15px}
+.lib-saved-grid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:13px}
+.lib-item-poster{border-radius:14px}
+.lib-detail-controls{background:rgba(255,255,255,.35)}
+:root[data-theme=dark] .lib-detail-controls{background:rgba(255,255,255,.06)}
+#page .search{border-radius:15px;background:rgba(255,255,255,.53);border:1px solid rgba(255,255,255,.75);box-shadow:0 6px 18px rgba(40,40,50,.05)}
+:root[data-theme=dark] #page .search{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
+#page .list{background:rgba(255,255,255,.34);border-color:rgba(255,255,255,.75);box-shadow:0 8px 25px rgba(30,30,40,.04)}
+:root[data-theme=dark] #page .list{background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.1)}
+#page .chip{background:rgba(255,255,255,.42);border-color:rgba(255,255,255,.7)}
+#page .chip.on{background:var(--accent-grad);border-color:transparent}
+.dock{display:none}
+@media(max-width:1050px){
+  .cg-topbar{grid-template-columns:auto minmax(130px,190px) minmax(0,1fr) auto;gap:9px;width:calc(100% - 30px)}
+  .cg-category-btn{padding:8px 9px;font-size:10px}
+  #page{width:calc(100% - 30px);padding:18px}
+  .cg-rail{left:5px;padding:6px}.cg-rail-btn{width:36px;height:38px}
+}
+@media(max-width:760px){
+  .cg-topbar{position:sticky;top:6px;width:calc(100% - 16px);min-height:60px;margin:7px auto 9px;padding:8px 10px;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;border-radius:19px}
+  .cg-brand-mark{width:34px;height:34px;border-radius:11px;font-size:19px}
+  .cg-brand-copy b{font-size:13px}.cg-brand-copy small{font-size:7px}
+  .cg-global-search{height:36px;padding:0 8px}.cg-global-search kbd{display:none}
+  .cg-category-nav{grid-column:1/-1;grid-row:2;justify-content:flex-start;margin:0 -2px;padding:1px 0 2px}
+  .cg-category-btn{padding:7px 11px;font-size:10px}
+  .cg-top-actions{gap:5px}.cg-icon-btn,.cg-profile-btn{width:34px;height:34px}
+  .cg-rail{display:none}
+  #page{width:calc(100% - 14px);min-height:calc(100dvh - 155px);margin:0 auto 92px;padding:13px;border-radius:23px}
+  .cg-home-layout{grid-template-columns:1fr;gap:14px}
+  .cg-home-main{order:1}.cg-home-sidebar{order:2;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cg-side-shortcuts{grid-column:1/-1}
+  .cg-side-panel{padding:11px;border-radius:17px}
+  .cg-featured-hero{height:230px;min-height:230px;border-radius:19px}
+  .cg-featured-hero div{left:17px;right:17px;bottom:17px}
+  .cg-home-heading{align-items:flex-start}.cg-home-heading p{max-width:250px;line-height:1.45}
+  .cg-heading-search{padding:9px 10px;font-size:9px}
+  .cg-movie-row .card{flex-basis:105px}.cg-movie-row .card .p{width:105px}
+  .library-shell{padding:0 0 20px}
+  .lib-layout{grid-template-columns:1fr;gap:12px}
+  .lib-sidebar{position:static;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:11px}
+  .lib-sidebar>section:last-child{grid-column:1/-1}
+  .lib-stat-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .lib-stat{padding:8px 6px}.lib-stat b{font-size:17px}.lib-stat span{font-size:8px}
+  .lib-recent-list{display:grid;grid-template-columns:1fr 1fr}
+  .lib-main{gap:13px}.lib-hero{min-height:225px;padding:16px;border-radius:19px}
+  .lib-saved-grid{grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:9px}
+  .lib-item-copy b{font-size:10px}
+  .dock{display:flex;left:10px;right:10px;bottom:max(7px,calc(var(--sab) + 4px));gap:7px;z-index:45}
+  .tabs{height:57px}.sbtn{width:57px;height:57px}
+}
+@media(max-width:430px){
+  .cg-home-sidebar{grid-template-columns:1fr}
+  .cg-side-shortcuts{grid-column:auto}
+  .cg-global-search input{font-size:11px}
+  .lib-heading{display:flex;flex-direction:column;gap:9px}
+  .lib-heading-actions{margin-top:0}
+  .lib-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lib-recent-list{grid-template-columns:1fr}
+  .lib-sidebar>section:last-child{grid-column:auto}
+}
+
 </style>
 </head>
 <body>
+<div class="cg-ambient" aria-hidden="true"></div>
+<header class="cg-topbar" id="cgTopbar">
+  <a class="cg-brand" href="#home" data-cg-route="home" aria-label="CineGlass trang chủ">
+    <span class="cg-brand-mark">C</span>
+    <span class="cg-brand-copy"><b>CineGlass</b><small>YOUR PRIVATE CINEMA</small></span>
+  </a>
+  <form class="cg-global-search" id="cgGlobalSearchForm" role="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+    <input id="cgGlobalSearch" type="search" placeholder="Tìm phim…" autocomplete="off" aria-label="Tìm phim">
+    <kbd>↵</kbd>
+  </form>
+  <nav class="cg-category-nav" aria-label="Khám phá danh mục">
+    <button class="cg-category-btn on" data-cg-route="home">Phim</button>
+    <button class="cg-category-btn" data-cg-row="1">Phim bộ</button>
+    <button class="cg-category-btn" data-cg-row="6">Hoạt hình</button>
+    <button class="cg-category-btn" data-cg-row="7">Bí ẩn</button>
+    <button class="cg-category-btn" data-cg-route="lib">Thư viện</button>
+  </nav>
+  <div class="cg-top-actions">
+    <button class="cg-icon-btn" data-cg-route="search" aria-label="Tìm kiếm" title="Tìm kiếm"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg></button>
+    <button class="cg-profile-btn" data-cg-route="me" aria-label="Cài đặt" title="Cài đặt"><span>CG</span><i></i></button>
+  </div>
+</header>
+<aside class="cg-rail" aria-label="Điều hướng nhanh">
+  <button class="cg-rail-btn on" data-cg-route="home" title="Khám phá" aria-label="Khám phá"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10H5V10"></path><path d="M9 20v-6h6v6"></path></svg></button>
+  <button class="cg-rail-btn" data-cg-route="lib" title="Thư viện" aria-label="Thư viện"><svg viewBox="0 0 24 24"><path d="M20.8 8.8c0 5.2-8.8 11-8.8 11s-8.8-5.8-8.8-11A4.8 4.8 0 0 1 12 6.1a4.8 4.8 0 0 1 8.8 2.7Z"></path></svg></button>
+  <button class="cg-rail-btn" data-cg-route="search" title="Tìm kiếm" aria-label="Tìm kiếm"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg></button>
+  <button class="cg-rail-btn" data-cg-route="me" title="Cài đặt" aria-label="Cài đặt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2h-2.6v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8 15a1.7 1.7 0 0 0-1.5-1H6.3v-2.6h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5v-.2H15v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2V14h-.2a1.7 1.7 0 0 0-1.5 1Z"></path></svg></button>
+</aside>
 <div id="page"></div>
 <div id="catOverlay">
   <div class="bd" id="catBd"></div>
@@ -448,11 +672,45 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
   </div>
 </div>
 <div id="player">
-  <video id="v" playsinline webkit-playsinline preload="auto"></video>
+  <video id="v" playsinline webkit-playsinline="true" preload="auto" controlslist="nodownload noplaybackrate"></video>
   <iframe id="emb" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>
   <div class="ctl" id="ctl">
-    <div class="top"><button class="rb" id="pc" aria-label="Đóng">✕</button><b id="pt"></b></div>
-    <div class="bot"><button class="btn" id="pp">Tạm dừng</button><input type="range" id="seek" min="0" max="1000" value="0"><button class="btn" id="fs">Toàn màn hình</button></div>
+    <div class="top">
+      <button class="rb" id="pc" aria-label="Đóng">✕</button>
+      <b id="pt"></b>
+      <button class="rb ep-picker-btn" id="episodePickerBtn" aria-label="Mở danh sách tập" title="Danh sách tập">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>
+        <span id="episodeCount">1/1</span>
+      </button>
+    </div>
+    <div class="bot">
+      <div class="transport-row" aria-label="Điều khiển phát">
+        <button class="pb episode-step" id="prevEp" aria-label="Tập trước" title="Tập trước">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h2v14H5zM20 5 9 12l11 7z"/></svg>
+        </button>
+        <button class="pb skip-btn" id="rew10" aria-label="Tua lùi 10 giây" title="Tua lùi 10 giây">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 5 11l4 4M5.5 11H13a6 6 0 1 1-5.7 6"/></svg><span class="skip-ten">10</span>
+        </button>
+        <button class="btn" id="pp">Tạm dừng</button>
+        <button class="pb skip-btn" id="fwd10" aria-label="Tua tới 10 giây" title="Tua tới 10 giây">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 7 4 4-4 4m3.5-4H11a6 6 0 1 0 5.7 6"/></svg><span class="skip-ten">10</span>
+        </button>
+        <button class="pb episode-step" id="nextEp" aria-label="Tập tiếp theo" title="Tập tiếp theo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 5h2v14h-2zM4 5l11 7-11 7z"/></svg>
+        </button>
+      </div>
+      <div class="timeline-row">
+        <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Thanh tiến trình">
+        <button class="btn" id="fs" aria-label="Toàn màn hình">Toàn màn hình</button>
+      </div>
+    </div>
+  </div>
+  <div class="episode-panel" id="episodePanel" aria-label="Danh sách tập" aria-hidden="true">
+    <div class="episode-head">
+      <div><b>Danh sách tập</b><small id="episodeSubtitle">Chọn tập muốn xem</small></div>
+      <button class="episode-close" id="episodePanelClose" aria-label="Đóng danh sách tập">✕</button>
+    </div>
+    <div class="episode-list" id="episodeList"></div>
   </div>
   <div class="toast" id="toast"></div>
 </div>
@@ -1089,10 +1347,34 @@ const contRow=()=>{
    :`<button class="card wide" data-resume="${v.type}:${v.id}"><img class="p" src="${v.img}" alt=""><b>Trailer · ${esc(v.title)}</b><div class="bar"><i style="width:${v.t/v.d*100}%"></i></div></button>`).join("")}</div>`};
 
 async function pHome(id){
-  const pg=$("#page");pg.innerHTML=`<h1>Khám phá</h1>${contRow()}<div id="rows"></div>`;
+  const pg=$("#page");
+  const recent=store.get("seen",[]).slice(0,5);
+  const recentHTML=recent.length?recent.map(x=>`<button class="cg-recent-item" data-recent-open="${esc(x.type)}:${esc(x.id)}" type="button"><span class="cg-recent-poster">${x.poster?`<img src="${esc(x.poster)}" alt="" loading="lazy">`:`<span>▶</span>`}</span><span class="cg-recent-copy"><b>${esc(x.title||"Phim chưa rõ tên")}</b><small>${x.type==="tv"?"Phim bộ":"Phim lẻ"}</small></span><span class="cg-recent-arrow">↗</span></button>`).join(""):'<div class="cg-empty-note">Những bộ phim cậu mở gần đây sẽ xuất hiện ở đây.</div>';
+  pg.innerHTML=`<div class="cg-home-layout">
+    <aside class="cg-home-sidebar">
+      <section class="cg-side-panel">
+        <div class="cg-panel-heading"><b>✦ Vừa xem gần đây</b><span>${recent.length} ITEMS</span></div>
+        <div class="cg-recent-list">${recentHTML}</div>
+      </section>
+      <section class="cg-side-panel cg-side-continue">
+        <div class="cg-panel-heading"><b>◷ Xem tiếp</b><button type="button" data-cg-route="lib">Thư viện ↗</button></div>
+        ${contRow()||'<div class="cg-empty-note">Chưa có phim đang xem dở. Những gì cậu xem sẽ được lưu tại đây.</div>'}
+      </section>
+      <section class="cg-side-panel cg-side-shortcuts">
+        <div class="cg-panel-heading"><b>✧ Không gian của cậu</b></div>
+        <button class="cg-shortcut" data-cg-route="lib"><span>♡</span><span><b>Bộ sưu tập của mình</b><small>Phim yêu thích và muốn xem</small></span><i>›</i></button>
+        <button class="cg-shortcut" data-cg-route="search"><span>⌕</span><span><b>Tìm phim</b><small>Tìm trong các nguồn dữ liệu</small></span><i>›</i></button>
+      </section>
+    </aside>
+    <main class="cg-home-main">
+      <div class="cg-home-heading"><div><span class="cg-eyebrow">CINEGLASS · GÓC PHIM CÁ NHÂN</span><h1>Khám phá</h1><p>Một thế giới phim được tuyển chọn theo cách của cậu.</p></div><button class="cg-heading-search" type="button" data-cg-route="search"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg><span>Tìm phim</span></button></div>
+      <div id="cgHomeFeatured"><div class="cg-feature-placeholder"><span class="cg-feature-glow"></span><div><small>NỔI BẬT DÀNH CHO CẬU</small><b>Đang chọn bộ phim nổi bật…</b><span>Những tựa phim đáng khám phá hôm nay</span></div></div></div>
+      <div id="rows"></div>
+    </main>
+  </div>`;
   if(!cfg.tmdb){$("#rows").innerHTML=keyNote();return}
-  $("#rows").innerHTML=ROWS.map((r,i)=>`<section id="r${i}"><div class="sec-hd"><h2>${r.t}</h2><button class="more-link" data-more="${i}">Xem thêm <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>${r.sub?`<div class="note" style="margin:-6px 20px 6px" id="s${i}"></div>`:""}<div class="scroller">${'<div class="sk"></div>'.repeat(4)}</div></section>`).join("");
-  ROWS.forEach(async(r,i)=>{try{let d=(await r.f()).filter(m=>m&&(m.poster_path||m._isProv));if(i==0&&d[0]){const h=d[0];$("#page").insertAdjacentHTML("afterbegin",`<button class="hero" data-t="${h.media_type||"movie"}" data-id="${h.id}"><img src="${IMG}w780${h.backdrop_path||h.poster_path}" alt=""><div><span>Nổi bật tuần này</span><b>${esc(ttl(h))}</b><span>★ ${(h.vote_average||0).toFixed(1)}</span></div></button>`);const hh=$("#page h1");$("#page").prepend(hh);}
+  $("#rows").innerHTML=ROWS.map((r,i)=>`<section id="r${i}" class="cg-movie-row"><div class="sec-hd"><h2>${r.t}</h2><button class="more-link" data-more="${i}">Xem thêm <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>${r.sub?`<div class="note" style="margin:-6px 20px 6px" id="s${i}"></div>`:""}<div class="scroller">${'<div class="sk"></div>'.repeat(4)}</div></section>`).join("");
+  ROWS.forEach(async(r,i)=>{try{let d=(await r.f()).filter(m=>m&&(m.poster_path||m._isProv));if(i===0&&d[0]){const h=d[0];$("#cgHomeFeatured").innerHTML=`<button class="hero cg-featured-hero" data-t="${h.media_type||"movie"}" data-id="${h.id}"><img src="${IMG}w1280${h.backdrop_path||h.poster_path}" alt="" loading="eager"><div><span>✦ NỔI BẬT TUẦN NÀY</span><b>${esc(ttl(h))}</b><span>★ ${(h.vote_average||0).toFixed(1)} · ${(h.release_date||h.first_air_date||"").slice(0,4)}</span><i>▶ Xem chi tiết</i></div></button>`;}
     if(id!==navId)return;
     const rowEl=$(`#page #r${i} .scroller`);
     if(!rowEl)return;
@@ -1289,7 +1571,7 @@ function mountLibraryControls(meta){
 }
 function libraryEntryCardHTML(item){
   const badge=item.favorite?"♥ Yêu thích":(LIBRARY_STATUSES[item.status]||"Đã lưu");
-  const subtitle=[item.year,item.type==="tv"?"TV Series":item.type==="provider"?"Nguồn phim":"Movie"].filter(Boolean).join(" · ");
+  const subtitle=[item.year,item.type==="tv"?"Phim bộ":item.type==="provider"?"Nguồn phim":"Phim lẻ"].filter(Boolean).join(" · ");
   return `<article class="lib-item"><button class="lib-item-open" data-library-open="${esc(item.key)}" type="button"><span class="lib-item-poster"><img loading="lazy" decoding="async" src="${esc(item.poster||item.backdrop||"")}" alt="" onerror="this.style.opacity='.15'"><span class="lib-item-badge">${esc(badge)}</span>${item.favorite?'<span class="lib-item-fav">♥</span>':''}</span><span class="lib-item-copy"><b>${esc(item.title)}</b><small>${esc(subtitle||"CineGlass Collection")}</small></span></button><button class="lib-item-remove" data-library-remove="${esc(item.key)}" type="button" aria-label="Xoá khỏi thư viện" title="Xoá khỏi thư viện">✕</button></article>`;
 }
 async function loadLib(){
@@ -1377,7 +1659,7 @@ function openLibraryEntry(entry){
   else openDetail(entry.type||"movie",entry.id,false);
 }
 async function pLib(){
-  $("#page").innerHTML=`<div class="library-shell"><div class="lib-heading"><div><span class="lib-kicker">CINEGLASS · PRIVATE COLLECTION</span><h1>Thư viện</h1><p>Một góc phim của riêng cậu — lưu lại, sắp xếp và xem tiếp.</p></div><div class="lib-heading-actions"><button class="btn g" id="libHeaderSearch" type="button">⌕ Tìm phim</button></div></div><div id="personalLibrary"></div></div>`;
+  $("#page").innerHTML=`<div class="library-shell"><div class="lib-heading"><div><span class="lib-kicker">CINEGLASS · BỘ SƯU TẬP CÁ NHÂN</span><h1>Thư viện</h1><p>Một góc phim của riêng cậu — lưu lại, sắp xếp và xem tiếp.</p></div><div class="lib-heading-actions"><button class="btn g" id="libHeaderSearch" type="button">⌕ Tìm phim</button></div></div><div id="personalLibrary"></div></div>`;
   $("#libHeaderSearch")?.addEventListener("click",()=>go("search"));
   renderPersonalLibrary();
   try{
@@ -1724,7 +2006,7 @@ async function openDetail(type,id,auto){
   $("#sc").innerHTML='<div class="sp"><i></i></div>';openSheet();
   try{
     const m=await tmdb(`/${type}/${id}`,{append_to_response:"videos,watch/providers,recommendations,external_ids",include_video_language:"vi,en,null"});
-    const seen=[{id,type,title:ttl(m)},...store.get("seen",[]).filter(x=>x.id!=id)].slice(0,20);store.set("seen",seen);
+    const seen=[{id,type,title:ttl(m),poster:poster(m,"w185"),backdrop:m.backdrop_path?IMG+"w780"+m.backdrop_path:""},...store.get("seen",[]).filter(x=>x.id!=id)].slice(0,20);store.set("seen",seen);
     const tr=(m.videos?.results||[]).find(v=>v.site=="YouTube"&&v.type=="Trailer")||(m.videos?.results||[])[0];
     const rt=m.runtime?m.runtime+" phút":(m.number_of_seasons?m.number_of_seasons+" mùa":"");
     const bdrop=m.backdrop_path?IMG+"w780"+m.backdrop_path:poster(m,"w500");
@@ -1849,6 +2131,9 @@ function resetPlayerInlineStyles(){
 
 async function openPlayer(l,i){
   list=l;idx=i;
+  V.controls=false;
+  V.setAttribute("playsinline","");
+  V.setAttribute("webkit-playsinline","true");
   resetPlayerInlineStyles();
   P.classList.add("show");
   CTL.classList.remove("hide");
@@ -2232,6 +2517,220 @@ addEventListener("orientationchange",applyRot);
 const closeOrig=closePlayer;
 closePlayer=function(dir="down"){exitFS();closeOrig(dir)};
 })();
+
+
+/* CineGlass Smart Player Controls styles */
+(()=>{const s=document.createElement("style");s.textContent=`
+/* Smart Player controls */
+#player .top{gap:10px}
+#player .top b{min-width:0}
+#player .ep-picker-btn{width:auto;min-width:68px;padding:0 10px;gap:6px;border-radius:22px;font-size:12px;font-weight:800}
+#player .ep-picker-btn svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
+#player .bot{display:flex;flex-direction:column;align-items:stretch;gap:9px;width:min(760px,100%);margin:0 auto;padding:10px 12px;border-radius:24px;background:rgba(28,28,32,.52);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.35),inset 0 -1px 1px rgba(255,255,255,.1),0 10px 30px rgba(0,0,0,.45)}
+#player .transport-row{display:flex;justify-content:center;align-items:center;gap:clamp(6px,2vw,14px)}
+#player .transport-row .pb{width:44px;height:44px}
+#player .transport-row #pp{width:50px;height:50px}
+#player .transport-row .skip-btn{width:54px;height:44px;position:relative;border-radius:15px}
+#player .skip-btn svg{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#player .skip-btn .skip-ten{position:absolute;right:8px;top:7px;font-size:9px;font-weight:900;line-height:1;color:#fff;text-shadow:0 1px 3px #000}
+#player .episode-step svg{width:21px;height:21px}
+#player .timeline-row{display:flex;align-items:center;gap:8px;min-width:0}
+#player .timeline-row #seek{flex:1;min-width:40px}
+#player .timeline-row #fs{width:42px;height:42px;padding:0;border-radius:50%}
+#player .tm{min-width:38px;font-size:11px}
+#player .transport-row button:disabled,#player .ep-picker-btn:disabled{opacity:.32;cursor:not-allowed;transform:none}
+#player .episode-panel{position:absolute;z-index:18;right:20px;bottom:calc(var(--sab) + 142px);width:min(390px,calc(100vw - 32px));max-height:min(56vh,480px);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.22);border-radius:24px;background:rgba(25,23,31,.78);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);box-shadow:0 18px 54px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.22);opacity:0;visibility:hidden;transform:translateY(10px) scale(.98);pointer-events:none;transition:opacity .2s ease,transform .25s var(--spring),visibility .2s}
+#player .episode-panel.show{opacity:1;visibility:visible;transform:translateY(0) scale(1);pointer-events:auto}
+#player.idle .episode-panel{opacity:0;visibility:hidden;pointer-events:none}
+#player .episode-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.12);color:#fff}
+#player .episode-head b{display:block;font-size:14px}
+#player .episode-head small{display:block;margin-top:3px;max-width:290px;color:rgba(255,255,255,.62);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#player .episode-close{width:30px;height:30px;flex:none;border-radius:50%;background:rgba(255,255,255,.13);color:#fff}
+#player .episode-list{overflow:auto;padding:8px;overscroll-behavior:contain}
+#player .episode-option{width:100%;display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:13px;color:#fff;text-align:left;background:transparent;transition:background .16s ease,transform .2s var(--spring)}
+#player .episode-option:active{transform:scale(.98)}
+#player .episode-option.active{background:rgba(255,55,95,.22);box-shadow:inset 0 0 0 1px rgba(255,80,120,.36)}
+#player .episode-option-number{width:30px;height:30px;display:grid;place-items:center;flex:none;border-radius:9px;background:rgba(255,255,255,.1);font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+#player .episode-option.active .episode-option-number{background:var(--accent-grad);color:#fff}
+#player .episode-option-name{flex:1;min-width:0;font-size:13px;font-weight:650}
+#player .episode-playing{font-size:10px;color:#ff9aae;font-weight:800;white-space:nowrap}
+#player .episode-empty{padding:22px 12px;text-align:center;color:rgba(255,255,255,.68);font-size:13px}
+@media(max-width:480px){
+  #player .ctl{padding-left:12px;padding-right:12px}
+  #player .transport-row{gap:6px}
+  #player .transport-row .pb{width:39px;height:39px}
+  #player .transport-row #pp{width:46px;height:46px}
+  #player .transport-row .skip-btn{width:47px;height:39px}
+  #player .skip-btn .skip-ten{right:6px;top:5px}
+  #player .bot{padding:8px;border-radius:20px}
+  #player .tm{min-width:34px;font-size:10px}
+  #player .episode-panel{right:12px;bottom:calc(var(--sab) + 132px);width:calc(100vw - 24px);max-height:52vh}
+}
+`;document.head.appendChild(s)})();
+
+
+/* ===== CineGlass Smart Player Controls: seek ±10s, prev/next episode, in-player episode picker ===== */
+(()=>{
+  const epPanel=$("#episodePanel"),epListEl=$("#episodeList"),epOpen=$("#episodePickerBtn"),epClose=$("#episodePanelClose");
+  const prevBtn=$("#prevEp"),nextBtn=$("#nextEp"),rewBtn=$("#rew10"),fwdBtn=$("#fwd10");
+  if(!epPanel||!epListEl||!epOpen||!prevBtn||!nextBtn||!rewBtn||!fwdBtn)return;
+
+  const canSeekCurrent=()=>{
+    const it=list[idx];
+    return !!(it&&it.m3u8&&playerMode==="m3u8");
+  };
+
+  function renderEpisodeList(){
+    const total=list.length;
+    const current=list[idx];
+    $("#episodeCount").textContent=total?`${idx+1}/${total}`:"0/0";
+    $("#episodeSubtitle").textContent=current?`${esc(current.title||"Phim")} · ${total} tập trong server này`:"Chưa có danh sách tập";
+    prevBtn.disabled=idx<=0;
+    nextBtn.disabled=idx>=total-1;
+    epOpen.disabled=total<=1;
+    rewBtn.disabled=!canSeekCurrent();
+    fwdBtn.disabled=!canSeekCurrent();
+    epListEl.innerHTML=total?list.map((it,i)=>{
+      const label=it.epName?`Tập ${it.epName}`:`Tập ${i+1}`;
+      return `<button class="episode-option${i===idx?" active":""}" data-episode-index="${i}" ${i===idx?'aria-current="true"':''}>
+        <span class="episode-option-number">${String(i+1).padStart(2,"0")}</span>
+        <span class="episode-option-name">${esc(label)}</span>
+        ${i===idx?'<span class="episode-playing">Đang phát</span>':''}
+      </button>`;
+    }).join(""):'<div class="episode-empty">Nguồn này chưa cung cấp danh sách tập.</div>';
+  }
+
+  function openEpisodePanel(){
+    if(list.length<=1){toast("Nguồn này chỉ có một tập khả dụng.");return}
+    renderEpisodeList();
+    epPanel.classList.add("show");
+    epPanel.setAttribute("aria-hidden","false");
+    wake();
+    requestAnimationFrame(()=>{
+      const active=epListEl.querySelector(".episode-option.active");
+      active?.scrollIntoView({block:"nearest"});
+    });
+  }
+
+  function closeEpisodePanel(){
+    epPanel.classList.remove("show");
+    epPanel.setAttribute("aria-hidden","true");
+  }
+
+  function switchEpisode(targetIndex){
+    if(!Number.isInteger(targetIndex)||targetIndex<0||targetIndex>=list.length||targetIndex===idx)return;
+    save();
+    idx=targetIndex;
+    closeEpisodePanel();
+    const seek=$("#seek");if(seek)seek.value="0";
+    const title=$("#pt");if(title&&list[idx])title.textContent=`${list[idx].title}${list[idx].epName?" · Tập "+list[idx].epName:""}`;
+    renderEpisodeList();
+    loadItem().catch(err=>{console.error(err);toast("Không thể tải tập này. Hãy thử lại.")});
+    wake();
+  }
+
+  function seekBy(delta){
+    if(!canSeekCurrent()){
+      toast("Nguồn nhúng không hỗ trợ tua từ CineGlass. Hãy dùng điều khiển của player nguồn.");
+      return;
+    }
+    const duration=V.duration;
+    if(!Number.isFinite(duration)||duration<=0){
+      toast("Video chưa sẵn sàng để tua.");
+      return;
+    }
+    const target=Math.max(0,Math.min(duration,(V.currentTime||0)+delta));
+    try{
+      V.currentTime=target;
+      toast(`${delta>0?"Tua tới":"Tua lùi"} ${Math.abs(delta)} giây · ${fmt(target)}`,1400);
+    }catch{
+      toast("Nguồn video hiện không cho phép tua.");
+    }
+    wake();
+  }
+
+  const originalLoadItem=loadItem;
+  loadItem=async function(){
+    renderEpisodeList();
+    await originalLoadItem();
+    renderEpisodeList();
+  };
+
+  const originalHideControls=hideControls;
+  hideControls=function(){closeEpisodePanel();originalHideControls()};
+
+  epOpen.addEventListener("click",e=>{e.stopPropagation();epPanel.classList.contains("show")?closeEpisodePanel():openEpisodePanel()});
+  epClose?.addEventListener("click",e=>{e.stopPropagation();closeEpisodePanel();wake()});
+  prevBtn.addEventListener("click",e=>{e.stopPropagation();switchEpisode(idx-1)});
+  nextBtn.addEventListener("click",e=>{e.stopPropagation();switchEpisode(idx+1)});
+  rewBtn.addEventListener("click",e=>{e.stopPropagation();seekBy(-10)});
+  fwdBtn.addEventListener("click",e=>{e.stopPropagation();seekBy(10)});
+  epListEl.addEventListener("click",e=>{
+    const button=e.target.closest("[data-episode-index]");
+    if(button)switchEpisode(Number(button.dataset.episodeIndex));
+  });
+
+  document.addEventListener("keydown",e=>{
+    if(!P.classList.contains("show"))return;
+    const target=e.target;
+    if(target&&target.closest&&target.closest("input,textarea,select,[contenteditable='true']"))return;
+    if(e.key==="ArrowLeft"){
+      if(canSeekCurrent()){e.preventDefault();seekBy(-10)}
+    }else if(e.key==="ArrowRight"){
+      if(canSeekCurrent()){e.preventDefault();seekBy(10)}
+    }else if(e.key.toLowerCase()==="n"){
+      e.preventDefault();switchEpisode(idx+1);
+    }else if(e.key.toLowerCase()==="p"){
+      e.preventDefault();switchEpisode(idx-1);
+    }
+  });
+
+  P.addEventListener("click",e=>{
+    if(!epPanel.classList.contains("show"))return;
+    if(e.target===P||e.target===V||e.target===EMB)closeEpisodePanel();
+  });
+
+  V.addEventListener("loadedmetadata",renderEpisodeList);
+  V.addEventListener("durationchange",renderEpisodeList);
+  renderEpisodeList();
+})();
+
+
+
+
+/* ===== CineGlass refreshed navigation chrome ===== */
+(()=>{
+  const syncChrome=()=>{
+    document.querySelectorAll("[data-cg-route]").forEach(el=>{
+      const route=el.dataset.cgRoute;
+      const active=route===tab || (route==="search"&&tab==="search");
+      el.classList.toggle("on",active);
+    });
+    document.querySelectorAll(".cg-category-btn").forEach(el=>{
+      const active=el.dataset.cgRoute?el.dataset.cgRoute===tab:false;
+      el.classList.toggle("on",active);
+    });
+  };
+  const originalGo=go;
+  go=function(k,pushHist=true){originalGo(k,pushHist);syncChrome()};
+  document.addEventListener("click",e=>{
+    const route=e.target.closest("[data-cg-route]");
+    if(route){e.preventDefault();go(route.dataset.cgRoute);return}
+    const row=e.target.closest("[data-cg-row]");
+    if(row){const n=Number(row.dataset.cgRow);if(tab!=="home")go("home",false);setTimeout(()=>openCategory(n),45);return}
+  });
+  const form=$("#cgGlobalSearchForm"),input=$("#cgGlobalSearch");
+  form?.addEventListener("submit",e=>{
+    e.preventDefault();const q=input?.value.trim()||"";go("search");
+    if(q.length>=2)setTimeout(()=>{const local=$("#page #q");if(local){local.value=q;doSearch(q,navId)}},50);
+  });
+  input?.addEventListener("keydown",e=>{if(e.key==="Escape")input.value=""});
+  document.addEventListener("keydown",e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"&&!P.classList.contains("show")){e.preventDefault();input?.focus()}
+  });
+  syncChrome();
+})();
+
 </script>
 </body>
 </html>
