@@ -1208,6 +1208,29 @@ body{height:100dvh;min-height:100dvh;overflow:hidden;padding:18px 0;}
   .cg-topbar .cg-category-btn{padding:8px 11px;font-size:10px;}
 }
 
+
+/* ===== CineGlass 2.5 · Artwork reliability & detail banner ===== */
+.bk{position:relative;isolation:isolate;height:clamp(330px,44vh,560px);min-height:300px;background:linear-gradient(135deg,#343247,#9a7484 48%,#d6b4ad);overflow:hidden}
+.bk .bk-fill{position:absolute;inset:-3%;z-index:-1;width:106%;height:106%;object-fit:cover;filter:blur(22px) brightness(.62) saturate(.92)!important;opacity:.86;transform:scale(1.04)}
+.bk .bk-main{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:contain!important;object-position:center center;background:transparent;filter:none!important}
+.bk::after{z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(9,10,18,.08) 0%,transparent 45%,rgba(20,22,30,.03) 70%,var(--bg) 100%)!important}
+.bk.has-image-fallback{background:linear-gradient(135deg,#e99aab,#899bbb 52%,#6e6683)}
+.card .p{background:linear-gradient(145deg,#f0a7b5,#a5b7d1 55%,#726b91);}
+.cg-featured-hero img{background:linear-gradient(120deg,#b8a3ad,#8295b3,#e8c8c2)}
+.cg-recent-poster img{width:100%;height:100%;object-fit:cover}
+.search-section+.search-section{margin-top:12px}
+.search-section .grid{padding-top:8px}
+.search-section .sec-hd{align-items:center}
+@media(min-width:761px){
+  .bk{height:clamp(390px,48vh,590px)}
+  .bk .bk-main{padding:0 5vw}
+}
+@media(max-width:760px){
+  .bk{height:clamp(250px,38vh,390px);min-height:250px}
+  .bk .bk-main{padding:0 3px}
+  .bk .bk-fill{filter:blur(18px) brightness(.58) saturate(.9)!important}
+  .search-section .grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;padding-left:8px;padding-right:8px}
+}
 </style>
 </head>
 <body>
@@ -1943,21 +1966,53 @@ const ROWS=[
   },
 ];
 
-const poster=(m,w="w342")=>m.poster_path?IMG+w+m.poster_path:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="2" height="3"><rect width="2" height="3" fill="#8884"/></svg>');
-const ttl=m=>m.title||m.name||"";
+const ttl=m=>m?.title||m?.name||m?.original_title||m?.original_name||"Phim chưa có tiêu đề";
+const xmlText=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;");
+function cgFallbackImage(title="CineGlass",wide=false){
+  const label=xmlText(String(title||"CineGlass").trim().slice(0,42));
+  const w=wide?960:480,h=wide?540:720;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f6a0b1"/><stop offset=".52" stop-color="#a9b8d5"/><stop offset="1" stop-color="#716c91"/></linearGradient><radialGradient id="r"><stop stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#g)"/><circle cx="${wide?735:350}" cy="${wide?120:170}" r="${wide?240:190}" fill="url(#r)"/><path d="M0 ${h*.76} Q${w*.24} ${h*.52} ${w*.48} ${h*.76} T${w} ${h*.68} V${h} H0Z" fill="#29283e" fill-opacity=".36"/><g fill="none" stroke="#fff" stroke-opacity=".48" stroke-width="3"><rect x="${wide?72:54}" y="${wide?68:82}" width="${wide?112:72}" height="${wide?150:96}" rx="18"/><path d="M${wide?100:78} ${wide?115:115}h${wide?56:24}m-${wide?56:24} 24h${wide?56:24}"/></g><text x="50%" y="${h*.78}" text-anchor="middle" font-family="Arial,sans-serif" font-size="${wide?42:30}" font-weight="700" fill="#fff">${label}</text><text x="50%" y="${h*.88}" text-anchor="middle" font-family="Arial,sans-serif" font-size="${wide?18:15}" letter-spacing="5" fill="#fff" fill-opacity=".82">CINEGLASS</text></svg>`;
+  return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
+}
+function cgImageLabel(img){
+  return img?.dataset?.cgFallbackTitle
+    || img?.closest?.(".card")?.querySelector?.("b")?.textContent
+    || img?.closest?.(".lib-item")?.querySelector?.(".lib-item-copy b")?.textContent
+    || img?.closest?.(".dt")?.querySelector?.("h3")?.textContent
+    || img?.alt || "CineGlass";
+}
+function cgHandleImageError(event){
+  const img=event.target;
+  if(!(img instanceof HTMLImageElement)||img.dataset.cgFallbackApplied==="1")return;
+  img.dataset.cgFallbackApplied="1";
+  const fallback=cgFallbackImage(cgImageLabel(img),img.dataset.cgFallbackWide==="1");
+  img.src=fallback;
+  const parent=img.closest?.(".bk");
+  if(parent)parent.classList.add("has-image-fallback");
+}
+document.addEventListener("error",cgHandleImageError,true);
+const poster=(m,w="w342")=>{
+  if(m?.poster_path)return IMG+w+m.poster_path;
+  if(m?.backdrop_path)return IMG+"w780"+m.backdrop_path;
+  return cgFallbackImage(ttl(m));
+};
 const isFutureRelease=m=>{
   const dt=m.release_date||m.first_air_date||"";
   if(!dt)return false;
   return new Date(dt)>new Date();
 };
-const provCardHTML=m=>`<button class="card" data-prov="${esc(m.providerId)}" data-slug="${esc(m.slug)}" data-title="${esc(m.title)}" data-thumb="${esc(m.thumb)}"><img class="p" loading="lazy" decoding="async" src="${esc(m.thumb)}" alt="" onerror="this.src='https://via.placeholder.com/160x240/1c1c1e/98989f?text=CineGlass'"><b>${esc(m.title)}</b><small>${esc(m.providerName)}${m.year?" · "+m.year:""}</small></button>`;
+const provCardHTML=m=>{
+  const title=ttl(m),src=m.thumb||cgFallbackImage(title);
+  return `<button class="card" data-prov="${esc(m.providerId)}" data-slug="${esc(m.slug)}" data-title="${esc(title)}" data-thumb="${esc(src)}"><img class="p" loading="lazy" decoding="async" src="${esc(src)}" data-cg-fallback-title="${esc(title)}" alt="Poster ${esc(title)}"><b>${esc(title)}</b><small>${esc(m.providerName||"Nguồn phim")}${m.year?" · "+m.year:""}</small></button>`;
+};
 const cardHTML=(m,i,rank)=>{
-  if(!m||m.media_type=="person")return"";
+  if(!m||m.media_type==="person")return "";
   if(m._isProv)return provCardHTML(m);
-  const idStr=String(m.id);
+  const idStr=String(m.id||""),title=ttl(m);
   const noStream=isFutureRelease(m)||streamAvailCache.get(idStr)===false;
   const orig=m.original_title||m.original_name||"";
-  return`<button class="card" data-t="${m.media_type||(m.first_air_date?"tv":"movie")}" data-id="${m.id}" data-vi="${esc(ttl(m))}" data-or="${esc(orig)}">${noStream?`<span class="cs-tag">Coming Soon</span>`:""}<img class="p" loading="lazy" decoding="async" src="${poster(m)}" alt=""><b>${rank?(i+1)+". ":""}${esc(ttl(m))}</b><small>★ ${(m.vote_average||0).toFixed(1)} · ${(m.release_date||m.first_air_date||"").slice(0,4)}</small></button>`;
+  const type=m.media_type||(m.first_air_date?"tv":"movie");
+  return `<button class="card" data-t="${type}" data-id="${esc(idStr)}" data-vi="${esc(title)}" data-or="${esc(orig)}">${noStream?`<span class="cs-tag">Coming Soon</span>`:""}<img class="p" loading="lazy" decoding="async" src="${esc(poster(m))}" data-cg-fallback-title="${esc(title)}" alt="Poster ${esc(title)}"><b>${rank?(i+1)+". ":""}${esc(title)}</b><small>★ ${(Number(m.vote_average)||0).toFixed(1)} · ${(m.release_date||m.first_air_date||"").slice(0,4)}</small></button>`;
 };
 const moreCardHTML=idx=>`<button class="card more-card" data-more="${idx}" aria-label="Xem thêm"><div class="more-box"><span class="more-ic"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span><b>Xem thêm</b><small>Toàn bộ phim</small></div></button>`;
 
@@ -1967,13 +2022,13 @@ const contRow=()=>{
   const a=[...Object.entries(p).map(([id,v])=>({k:"a",id,...v})),...Object.entries(y).map(([id,v])=>({k:"y",id,...v}))].filter(v=>v.t>5&&(!v.d||v.t<v.d-15)).sort((a,b)=>b.u-a.u);
   if(!a.length)return"";
   return`<h2>Xem tiếp</h2><div class="scroller">${a.map(v=>v.k=="a"
-   ?`<button class="card wide" data-play="${esc(v.id)}"><img class="p" src="${esc(v.img||"https://via.placeholder.com/230x145/1c1c1e/98989f?text=Play")}" alt=""><b>${esc(v.title)}${v.epName?" · Tập "+esc(v.epName):""}</b><div class="bar"><i style="width:${v.d?Math.min(95,v.t/v.d*100):35}%"></i></div></button>`
-   :`<button class="card wide" data-resume="${v.type}:${v.id}"><img class="p" src="${v.img}" alt=""><b>Trailer · ${esc(v.title)}</b><div class="bar"><i style="width:${v.t/v.d*100}%"></i></div></button>`).join("")}</div>`};
+   ?`<button class="card wide" data-play="${esc(v.id)}"><img class="p" src="${esc(v.img||cgFallbackImage(v.title,true))}" data-cg-fallback-title="${esc(v.title||"Xem tiếp")}" data-cg-fallback-wide="1" alt=""><b>${esc(v.title)}${v.epName?" · Tập "+esc(v.epName):""}</b><div class="bar"><i style="width:${v.d?Math.min(95,v.t/v.d*100):35}%"></i></div></button>`
+   :`<button class="card wide" data-resume="${v.type}:${v.id}"><img class="p" src="${esc(v.img||cgFallbackImage(v.title,true))}" data-cg-fallback-title="${esc(v.title||"Trailer")}" data-cg-fallback-wide="1" alt=""><b>Trailer · ${esc(v.title)}</b><div class="bar"><i style="width:${v.t/v.d*100}%"></i></div></button>`).join("")}</div>`};
 
 async function pHome(id){
   const pg=$("#page");
   const recent=store.get("seen",[]).slice(0,5);
-  const recentHTML=recent.length?recent.map(x=>`<button class="cg-recent-item" data-recent-open="${esc(x.type)}:${esc(x.id)}" type="button"><span class="cg-recent-poster">${x.poster?`<img src="${esc(x.poster)}" alt="" loading="lazy">`:`<span>▶</span>`}</span><span class="cg-recent-copy"><b>${esc(x.title||"Phim chưa rõ tên")}</b><small>${x.type==="tv"?"Phim bộ":"Phim lẻ"}</small></span><span class="cg-recent-arrow">↗</span></button>`).join(""):'<div class="cg-empty-note">Những bộ phim cậu mở gần đây sẽ xuất hiện ở đây.</div>';
+  const recentHTML=recent.length?recent.map(x=>`<button class="cg-recent-item" data-recent-open="${esc(x.type)}:${esc(x.id)}" type="button"><span class="cg-recent-poster"><img src="${esc(x.poster||cgFallbackImage(x.title))}" data-cg-fallback-title="${esc(x.title||"Phim gần đây")}" alt="" loading="lazy"></span><span class="cg-recent-copy"><b>${esc(x.title||"Phim chưa rõ tên")}</b><small>${x.type==="tv"?"Phim bộ":"Phim lẻ"}</small></span><span class="cg-recent-arrow">↗</span></button>`).join(""):'<div class="cg-empty-note">Những bộ phim cậu mở gần đây sẽ xuất hiện ở đây.</div>';
   pg.innerHTML=`<div class="cg-home-layout">
     <aside class="cg-home-sidebar">
       <section class="cg-side-panel">
@@ -1998,7 +2053,7 @@ async function pHome(id){
   </div>`;
   if(!cfg.tmdb){$("#rows").innerHTML=keyNote();return}
   $("#rows").innerHTML=ROWS.map((r,i)=>`<section id="r${i}" class="cg-movie-row"><div class="sec-hd"><h2>${r.t}</h2><button class="more-link" data-more="${i}">Xem thêm <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>${r.sub?`<div class="note" style="margin:-6px 20px 6px" id="s${i}"></div>`:""}<div class="scroller">${'<div class="sk"></div>'.repeat(4)}</div></section>`).join("");
-  ROWS.forEach(async(r,i)=>{try{let d=(await r.f()).filter(m=>m&&(m.poster_path||m._isProv));if(i===0&&d[0]){const h=d[0];$("#cgHomeFeatured").innerHTML=`<button class="hero cg-featured-hero" data-t="${h.media_type||"movie"}" data-id="${h.id}"><img src="${IMG}w1280${h.backdrop_path||h.poster_path}" alt="" loading="eager"><div><span>✦ NỔI BẬT TUẦN NÀY</span><b>${esc(ttl(h))}</b><span>★ ${(h.vote_average||0).toFixed(1)} · ${(h.release_date||h.first_air_date||"").slice(0,4)}</span><i>▶ Xem chi tiết</i></div></button>`;}
+  ROWS.forEach(async(r,i)=>{try{let d=(await r.f()).filter(m=>m&&m.media_type!=="person");if(i===0&&d[0]){const h=d[0],heroSrc=h.backdrop_path?IMG+"w1280"+h.backdrop_path:poster(h,"w780");$("#cgHomeFeatured").innerHTML=`<button class="hero cg-featured-hero" data-t="${h.media_type||"movie"}" data-id="${h.id}"><img src="${esc(heroSrc)}" data-cg-fallback-title="${esc(ttl(h))}" data-cg-fallback-wide="1" alt="${esc(ttl(h))}" loading="eager"><div><span>✦ NỔI BẬT TUẦN NÀY</span><b>${esc(ttl(h))}</b><span>★ ${(h.vote_average||0).toFixed(1)} · ${(h.release_date||h.first_air_date||"").slice(0,4)}</span><i>▶ Xem chi tiết</i></div></button>`;}
     if(id!==navId)return;
     const rowEl=$(`#page #r${i} .scroller`);
     if(!rowEl)return;
@@ -2196,7 +2251,8 @@ function mountLibraryControls(meta){
 function libraryEntryCardHTML(item){
   const badge=item.favorite?"♥ Yêu thích":(LIBRARY_STATUSES[item.status]||"Đã lưu");
   const subtitle=[item.year,item.type==="tv"?"Phim bộ":item.type==="provider"?"Nguồn phim":"Phim lẻ"].filter(Boolean).join(" · ");
-  return `<article class="lib-item"><button class="lib-item-open" data-library-open="${esc(item.key)}" type="button"><span class="lib-item-poster"><img loading="lazy" decoding="async" src="${esc(item.poster||item.backdrop||"")}" alt="" onerror="this.style.opacity='.15'"><span class="lib-item-badge">${esc(badge)}</span>${item.favorite?'<span class="lib-item-fav">♥</span>':''}</span><span class="lib-item-copy"><b>${esc(item.title)}</b><small>${esc(subtitle||"CineGlass Collection")}</small></span></button><button class="lib-item-remove" data-library-remove="${esc(item.key)}" type="button" aria-label="Xoá khỏi thư viện" title="Xoá khỏi thư viện">✕</button></article>`;
+  const image=item.poster||item.backdrop||cgFallbackImage(item.title);
+  return `<article class="lib-item"><button class="lib-item-open" data-library-open="${esc(item.key)}" type="button"><span class="lib-item-poster"><img loading="lazy" decoding="async" src="${esc(image)}" data-cg-fallback-title="${esc(item.title)}" alt="Poster ${esc(item.title)}"><span class="lib-item-badge">${esc(badge)}</span>${item.favorite?'<span class="lib-item-fav">♥</span>':''}</span><span class="lib-item-copy"><b>${esc(item.title)}</b><small>${esc(subtitle||"CineGlass Collection")}</small></span></button><button class="lib-item-remove" data-library-remove="${esc(item.key)}" type="button" aria-label="Xoá khỏi thư viện" title="Xoá khỏi thư viện">✕</button></article>`;
 }
 async function loadLib(){
   if(LIB&&LIB.length)return LIB;
@@ -2293,28 +2349,90 @@ async function pLib(){
 }
 
 let st;
+const searchNorm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLowerCase().replace(/[^\p{L}\p{N}]+/gu," ").trim();
+function searchEditDistance(a,b){
+  if(a===b)return 0;if(!a)return b.length;if(!b)return a.length;
+  if(Math.abs(a.length-b.length)>Math.max(3,Math.ceil(Math.max(a.length,b.length)*.45)))return Math.max(a.length,b.length);
+  let prev=Array.from({length:b.length+1},(_,i)=>i),cur=[];
+  for(let i=1;i<=a.length;i++){cur=[i];for(let j=1;j<=b.length;j++)cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur;}
+  return prev[b.length];
+}
+function searchScore(item,q){
+  const query=searchNorm(q);if(!query)return 0;
+  const names=[item.title,item.name,item.original_title,item.original_name,item.originTitle].filter(Boolean).map(searchNorm);
+  if(!names.length)return 0;
+  const tokens=query.split(" ").filter(Boolean);let best=0;
+  for(const name of names){
+    if(name===query)best=Math.max(best,120);
+    else if(name.startsWith(query))best=Math.max(best,105);
+    else if(name.includes(query))best=Math.max(best,94);
+    const words=name.split(" ");
+    const matched=tokens.filter(t=>words.some(w=>w===t||w.startsWith(t)||t.startsWith(w))).length;
+    if(tokens.length)best=Math.max(best,72*(matched/tokens.length));
+    const compactName=name.replace(/ /g,""),compactQuery=query.replace(/ /g,"");
+    const maxLen=Math.max(compactName.length,compactQuery.length);
+    if(maxLen>=4){const similarity=1-searchEditDistance(compactQuery,compactName)/maxLen;if(similarity>.58)best=Math.max(best,similarity*82);}
+  }
+  return best;
+}
+function rankSearchResults(items,q){return items.map((item,index)=>({...item,_searchScore:searchScore(item,q),_searchOrder:index})).sort((a,b)=>b._searchScore-a._searchScore||((b.vote_average||0)-(a.vote_average||0))||a._searchOrder-b._searchOrder);}
+function searchQueryVariants(q){
+  const raw=String(q||"").trim().replace(/\s+/g," ");
+  const ascii=searchNorm(raw);
+  return [...new Set([raw,ascii].filter(x=>x&&x.length>=2))].slice(0,2);
+}
 function pSearch(id=navId){
   const rec=store.get("recent",[]);
-  $("#page").innerHTML=`<h1>Tìm kiếm</h1><label class="search glass"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="Tên phim, diễn viên…" autocomplete="off" enterkeyhint="search"></label><div id="res">${rec.length?`<h2>Gần đây</h2><div class="chips">${rec.map(r=>`<button class="chip" data-q="${esc(r)}">${esc(r)}</button>`).join("")}</div>`:`<div class="empty">Gõ để tìm trên KKPhim, NguonC & TMDB.</div>`}</div>`;
-  $("#page #q").oninput=e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value.trim(),id),350)};
+  $("#page").innerHTML=`<h1>Tìm kiếm</h1><label class="search glass"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="Tên Việt, tên gốc hoặc diễn viên…" autocomplete="off" enterkeyhint="search"></label><p class="note">Có thể tìm bằng tiếng Việt không dấu, tên tiếng Anh hoặc tên gốc.</p><div id="res">${rec.length?`<h2>Gần đây</h2><div class="chips">${rec.map(r=>`<button class="chip" data-q="${esc(r)}">${esc(r)}</button>`).join("")}</div>`:`<div class="empty">Nhập tên phim, tên gốc hoặc diễn viên để tìm trên nhiều nguồn.</div>`}</div>`;
+  $("#page #q").oninput=e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value.trim(),id),320)};
   $("#page").onclick=e=>{const c=e.target.closest("[data-q]");if(c){$("#page #q").value=c.dataset.q;doSearch(c.dataset.q,id)}};
 }
 async function doSearch(q,id=navId){
-  const res=$("#page #res");if(!res)return;if(q.length<2){pSearch(id);return}
-  res.innerHTML='<div class="sp"><i></i></div>';let h="";
-  try{
-    const nguoncP=PROVIDERS.find(p=>p.id==="nguonc")||PROVIDERS[5];
-    const [kk,ng]=await Promise.all([fetchFromProvider(PROVIDERS[0],q),fetchFromProvider(nguoncP,q)]);
-    if(id!==navId)return;
-    const l=[],seen=new Set();
-    [...kk.items,...ng.items].forEach(it=>{const k=`${it.providerId}:${it.slug}`;if(!seen.has(k)){seen.add(k);l.push(it)}});
-    if(l.length)h+=`<h2>Nguồn phát trực tiếp (${l.length})</h2><div class="grid">${l.map(m=>provCardHTML(m)).join("")}</div>`;
-  }catch{}
-  if(cfg.tmdb){try{const d=(await tmdb("/search/multi",{query:q}));if(id!==navId)return;const resArr=(d.results||[]).filter(m=>m.media_type!="person"&&m.poster_path);if(resArr.length)h+=`<h2>Kết quả TMDB</h2><div class="grid" id="tmdbSearchGrid">${resArr.map(m=>cardHTML(m)).join("")}</div>`}catch{}}
-  if($("#page #q")?.value.trim()!=q||id!==navId)return;
-  res.innerHTML=h||'<div class="empty">Không tìm thấy kết quả.</div>';
+  const res=$("#page #res");if(!res)return;
+  if(q.length<2){res.innerHTML='<div class="empty">Nhập ít nhất 2 ký tự để tìm phim.</div>';return;}
+  const queryAtStart=q;res.innerHTML='<div class="sp"><i></i></div><div class="note" style="text-align:center">Đang tìm tên Việt, tên gốc và các nguồn dữ liệu…</div>';
+  const variants=searchQueryVariants(q),providerItems=[],tmdbItems=[],people=[];
+  const providerTargets=[PROVIDERS[0],PROVIDERS.find(p=>p.id==="nguonc")].filter(Boolean);
+  const providerJobs=providerTargets.flatMap(provider=>variants.map(term=>fetchFromProvider(provider,term).catch(()=>({items:[]}))));
+  const tmdbJobs=cfg.tmdb?variants.map(term=>tmdb("/search/multi",{query:term,include_adult:false}).catch(()=>({results:[]}))):[];
+  const [providerResults,tmdbResults]=await Promise.all([Promise.all(providerJobs),Promise.all(tmdbJobs)]);
+  if(id!==navId||$("#page #q")?.value.trim()!==queryAtStart)return;
+  providerResults.forEach(r=>providerItems.push(...(r.items||[])));
+  const tmdbSeen=new Set(),peopleSeen=new Set();
+  tmdbResults.forEach(r=>(r.results||[]).forEach(item=>{
+    if(item.media_type==="person"){if(!peopleSeen.has(item.id)){peopleSeen.add(item.id);people.push(item);}return;}
+    if(!["movie","tv"].includes(item.media_type))return;
+    const key=`${item.media_type}:${item.id}`;if(!tmdbSeen.has(key)){tmdbSeen.add(key);tmdbItems.push(item);}
+  }));
+  // If the query is an actor/director, surface titles from their filmography as well.
+  if(cfg.tmdb&&people.length){
+    const personSeen=new Set();
+    for(const person of people.sort((a,b)=>(b.popularity||0)-(a.popularity||0)).slice(0,2)){
+      if(personSeen.has(person.id))continue;personSeen.add(person.id);
+      const [movies,tv]=await Promise.all([
+        tmdb(`/person/${person.id}/movie_credits`,{}).catch(()=>({cast:[]})),
+        tmdb(`/person/${person.id}/tv_credits`,{}).catch(()=>({cast:[]}))
+      ]);
+      [...(movies.cast||[]).map(x=>({...x,media_type:"movie",_matchedPerson:person.name})),...(tv.cast||[]).map(x=>({...x,media_type:"tv",_matchedPerson:person.name}))].forEach(item=>{
+        const key=`${item.media_type}:${item.id}`;if(!tmdbSeen.has(key)){tmdbSeen.add(key);tmdbItems.push(item);}
+      });
+    }
+  }
+  if(id!==navId||$("#page #q")?.value.trim()!==queryAtStart)return;
+  const rankedProviders=rankSearchResults(providerItems,q).filter(x=>x._searchScore>=28);
+  const rankedTmdb=rankSearchResults(tmdbItems,q).filter(x=>x._searchScore>=22||x._matchedPerson).sort((a,b)=>b._searchScore-a._searchScore||(b.popularity||0)-(a.popularity||0));
+  const uniqueProviders=[],providerSeen=new Set();
+  rankedProviders.forEach(item=>{const key=`${item.providerId}:${item.slug}`;if(!providerSeen.has(key)){providerSeen.add(key);uniqueProviders.push(item)}});
+  let html="";
+  if(uniqueProviders.length)html+=`<section class="search-section"><div class="sec-hd"><h2>Nguồn phim (${uniqueProviders.length})</h2><span class="lib-inline-count">Xếp theo độ khớp</span></div><div class="grid">${uniqueProviders.slice(0,36).map(m=>provCardHTML(m)).join("")}</div></section>`;
+  if(rankedTmdb.length)html+=`<section class="search-section"><div class="sec-hd"><h2>Phim & series (${rankedTmdb.length})</h2><span class="lib-inline-count">TMDB</span></div><div class="grid" id="tmdbSearchGrid">${rankedTmdb.slice(0,48).map(m=>cardHTML(m)).join("")}</div></section>`;
+  const matchedPeople=people.filter(p=>searchScore({name:p.name},q)>25).slice(0,4);
+  if(matchedPeople.length)html+=`<section class="search-section"><div class="sec-hd"><h2>Diễn viên phù hợp</h2></div><div class="chips">${matchedPeople.map(p=>`<span class="chip" title="Đã hiển thị phim có tham gia">${esc(p.name)}</span>`).join("")}</div></section>`;
+  if(!html)html='<div class="empty">Chưa tìm thấy kết quả phù hợp. Thử tên gốc, tên tiếng Anh hoặc bỏ dấu tiếng Việt nhé.</div>';
+  if(id!==navId||$("#page #q")?.value.trim()!==queryAtStart)return;
+  res.innerHTML=html;
   const tg=$("#page #tmdbSearchGrid");if(tg)queueStreamCheck(tg);
-  const r=[q,...store.get("recent",[]).filter(x=>x!=q)].slice(0,8);store.set("recent",r);
+  const recent=[q,...store.get("recent",[]).filter(x=>searchNorm(x)!==searchNorm(q))].slice(0,8);store.set("recent",recent);
 }
 
 function pMe(){
@@ -2609,7 +2727,8 @@ async function openProviderDetail(providerId,slug,fallbackTitle="",fallbackThumb
     const det=await fetchProviderMovieDetail(providerId,slug,fallbackTitle);
     if(!det.thumb&&fallbackThumb)det.thumb=fallbackThumb;
     if(!det.backdrop&&fallbackThumb)det.backdrop=fallbackThumb;
-    $("#sc").innerHTML=`<div class="bk"><img src="${esc(det.backdrop||det.thumb)}" alt="" onerror="this.src='https://via.placeholder.com/780x440/1c1c1e/98989f?text=CineGlass'"></div>
+    const detailArt=det.backdrop||det.thumb||cgFallbackImage(det.title,true);
+    $("#sc").innerHTML=`<div class="bk"><img class="bk-fill" src="${esc(detailArt)}" data-cg-fallback-title="${esc(det.title)}" data-cg-fallback-wide="1" alt="" aria-hidden="true"><img class="bk-main" src="${esc(detailArt)}" data-cg-fallback-title="${esc(det.title)}" data-cg-fallback-wide="1" alt="${esc(det.title)}"></div>
     <div class="dt"><h3>${esc(det.title)}</h3>
     <div class="meta"><span class="rate">⚡ ${esc((PROVIDERS.find(p=>p.id===providerId)||PROVIDERS[0]).name)}</span><span>${esc(det.originTitle)}</span><span>${esc(det.year)}</span></div>
     <div class="acts"><button class="btn" id="playStreamBtn">🎬 Xem phim</button></div>
@@ -2633,9 +2752,9 @@ async function openDetail(type,id,auto){
     const seen=[{id,type,title:ttl(m),poster:poster(m,"w185"),backdrop:m.backdrop_path?IMG+"w780"+m.backdrop_path:""},...store.get("seen",[]).filter(x=>x.id!=id)].slice(0,20);store.set("seen",seen);
     const tr=(m.videos?.results||[]).find(v=>v.site=="YouTube"&&v.type=="Trailer")||(m.videos?.results||[])[0];
     const rt=m.runtime?m.runtime+" phút":(m.number_of_seasons?m.number_of_seasons+" mùa":"");
-    const bdrop=m.backdrop_path?IMG+"w780"+m.backdrop_path:poster(m,"w500");
-    const recs=(m.recommendations?.results||[]).filter(x=>x.poster_path);
-    $("#sc").innerHTML=`<div class="bk"><img src="${bdrop}" alt=""></div><div class="dt"><h3>${esc(ttl(m))}</h3>
+    const bdrop=m.backdrop_path?IMG+"w1280"+m.backdrop_path:(m.poster_path?IMG+"w500"+m.poster_path:cgFallbackImage(ttl(m),true));
+    const recs=(m.recommendations?.results||[]).filter(x=>x&&x.media_type!=="person");
+    $("#sc").innerHTML=`<div class="bk"><img class="bk-fill" src="${esc(bdrop)}" data-cg-fallback-title="${esc(ttl(m))}" data-cg-fallback-wide="1" alt="" aria-hidden="true"><img class="bk-main" src="${esc(bdrop)}" data-cg-fallback-title="${esc(ttl(m))}" data-cg-fallback-wide="1" alt="${esc(ttl(m))}"></div><div class="dt"><h3>${esc(ttl(m))}</h3>
     <div class="meta"><span class="rate">★ ${(m.vote_average||0).toFixed(1)} TMDB</span><span id="imdb"></span><span>${(m.release_date||m.first_air_date||"").slice(0,4)}</span><span>${rt}</span><span>${(m.genres||[]).map(g=>esc(g.name)).join(", ")}</span></div>
     <div class="acts" id="dtActs"><button class="btn" id="playStreamBtn">⏳ Đang dò nguồn…</button>${tr?`<button class="btn g" id="tb">▶ Xem trailer</button>`:""}</div>
     <div id="libraryControls" class="lib-detail-controls"></div>
