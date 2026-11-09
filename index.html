@@ -752,28 +752,218 @@ body{overflow:hidden}
 @media(max-width:1050px){.cg-app-window{width:calc(100vw - 90px);height:calc(100dvh - 54px);max-height:calc(100dvh - 54px);margin:27px auto}.cg-rail{left:5px}}
 @media(max-width:760px){.cg-app-window{width:calc(100vw - 12px);height:calc(100dvh - 105px);max-height:calc(100dvh - 105px);margin:7px auto 90px}}
 
+
+
+/* ======================================================================
+   CineGlass 2.2 · Responsive glass repair
+   - Keep category browsing inside the app window (never cover the header)
+   - Respect iPhone safe areas and avoid clipped navigation
+   - Brighten the room/background and lighten the frosted glass material
+   - Use one consistent responsive frame instead of conflicting old sizing
+   ====================================================================== */
+:root{
+  --bg:#f2f5f8;
+  --bg-mesh:
+    radial-gradient(ellipse at 12% 12%,rgba(255,255,255,.96),transparent 38%),
+    radial-gradient(ellipse at 84% 16%,rgba(204,225,245,.48),transparent 38%),
+    radial-gradient(ellipse at 72% 84%,rgba(255,213,222,.40),transparent 42%),
+    radial-gradient(ellipse at 18% 78%,rgba(218,225,255,.30),transparent 42%);
+  --card:rgba(255,255,255,.58);
+  --text:#252832;
+  --sub:#737d8b;
+  --glass-rgb:255,255,255;
+  --pill-rgb:255,255,255;
+  --pill-a:.56;
+  --rim-hi:rgba(255,255,255,.98);
+  --rim-lo:rgba(255,255,255,.42);
+  --glass-shadow:0 14px 38px rgba(79,94,112,.10),0 2px 8px rgba(79,94,112,.045);
+  --line:rgba(100,119,140,.12);
+}
+:root[data-theme=dark]{
+  --bg:#171922;
+  --bg-mesh:radial-gradient(ellipse at 15% 10%,rgba(121,133,165,.22),transparent 42%),radial-gradient(ellipse at 85% 22%,rgba(121,98,138,.18),transparent 40%),radial-gradient(ellipse at 58% 90%,rgba(157,103,122,.15),transparent 45%);
+  --card:rgba(39,43,55,.62);
+  --glass-rgb:42,46,58;
+}
+html,body{background-color:var(--bg);background-image:var(--bg-mesh);}
+.cg-ambient{opacity:.76!important;filter:blur(30px)!important;}
+.cg-room-scene{filter:blur(9px) saturate(1.08) brightness(1.10)!important;}
+.cg-ambient::after{
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.12),transparent 38%,rgba(255,255,255,.20)),
+    linear-gradient(0deg,rgba(247,239,239,.08),transparent 52%,rgba(255,255,255,.14))!important;
+}
+.cg-ambient::before{opacity:.30!important;filter:blur(26px)!important;}
+:root[data-theme=dark] .cg-ambient::before{opacity:.16!important;}
+:root[data-theme=dark] .cg-room-scene{filter:blur(10px) brightness(.58) saturate(.82)!important;}
+
+/* Desktop/tablet frame: larger canvas, lighter glass, stable viewport sizing. */
+body{height:100dvh;min-height:100dvh;overflow:hidden;padding:18px 0;}
+.cg-app-window{
+  position:relative;z-index:5;isolation:isolate;
+  display:flex;flex-direction:column;
+  width:min(1320px,calc(100vw - 176px));
+  height:calc(100dvh - 36px);max-height:calc(100dvh - 36px);min-height:0;
+  margin:0 auto;padding:10px 11px 12px;
+  border:1px solid rgba(255,255,255,.72);border-radius:30px;
+  background:linear-gradient(145deg,rgba(255,255,255,.25),rgba(255,255,255,.105));
+  -webkit-backdrop-filter:blur(36px) saturate(175%);backdrop-filter:blur(36px) saturate(175%);
+  box-shadow:0 22px 65px rgba(76,89,106,.12),inset 0 1px 0 rgba(255,255,255,.90);
+  overflow:hidden;
+}
+:root[data-theme=dark] .cg-app-window{
+  background:linear-gradient(145deg,rgba(40,43,55,.54),rgba(24,26,35,.36));
+  border-color:rgba(255,255,255,.18);
+  box-shadow:0 24px 68px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.14);
+}
+.cg-topbar{position:relative;top:auto;z-index:35;flex:none;width:100%;margin:0 0 9px;}
+#page{
+  position:relative;z-index:1;flex:1;min-height:0;height:auto;width:100%;
+  margin:0;padding:18px 18px 24px;overflow:auto;overscroll-behavior:contain;
+  scrollbar-width:none;
+  border:1px solid rgba(255,255,255,.56);border-radius:24px;
+  background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.065));
+  -webkit-backdrop-filter:blur(26px) saturate(160%);backdrop-filter:blur(26px) saturate(160%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.62);
+}
+#page::-webkit-scrollbar{display:none}
+:root[data-theme=dark] #page{background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.025));border-color:rgba(255,255,255,.12)}
+.cg-rail{z-index:6;left:max(12px,calc((100vw - min(1320px,calc(100vw - 176px)))/2 - 70px));}
+.dock{display:none!important;}
+
+/* Category results are a translucent content sheet inside the app frame,
+   not a full-screen opaque page. The top navigation remains available. */
+#catOverlay{
+  position:absolute!important;inset:104px 11px 12px!important;z-index:25!important;
+  display:none;overflow:hidden;border-radius:24px;contain:layout style;
+}
+#catOverlay.show{display:block;}
+#catOverlay .bd{
+  position:absolute;inset:0;border-radius:inherit;
+  background:rgba(244,248,252,.18);
+  -webkit-backdrop-filter:blur(13px) saturate(135%);backdrop-filter:blur(13px) saturate(135%);
+  opacity:0;transition:opacity .25s ease;
+}
+#catOverlay.open .bd{opacity:1;}
+#catOverlay .pn{
+  position:absolute;inset:0;border-radius:inherit;
+  padding:14px 8px 22px;
+  background:linear-gradient(145deg,rgba(255,255,255,.36),rgba(255,255,255,.18));
+  border:1px solid rgba(255,255,255,.74);
+  -webkit-backdrop-filter:blur(30px) saturate(175%);backdrop-filter:blur(30px) saturate(175%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.78),0 14px 38px rgba(58,73,92,.08);
+  overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  transform:translate3d(0,12px,0) scale(.99);
+  transition:transform .32s var(--spring),opacity .25s ease;
+}
+#catOverlay.open .pn{transform:translate3d(0,0,0) scale(1);}
+:root[data-theme=dark] #catOverlay .pn{background:linear-gradient(145deg,rgba(42,44,56,.78),rgba(25,27,36,.66));border-color:rgba(255,255,255,.14);}
+#catOverlay .cat-bar{position:sticky;top:0;z-index:4;padding:2px 10px 10px;background:linear-gradient(180deg,rgba(255,255,255,.12),transparent);}
+#catOverlay .back-btn{background:rgba(255,255,255,.48);border-color:rgba(255,255,255,.68);color:#ed5270;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);}
+#catOverlay .pn h1{margin:5px 16px 12px;font-size:clamp(24px,2.4vw,34px);}
+#catOverlay .pn .grid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:14px;padding:8px 14px;}
+
+@media(max-width:1050px) and (min-width:761px){
+  body{padding:14px 0;}
+  .cg-app-window{width:calc(100vw - 88px);height:calc(100dvh - 28px);max-height:calc(100dvh - 28px);}
+  .cg-rail{left:5px;}
+  #catOverlay{inset:104px 9px 10px!important;}
+  #page{padding:15px 13px 22px;}
+}
+
+/* Phone: reserve the notch/status-bar area and make the header a clean two-row bar. */
+@media(max-width:760px){
+  body{
+    height:100dvh;min-height:100dvh;overflow:hidden;
+    padding:calc(var(--sat) + 8px) 0 calc(var(--sab) + 8px);
+  }
+  .cg-app-window{
+    width:calc(100vw - 12px);height:100%;max-height:none;min-height:0;
+    margin:0 auto;padding:7px;border-radius:22px;overflow:hidden;
+  }
+  .cg-topbar{
+    position:relative;top:auto;z-index:35;width:100%;min-height:0;
+    margin:0 0 8px;padding:8px 9px 7px;
+    display:grid;grid-template-columns:minmax(0,auto) minmax(58px,1fr) auto;
+    grid-template-rows:38px 38px;grid-template-areas:"brand search actions" "nav nav nav";
+    align-items:center;gap:7px 8px;border-radius:18px;
+    background:linear-gradient(145deg,rgba(255,255,255,.42),rgba(255,255,255,.20));
+    border-color:rgba(255,255,255,.76);box-shadow:inset 0 1px rgba(255,255,255,.94),0 8px 24px rgba(78,94,112,.07);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+  }
+  .cg-brand{grid-area:brand;gap:7px;min-width:0;}
+  .cg-brand-mark{width:31px;height:31px;border-radius:10px;font-size:18px;}
+  .cg-brand-copy b{font-size:13px;}
+  .cg-brand-copy small{font-size:7px;letter-spacing:.85px;}
+  .cg-global-search{grid-area:search;width:100%;height:34px;min-width:0;padding:0 8px;border-radius:12px;background:rgba(255,255,255,.34);border-color:rgba(255,255,255,.55);}
+  .cg-global-search input{font-size:11px;}
+  .cg-global-search kbd{display:none;}
+  .cg-top-actions{grid-area:actions;gap:5px;}
+  .cg-icon-btn,.cg-profile-btn{width:32px;height:32px;}
+  .cg-profile-btn span{width:22px;height:22px;font-size:9px;}
+  .cg-category-nav{grid-area:nav;grid-column:1/-1;grid-row:2;justify-content:flex-start;gap:5px;width:100%;min-width:0;overflow-x:auto;padding:1px 0 2px;}
+  .cg-category-btn{flex:none;padding:8px 12px;font-size:11px;color:#596271;}
+  .cg-category-btn.on{background:rgba(255,255,255,.66);color:#272c36;box-shadow:inset 0 1px rgba(255,255,255,.96),0 3px 10px rgba(76,90,108,.07);}
+  :root[data-theme=dark] .cg-topbar{background:rgba(37,39,50,.60);}
+  :root[data-theme=dark] .cg-category-btn{color:#d1d3dc;}
+  #page{
+    flex:1;min-height:0;height:auto;width:100%;margin:0;padding:12px 10px 20px;
+    border-radius:17px;background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.52);
+    -webkit-backdrop-filter:blur(24px) saturate(155%);backdrop-filter:blur(24px) saturate(155%);
+  }
+  .cg-rail{display:none!important;}
+  .dock{display:none!important;}
+  .cg-home-layout{grid-template-columns:minmax(0,1fr);gap:12px;}
+  .cg-home-main{order:1;min-width:0;}
+  .cg-home-sidebar{order:2;display:grid;grid-template-columns:1fr;gap:9px;}
+  .cg-side-shortcuts{grid-column:auto;}
+  .cg-side-panel{background:linear-gradient(145deg,rgba(255,255,255,.36),rgba(255,255,255,.16));border-color:rgba(255,255,255,.62);box-shadow:0 8px 22px rgba(76,91,110,.055),inset 0 1px rgba(255,255,255,.8);}
+  .cg-featured-hero{height:220px;min-height:220px;}
+  .lib-layout{grid-template-columns:minmax(0,1fr);gap:10px;}
+  .lib-sidebar{grid-template-columns:minmax(0,1fr);}
+  #catOverlay{inset:112px 3px 3px!important;border-radius:18px;}
+  #catOverlay .pn{padding:10px 4px 18px;border-radius:18px;}
+  #catOverlay .pn .grid{grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:10px;padding:7px 9px;}
+  #catOverlay .cat-bar{padding:2px 8px 8px;}
+}
+@media(max-width:430px){
+  .cg-topbar{grid-template-columns:minmax(104px,auto) minmax(48px,1fr) auto;gap:6px;padding:7px 7px 6px;}
+  .cg-brand{gap:5px;}
+  .cg-brand-mark{width:29px;height:29px;}
+  .cg-brand-copy b{font-size:12px;}
+  .cg-brand-copy small{font-size:6px;letter-spacing:.65px;}
+  .cg-top-actions{gap:4px;}
+  .cg-icon-btn,.cg-profile-btn{width:29px;height:29px;}
+  .cg-category-btn{padding:7px 11px;font-size:10px;}
+  .cg-featured-hero{height:205px;min-height:205px;}
+}
+@media(prefers-reduced-transparency:reduce){
+  .cg-app-window,.cg-topbar,.cg-rail,.cg-side-panel,#page,#catOverlay .pn{backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;background:rgba(255,255,255,.66)!important;}
+}
+
 </style>
 </head>
 <body>
 <div class="cg-ambient" aria-hidden="true">
   <svg class="cg-room-scene" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
-      <linearGradient id="roomWall" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#969a99"/><stop offset=".42" stop-color="#c5c5c1"/><stop offset="1" stop-color="#ddd8d1"/></linearGradient>
-      <linearGradient id="roomFloor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#aaa59e"/><stop offset="1" stop-color="#6f6b67"/></linearGradient>
-      <linearGradient id="windowGlow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#edf0ef"/><stop offset="1" stop-color="#c5c9c8"/></linearGradient>
+      <linearGradient id="roomWall" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f1f0"/><stop offset=".42" stop-color="#e7eaf0"/><stop offset="1" stop-color="#f4e9ed"/></linearGradient>
+      <linearGradient id="roomFloor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#eee9e5"/><stop offset="1" stop-color="#d8d2cc"/></linearGradient>
+      <linearGradient id="windowGlow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#ffffff"/><stop offset="1" stop-color="#e5edf5"/></linearGradient>
       <filter id="roomBlur"><feGaussianBlur stdDeviation="24"/></filter>
     </defs>
     <g filter="url(#roomBlur)">
       <rect width="1600" height="1000" fill="url(#roomWall)"/>
       <rect y="735" width="1600" height="265" fill="url(#roomFloor)"/>
       <rect x="970" y="-50" width="720" height="790" fill="url(#windowGlow)" opacity=".94"/>
-      <rect x="1075" y="-40" width="24" height="800" fill="#aeb3b2" opacity=".65"/>
-      <rect x="1260" y="-40" width="19" height="800" fill="#9da3a2" opacity=".6"/>
-      <rect x="1450" y="-40" width="22" height="800" fill="#9ba09e" opacity=".56"/>
-      <rect x="950" y="360" width="760" height="25" fill="#9fa4a2" opacity=".42"/>
-      <rect x="900" y="700" width="800" height="36" fill="#777a78" opacity=".25"/>
-      <rect x="-90" y="170" width="420" height="540" rx="70" fill="#666a68" opacity=".24"/>
-      <rect x="80" y="300" width="290" height="390" rx="38" fill="#4f5553" opacity=".26"/>
+      <rect x="1075" y="-40" width="24" height="800" fill="#dfe6ec" opacity=".48"/>
+      <rect x="1260" y="-40" width="19" height="800" fill="#d5dde5" opacity=".42"/>
+      <rect x="1450" y="-40" width="22" height="800" fill="#d5dce3" opacity=".40"/>
+      <rect x="950" y="360" width="760" height="25" fill="#e0e5eb" opacity=".32"/>
+      <rect x="900" y="700" width="800" height="36" fill="#c9c4c0" opacity=".18"/>
+      <rect x="-90" y="170" width="420" height="540" rx="70" fill="#c8c4c1" opacity=".16"/>
+      <rect x="80" y="300" width="290" height="390" rx="38" fill="#b8b6b5" opacity=".18"/>
       <ellipse cx="430" cy="690" rx="400" ry="115" fill="#535451" opacity=".32"/>
       <rect x="180" y="540" width="600" height="210" rx="90" fill="#77716d" opacity=".4"/>
       <rect x="260" y="475" width="420" height="140" rx="65" fill="#aaa49d" opacity=".38"/>
@@ -815,10 +1005,10 @@ body{overflow:hidden}
   </div>
 </header>
 <div id="page"></div>
-</div>
 <div id="catOverlay">
   <div class="bd" id="catBd"></div>
   <div class="pn" id="catView"></div>
+</div>
 </div>
 <div class="dock">
   <nav class="tabs glass" id="tabs" aria-label="Điều hướng"><i id="tabPill"></i></nav>
