@@ -942,6 +942,163 @@ body{height:100dvh;min-height:100dvh;overflow:hidden;padding:18px 0;}
   .cg-app-window,.cg-topbar,.cg-rail,.cg-side-panel,#page,#catOverlay .pn{backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;background:rgba(255,255,255,.66)!important;}
 }
 
+
+
+/* ======================================================================
+   CineGlass 2.3 · Desktop clarity & scale correction
+   Goals:
+   - Reduce stacked blur that washed out desktop content
+   - Give the desktop canvas and movie rows a more readable scale
+   - Keep the bright frosted-glass look without whitening the whole screen
+   - Shorten the detail backdrop and move film information higher
+   ====================================================================== */
+@media (min-width:1201px){
+  .cg-app-window{
+    width:min(1500px,calc(100vw - 176px));
+    height:calc(100dvh - 34px);max-height:calc(100dvh - 34px);
+    margin:17px auto;
+    padding:12px 13px 14px;
+    background:linear-gradient(145deg,rgba(255,255,255,.19),rgba(255,255,255,.075));
+    -webkit-backdrop-filter:blur(20px) saturate(165%);
+    backdrop-filter:blur(20px) saturate(165%);
+  }
+  :root[data-theme=dark] .cg-app-window{
+    background:linear-gradient(145deg,rgba(37,40,51,.48),rgba(22,24,32,.29));
+  }
+  .cg-rail{
+    left:max(12px,calc((100vw - min(1500px,calc(100vw - 176px)))/2 - 68px));
+    gap:9px;padding:10px;
+  }
+  .cg-rail-btn{width:42px;height:42px}
+  #page{
+    padding:24px 25px 30px;
+    background:linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.035));
+    -webkit-backdrop-filter:blur(12px) saturate(145%);
+    backdrop-filter:blur(12px) saturate(145%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.54);
+  }
+  :root[data-theme=dark] #page{
+    background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+  }
+  .cg-topbar{
+    min-height:76px;padding:11px 17px;gap:18px;
+    -webkit-backdrop-filter:blur(19px) saturate(165%);
+    backdrop-filter:blur(19px) saturate(165%);
+    background:rgba(250,251,253,.48);
+  }
+  .cg-brand-mark{width:42px;height:42px}
+  .cg-brand-copy b{font-size:17px}
+  .cg-brand-copy small{font-size:9px}
+  .cg-global-search{height:44px}
+  .cg-global-search input{font-size:13px}
+  .cg-category-btn{padding:10px 15px;font-size:12px}
+  .cg-home-layout{grid-template-columns:minmax(255px,292px) minmax(0,1fr);gap:25px}
+  .cg-home-sidebar{gap:15px}
+  .cg-side-panel{padding:17px;border-radius:23px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  .cg-panel-heading>b{font-size:13px}
+  .cg-recent-item{padding:8px;gap:10px}
+  .cg-recent-poster{width:39px;height:52px}
+  .cg-recent-copy b{font-size:11.5px}
+  .cg-recent-copy small{font-size:10px}
+  .cg-home-main{gap:19px}
+  .cg-home-heading h1{font-size:38px!important}
+  .cg-home-heading p{font-size:13px}
+  .cg-eyebrow{font-size:10px}
+  .cg-heading-search{font-size:12px;padding:12px 15px}
+  .cg-featured-hero{height:clamp(310px,29vw,390px);border-radius:27px}
+  .cg-featured-hero div{left:28px;right:28px;bottom:27px;max-width:660px}
+  .cg-featured-hero div span{font-size:12px}
+  .cg-featured-hero div b{font-size:clamp(30px,2.7vw,42px)}
+  .cg-featured-hero div i{font-size:12px;padding:10px 16px}
+  .cg-movie-row .sec-hd{margin:10px 1px 9px}
+  .cg-movie-row .sec-hd h2{font-size:18px}
+  .cg-movie-row .scroller{gap:15px;padding:9px 1px 17px}
+  .cg-movie-row .card{flex-basis:148px}
+  .cg-movie-row .card .p{width:148px;border-radius:17px}
+  .cg-movie-row .card b{font-size:13px;margin-top:9px}
+  .cg-movie-row .card small{font-size:11px}
+  .cg-movie-row .card.more-card .more-box{width:148px}
+  .cg-side-continue .card.wide b{font-size:11px}
+  .cg-side-continue .card.wide .p{width:76px;height:51px}
+  .cg-home-sidebar .cg-side-continue .card.wide{grid-template-columns:76px minmax(0,1fr)}
+}
+
+/* Tablet: preserve the two-column dashboard without shrinking posters too far. */
+@media (min-width:761px) and (max-width:1200px){
+  .cg-app-window{width:calc(100vw - 112px);}
+  .cg-home-layout{grid-template-columns:minmax(205px,230px) minmax(0,1fr);gap:16px}
+  .cg-movie-row .card{flex-basis:124px}
+  .cg-movie-row .card .p{width:124px}
+  .cg-movie-row .card.more-card .more-box{width:124px}
+  .cg-movie-row .card b{font-size:11.5px}
+  .cg-featured-hero{height:clamp(230px,28vw,300px)}
+}
+
+/* Detail sheet: the poster/backdrop should remain crisp, with a short fade only at its bottom edge. */
+.bk{
+  height:clamp(300px,43vh,470px);
+  aspect-ratio:auto;
+  margin-top:-52px;
+  overflow:hidden;
+  background:#dfe4eb;
+}
+.bk img{
+  display:block;width:100%;height:100%;object-fit:cover;
+  object-position:center 38%;filter:none!important;
+}
+.bk::after{
+  background:linear-gradient(180deg,
+    rgba(8,10,18,.13) 0%,
+    rgba(8,10,18,0) 34%,
+    rgba(242,245,248,0) 82%,
+    var(--bg) 100%);
+}
+:root[data-theme=dark] .bk::after{
+  background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,transparent 42%,rgba(23,25,34,0) 82%,var(--bg) 100%);
+}
+.dt{
+  width:min(1320px,calc(100% - 48px));
+  padding:0 4px 32px;
+  margin:-24px auto 0;
+}
+.dt h3{font-size:clamp(27px,2.2vw,38px);line-height:1.08;letter-spacing:-.65px}
+.dt .meta{font-size:14px;gap:12px}
+.dt .acts{margin:16px 0 18px;gap:11px}
+.dt p{font-size:14px;line-height:1.65;max-width:1050px}
+#streamBox{max-width:1320px}
+#streamBox>b{font-size:14px}
+#streamBox .prov button,#streamBox .ep-grid button{font-size:13px}
+
+/* Avoid stacking several heavy translucent layers over the same pixels. */
+.cg-ambient{opacity:.88!important;filter:blur(13px)!important}
+.cg-room-scene{filter:blur(13px) saturate(1.10) brightness(1.03)!important}
+.cg-ambient::before{opacity:.14!important;filter:blur(17px)!important}
+.cg-ambient::after{
+  background:linear-gradient(90deg,rgba(255,255,255,.045),transparent 42%,rgba(255,255,255,.10)),
+             linear-gradient(0deg,rgba(247,239,239,.025),transparent 62%,rgba(255,255,255,.055))!important;
+}
+:root[data-theme=dark] .cg-ambient{opacity:.70!important;filter:blur(15px)!important}
+:root[data-theme=dark] .cg-room-scene{filter:blur(15px) brightness(.70) saturate(.9)!important}
+:root[data-theme=dark] .cg-ambient::before{opacity:.11!important}
+
+/* Detail sheets are bright and readable instead of a foggy full-screen wash. */
+#sheet .pn{background:var(--bg);background-image:var(--bg-mesh)}
+#sheet .bd{background:rgba(21,24,33,.52)}
+
+@media(max-width:760px){
+  .cg-app-window{width:calc(100vw - 12px)}
+  #page{padding:11px 9px 20px}
+  .cg-featured-hero{height:clamp(205px,31vh,260px);min-height:205px}
+  .cg-movie-row .card{flex-basis:108px}
+  .cg-movie-row .card .p{width:108px}
+  .cg-movie-row .card.more-card .more-box{width:108px}
+  .bk{height:clamp(230px,38vh,350px);margin-top:-52px}
+  .dt{width:calc(100% - 28px);padding:0 2px 26px;margin-top:-20px}
+  .dt h3{font-size:25px}
+  .dt .meta{font-size:12px;gap:8px}
+  .dt p{font-size:13px}
+}
+
 </style>
 </head>
 <body>
