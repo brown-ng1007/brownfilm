@@ -322,6 +322,108 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
 .hero b{display:block;margin-top:4px;font-size:30px;font-weight:800}
 
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+
+
+/* ===== CineGlass Personal Library · Liquid Glass Evolution ===== */
+.library-shell{width:100%;max-width:1480px;margin:0 auto;padding:8px 20px calc(var(--sab) + 124px)}
+.lib-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:8px 0 20px}
+.lib-kicker{display:block;color:var(--accent);font-size:10px;font-weight:850;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 5px}
+.library-shell .lib-heading h1{margin:0;font-size:clamp(28px,4vw,38px);line-height:1.05;letter-spacing:-1.1px}
+.lib-heading p{margin:8px 0 0;color:var(--sub);font-size:13px}
+.lib-heading-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lib-heading-actions .btn{white-space:nowrap}
+.lib-layout{display:grid;grid-template-columns:minmax(210px,260px) minmax(0,1fr);gap:18px;align-items:start}
+.lib-sidebar,.lib-panel{min-width:0;border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,rgba(var(--glass-rgb),.62),rgba(var(--glass-rgb),.34));box-shadow:var(--glass-shadow),inset 0 1px 0 var(--rim-hi);-webkit-backdrop-filter:blur(22px) saturate(155%);backdrop-filter:blur(22px) saturate(155%)}
+.lib-sidebar{padding:15px;position:sticky;top:12px;display:flex;flex-direction:column;gap:18px}
+.lib-block-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:800;margin:0 0 10px}
+.lib-block-title small{font-size:10px;font-weight:650;color:var(--sub)}
+.lib-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lib-stat{border:1px solid var(--line);background:rgba(var(--glass-rgb),.42);border-radius:15px;padding:11px 10px;min-width:0}
+.lib-stat b{display:block;font-size:22px;line-height:1.1;font-weight:850;letter-spacing:-.6px}
+.lib-stat span{display:block;margin-top:4px;font-size:10px;color:var(--sub);font-weight:650}
+.lib-recent-list{display:flex;flex-direction:column;gap:7px}
+.lib-recent{width:100%;display:flex;align-items:center;gap:9px;text-align:left;padding:8px;border-radius:13px;background:rgba(var(--glass-rgb),.32);border:1px solid transparent;transition:background .2s,border-color .2s,transform .35s var(--spring)}
+.lib-recent:active{transform:scale(.97)}
+.lib-recent:hover{background:rgba(var(--glass-rgb),.58);border-color:var(--line)}
+.lib-recent .lib-recent-icon{width:32px;height:42px;flex:none;border-radius:8px;display:grid;place-items:center;background:var(--accent-grad);color:#fff;font-size:12px;font-weight:900;overflow:hidden}
+.lib-recent .lib-recent-icon img{width:100%;height:100%;object-fit:cover}
+.lib-recent b{display:block;font-size:11px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lib-recent small{display:block;color:var(--sub);font-size:10px;margin-top:3px}
+.lib-muted{color:var(--sub);font-size:11px;line-height:1.5}
+.lib-main{display:flex;flex-direction:column;gap:17px;min-width:0}
+.lib-hero{position:relative;isolation:isolate;display:flex;align-items:flex-end;min-height:270px;padding:23px;border-radius:24px;overflow:hidden;color:#fff;background:#201c2b;box-shadow:0 14px 34px rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.18);text-align:left;width:100%;}
+.lib-hero::before{content:"";position:absolute;inset:0;z-index:-2;background-image:var(--lib-cover),radial-gradient(circle at 78% 24%,rgba(255,75,108,.48),transparent 38%),linear-gradient(130deg,#262032,#514050);background-position:center;background-size:cover;transform:scale(1.015);transition:transform .8s var(--spring)}
+.lib-hero:hover::before{transform:scale(1.055)}
+.lib-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(8,7,13,.88) 0%,rgba(8,7,13,.56) 48%,rgba(8,7,13,.10) 100%),linear-gradient(0deg,rgba(8,7,13,.38),transparent 70%)}
+.lib-hero-copy{max-width:580px}
+.lib-hero-eyebrow{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid rgba(255,255,255,.25);border-radius:99px;background:rgba(255,255,255,.13);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.lib-hero h2{font-size:clamp(24px,3.3vw,36px);line-height:1.08;letter-spacing:-.8px;margin:12px 0 7px;color:#fff}
+.lib-hero p{font-size:12px;line-height:1.5;color:rgba(255,255,255,.78);margin:0 0 14px;max-width:520px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lib-hero-meta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:rgba(255,255,255,.84);font-size:11px;margin-bottom:13px}
+.lib-hero-actions{display:flex;gap:8px;flex-wrap:wrap}
+.lib-hero .btn{border:1px solid rgba(255,255,255,.22);box-shadow:0 5px 16px rgba(0,0,0,.18)}
+.lib-hero .btn.g{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.lib-hero-empty{min-height:220px;align-items:center;justify-content:center;text-align:center}
+.lib-hero-empty .lib-hero-copy{max-width:440px;margin:auto}
+.lib-hero-empty::after{background:linear-gradient(120deg,rgba(18,15,26,.78),rgba(18,15,26,.38))}
+.lib-section{min-width:0}
+.lib-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0 0 10px}
+.lib-section-head h2{font-size:17px;letter-spacing:-.3px;margin:0;font-weight:800}
+.lib-section-head p{font-size:11px;color:var(--sub);margin:4px 0 0}
+.lib-inline-count{font-size:10px;color:var(--sub);font-weight:700;white-space:nowrap}
+.lib-continue .scroller{padding-left:2px;padding-right:2px}
+.lib-filter-row{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.lib-filter-row::-webkit-scrollbar{display:none}
+.lib-filter{flex:none;border:1px solid var(--line);border-radius:99px;padding:8px 13px;background:rgba(var(--glass-rgb),.42);font-size:11px;font-weight:750;color:var(--sub);transition:all .25s var(--spring)}
+.lib-filter.on{background:var(--accent-grad);color:#fff;border-color:transparent;box-shadow:0 5px 14px rgba(250,45,72,.2)}
+.lib-saved-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:14px}
+.lib-item{position:relative;min-width:0}
+.lib-item-open{width:100%;display:block;text-align:left;border-radius:17px;overflow:hidden;padding:0;transition:transform .38s var(--spring)}
+.lib-item-open:active{transform:scale(.95)}
+.lib-item-poster{position:relative;display:block;width:100%;aspect-ratio:2/3;overflow:hidden;border-radius:17px;background:var(--card);border:1px solid var(--line);box-shadow:0 5px 16px rgba(0,0,0,.09)}
+.lib-item-poster img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .65s var(--spring)}
+.lib-item-open:hover .lib-item-poster img{transform:scale(1.045)}
+.lib-item-badge{position:absolute;left:7px;top:7px;max-width:calc(100% - 14px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:99px;padding:5px 8px;background:rgba(16,14,22,.72);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:9px;font-weight:800;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.lib-item-fav{position:absolute;right:7px;top:7px;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:rgba(16,14,22,.65);color:#ff6682;border:1px solid rgba(255,255,255,.2);font-size:14px}
+.lib-item-copy{display:block;padding:8px 2px 0}
+.lib-item-copy b{display:block;font-size:12px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lib-item-copy small{display:block;color:var(--sub);font-size:10px;margin-top:4px}
+.lib-item-remove{position:absolute;right:6px;bottom:45px;width:27px;height:27px;display:grid;place-items:center;border-radius:50%;background:rgba(15,13,19,.78);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;opacity:0;transform:translateY(4px);transition:opacity .2s,transform .2s}
+.lib-item:hover .lib-item-remove,.lib-item:focus-within .lib-item-remove{opacity:1;transform:translateY(0)}
+.lib-empty{padding:26px 16px;text-align:center;border:1px dashed var(--line);border-radius:18px;color:var(--sub);font-size:12px;background:rgba(var(--glass-rgb),.2)}
+.lib-source-catalog{padding:15px;border:1px solid var(--line);border-radius:22px;background:rgba(var(--glass-rgb),.24)}
+.lib-source-catalog .grid{padding:5px 0 0;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:12px}
+.lib-source-catalog .chips{padding:3px 0 8px}
+.lib-detail-controls{margin:11px 0 8px;padding:11px;border-radius:17px;background:rgba(var(--glass-rgb),.38);border:1px solid var(--line)}
+.lib-detail-controls .lib-detail-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.lib-detail-controls label{font-size:12px;font-weight:700;color:var(--sub)}
+.lib-detail-controls select{min-width:150px;max-width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--line);outline:0;background:var(--card);color:var(--text);font:inherit;font-size:12px}
+.lib-detail-controls .lib-fav-btn,.lib-detail-controls .lib-remove-btn{padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:12px;font-weight:750}
+.lib-detail-controls .lib-fav-btn.on{color:#fff;background:linear-gradient(135deg,#ff5977,#e62d5c);border-color:transparent}
+.lib-detail-hint{font-size:10px;color:var(--sub);margin-top:7px}
+@media(max-width:760px){
+  .library-shell{padding-left:14px;padding-right:14px}
+  .lib-layout{grid-template-columns:1fr;gap:13px}
+  .lib-sidebar{position:static;display:grid;grid-template-columns:1fr;gap:13px;padding:12px}
+  .lib-stat-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .lib-stat{padding:9px 7px}
+  .lib-stat b{font-size:18px}
+  .lib-stat span{font-size:9px}
+  .lib-recent-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lib-hero{min-height:245px;padding:17px}
+  .lib-saved-grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+  .lib-heading{align-items:flex-start}
+}
+@media(max-width:430px){
+  .lib-heading{display:block}
+  .lib-heading-actions{margin-top:12px}
+  .lib-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lib-recent-list{grid-template-columns:1fr}
+  .lib-hero{min-height:225px}
+  .lib-detail-controls .lib-detail-row{align-items:stretch}
+  .lib-detail-controls select{flex:1}
+}
+
 </style>
 </head>
 <body>
@@ -349,42 +451,8 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
   <video id="v" playsinline webkit-playsinline preload="auto"></video>
   <iframe id="emb" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>
   <div class="ctl" id="ctl">
-    <div class="top">
-      <button class="rb" id="pc" aria-label="Đóng">✕</button>
-      <b id="pt"></b>
-      <button class="rb ep-picker-btn" id="episodePickerBtn" aria-label="Mở danh sách tập" title="Danh sách tập">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>
-        <span id="episodeCount">1/1</span>
-      </button>
-    </div>
-    <div class="bot">
-      <div class="transport-row" aria-label="Điều khiển phát">
-        <button class="pb episode-step" id="prevEp" aria-label="Tập trước" title="Tập trước">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h2v14H5zM20 5 9 12l11 7z"/></svg>
-        </button>
-        <button class="pb skip-btn" id="rew10" aria-label="Tua lùi 10 giây" title="Tua lùi 10 giây">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 5 11l4 4M5.5 11H13a6 6 0 1 1-5.7 6"/></svg><span class="skip-ten">10</span>
-        </button>
-        <button class="btn" id="pp">Tạm dừng</button>
-        <button class="pb skip-btn" id="fwd10" aria-label="Tua tới 10 giây" title="Tua tới 10 giây">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 7 4 4-4 4m3.5-4H11a6 6 0 1 0 5.7 6"/></svg><span class="skip-ten">10</span>
-        </button>
-        <button class="pb episode-step" id="nextEp" aria-label="Tập tiếp theo" title="Tập tiếp theo">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 5h2v14h-2zM4 5l11 7-11 7z"/></svg>
-        </button>
-      </div>
-      <div class="timeline-row">
-        <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Thanh tiến trình">
-        <button class="btn" id="fs" aria-label="Toàn màn hình">Toàn màn hình</button>
-      </div>
-    </div>
-  </div>
-  <div class="episode-panel" id="episodePanel" aria-label="Danh sách tập" aria-hidden="true">
-    <div class="episode-head">
-      <div><b>Danh sách tập</b><small id="episodeSubtitle">Chọn tập muốn xem</small></div>
-      <button class="episode-close" id="episodePanelClose" aria-label="Đóng danh sách tập">✕</button>
-    </div>
-    <div class="episode-list" id="episodeList"></div>
+    <div class="top"><button class="rb" id="pc" aria-label="Đóng">✕</button><b id="pt"></b></div>
+    <div class="bot"><button class="btn" id="pp">Tạm dừng</button><input type="range" id="seek" min="0" max="1000" value="0"><button class="btn" id="fs">Toàn màn hình</button></div>
   </div>
   <div class="toast" id="toast"></div>
 </div>
@@ -1172,7 +1240,58 @@ async function openCategory(rowIdx){
   catView.addEventListener("touchcancel",endCatTouch,{passive:true});
 })();
 
-let LIB=null,libFilter="all";
+let LIB=null,libFilter="all",libStatusFilter="all";
+const LIBRARY_KEY="cg_personal_library_v1";
+const LIBRARY_STATUSES={watchlist:"Muốn xem",watching:"Đang xem",watched:"Đã xem"};
+function libraryEntries(){return store.get(LIBRARY_KEY,[]).filter(x=>x&&x.key)}
+function libraryKey(meta){
+  if(meta.type==="provider")return `provider:${meta.providerId}:${meta.slug}`;
+  return `tmdb:${meta.type}:${meta.id}`;
+}
+function saveLibraryMeta(meta,patch={}){
+  const items=libraryEntries(),key=libraryKey(meta),at=items.findIndex(x=>x.key===key),old=at>=0?items[at]:{};
+  const next={...old,...meta,...patch,key,createdAt:old.createdAt||Date.now(),updatedAt:Date.now()};
+  if(at>=0)items[at]=next;else items.unshift(next);
+  store.set(LIBRARY_KEY,items);
+  return next;
+}
+function removeLibraryEntry(key){store.set(LIBRARY_KEY,libraryEntries().filter(x=>x.key!==key))}
+function findLibraryEntry(meta){const key=libraryKey(meta);return libraryEntries().find(x=>x.key===key)||null}
+function tmdbLibraryMeta(m,type,id){
+  return {type,id:String(id),title:ttl(m),originalTitle:m.original_title||m.original_name||"",poster:poster(m,"w500"),backdrop:m.backdrop_path?IMG+"w780"+m.backdrop_path:poster(m,"w500"),year:(m.release_date||m.first_air_date||"").slice(0,4),overview:m.overview||"",rating:m.vote_average||0};
+}
+function providerLibraryMeta(det,providerId,slug){
+  return {type:"provider",providerId,slug,title:det.title||"Phim",originalTitle:det.originTitle||"",poster:det.thumb||det.backdrop||"",backdrop:det.backdrop||det.thumb||"",year:det.year||"",overview:det.overview||"",rating:0};
+}
+function mountLibraryControls(meta){
+  const host=$("#libraryControls");if(!host)return;
+  const entry=findLibraryEntry(meta);
+  host.innerHTML=`<div class="lib-detail-row"><label for="libDetailStatus">Thư viện cá nhân</label><select id="libDetailStatus" aria-label="Trạng thái phim"><option value="">Chưa lưu trạng thái</option><option value="watchlist">📌 Muốn xem</option><option value="watching">▶ Đang xem</option><option value="watched">✓ Đã xem</option></select><button class="lib-fav-btn" id="libDetailFav" type="button">♡ Yêu thích</button>${entry?'<button class="lib-remove-btn" id="libDetailRemove" type="button">Xoá</button>':''}</div><div class="lib-detail-hint" id="libDetailHint">Trạng thái và yêu thích được lưu riêng trên thiết bị này.</div>`;
+  const status=$("#libDetailStatus"),fav=$("#libDetailFav"),hint=$("#libDetailHint");
+  status.value=entry?.status||"";
+  fav.classList.toggle("on",!!entry?.favorite);fav.textContent=entry?.favorite?"♥ Đã yêu thích":"♡ Yêu thích";
+  status.onchange=()=>{
+    if(!status.value){
+      const current=findLibraryEntry(meta);
+      if(current){if(current.favorite)saveLibraryMeta(meta,{...current,status:""});else removeLibraryEntry(current.key)}
+    }else saveLibraryMeta(meta,{status:status.value});
+    mountLibraryControls(meta);
+    if($("#personalLibrary"))renderPersonalLibrary();
+  };
+  fav.onclick=()=>{
+    const current=findLibraryEntry(meta);
+    const next=saveLibraryMeta(meta,{status:current?.status||"",favorite:!current?.favorite});
+    if(!next.favorite&&!next.status)removeLibraryEntry(next.key);
+    mountLibraryControls(meta);
+    if($("#personalLibrary"))renderPersonalLibrary();
+  };
+  const rm=$("#libDetailRemove");if(rm)rm.onclick=()=>{removeLibraryEntry(entry.key);mountLibraryControls(meta);if($("#personalLibrary"))renderPersonalLibrary()};
+}
+function libraryEntryCardHTML(item){
+  const badge=item.favorite?"♥ Yêu thích":(LIBRARY_STATUSES[item.status]||"Đã lưu");
+  const subtitle=[item.year,item.type==="tv"?"TV Series":item.type==="provider"?"Nguồn phim":"Movie"].filter(Boolean).join(" · ");
+  return `<article class="lib-item"><button class="lib-item-open" data-library-open="${esc(item.key)}" type="button"><span class="lib-item-poster"><img loading="lazy" decoding="async" src="${esc(item.poster||item.backdrop||"")}" alt="" onerror="this.style.opacity='.15'"><span class="lib-item-badge">${esc(badge)}</span>${item.favorite?'<span class="lib-item-fav">♥</span>':''}</span><span class="lib-item-copy"><b>${esc(item.title)}</b><small>${esc(subtitle||"CineGlass Collection")}</small></span></button><button class="lib-item-remove" data-library-remove="${esc(item.key)}" type="button" aria-label="Xoá khỏi thư viện" title="Xoá khỏi thư viện">✕</button></article>`;
+}
 async function loadLib(){
   if(LIB&&LIB.length)return LIB;
   const cached=store.get("cg_lib_cache",[]);
@@ -1183,22 +1302,88 @@ async function loadLib(){
   if(items.length){LIB=items;store.set("cg_lib_cache",items)}
   return LIB||[];
 }
+function renderLibrarySourceCatalog(){
+  const lt=$("#page #libTabs");if(!lt)return;
+  lt.innerHTML=[["all","Tất cả nguồn"],...PROVIDERS.map(p=>[p.id,p.name])].map(([id,name])=>`<button class="chip ${libFilter===id?"on":""}" data-lf="${id}" type="button">${esc(name)}</button>`).join("");
+  lt.onclick=e=>{const b=e.target.closest("[data-lf]");if(!b)return;libFilter=b.dataset.lf;[...lt.children].forEach(c=>c.classList.toggle("on",c===b));renderLibGrid()};
+  renderLibGrid();
+}
 function renderLibGrid(){
-  const g=$("#page #libGrid");if(!g||!LIB)return;
-  const list=libFilter==="all"?LIB:LIB.filter(x=>x.providerId===libFilter);
-  g.innerHTML=list.map(m=>provCardHTML(m)).join("")||'<div class="empty">Không có phim</div>';
+  const g=$("#page #libGrid");if(!g)return;
+  const list=libFilter==="all"?(LIB||[]):(LIB||[]).filter(x=>x.providerId===libFilter);
+  g.innerHTML=list.map(m=>provCardHTML(m)).join("")||'<div class="empty">Nguồn này chưa có dữ liệu.</div>';
+}
+function renderPersonalLibrary(){
+  const root=$("#page #personalLibrary");if(!root)return;
+  const all=libraryEntries().sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
+  const filtered=all.filter(x=>{
+    if(libStatusFilter==="favorite")return !!x.favorite;
+    if(libStatusFilter==="all")return true;
+    return x.status===libStatusFilter;
+  });
+  const filterLabels=[["all","Tất cả"],["favorite","♥ Yêu thích"],["watchlist","Muốn xem"],["watching","Đang xem"],["watched","Đã xem"]];
+  const filters=filterLabels.map(([id,label])=>`<button class="lib-filter ${libStatusFilter===id?"on":""}" data-lib-filter="${id}" type="button">${label}</button>`).join("");
+  const grid=filtered.length?filtered.map(libraryEntryCardHTML).join(""):`<div class="lib-empty" style="grid-column:1/-1">${all.length?"Chưa có phim trong mục này.":"Bộ sưu tập của cậu đang trống. Mở một bộ phim bất kỳ rồi chọn Muốn xem hoặc Yêu thích để lưu tại đây nhé."}</div>`;
+  const watching=all.filter(x=>x.status==="watching").length,watched=all.filter(x=>x.status==="watched").length,favs=all.filter(x=>x.favorite).length;
+  const recent=store.get("seen",[]).slice(0,5);
+  const recentHTML=recent.length?recent.map(x=>`<button class="lib-recent" data-recent-open="${esc(x.type)}:${esc(x.id)}" type="button"><span class="lib-recent-icon">${x.type==="tv"?"TV":"▶"}</span><span style="min-width:0"><b>${esc(x.title||"Phim chưa rõ tên")}</b><small>${x.type==="tv"?"Phim bộ":"Phim điện ảnh"}</small></span></button>`).join(""):'<div class="lib-muted">Phim cậu mở gần đây sẽ xuất hiện ở đây.</div>';
+  const hero=all.find(x=>x.status==="watching")||all[0];
+  const heroHTML=hero?`<button class="lib-hero" data-library-open="${esc(hero.key)}" type="button" style="--lib-cover:url(&quot;${esc(hero.backdrop||hero.poster||"")}&quot;)"><div class="lib-hero-copy"><span class="lib-hero-eyebrow">✦ Bộ sưu tập của bạn</span><h2>${esc(hero.title)}</h2><div class="lib-hero-meta"><span>${esc(hero.year||"")}</span><span>·</span><span>${esc(LIBRARY_STATUSES[hero.status]||"Đã lưu")}</span>${hero.rating?`<span>· ★ ${Number(hero.rating).toFixed(1)}</span>`:""}</div><p>${esc(hero.overview||"Bộ phim đang nằm trong thư viện cá nhân của cậu.")}</p><span class="lib-hero-actions"><span class="btn">Mở chi tiết <span aria-hidden="true">→</span></span><span class="btn g">${hero.favorite?"♥ Đã yêu thích":"♡ Thư viện cá nhân"}</span></span></div></button>`:`<div class="lib-hero lib-hero-empty"><div class="lib-hero-copy"><span class="lib-hero-eyebrow">✦ Your personal movie space</span><h2>Bộ sưu tập của riêng cậu</h2><p>Lưu phim muốn xem, đánh dấu phim yêu thích và theo dõi hành trình xem phim của mình — tất cả được lưu riêng trên thiết bị này.</p><div class="lib-hero-actions"><button class="btn" id="libStartDiscover" type="button">Khám phá phim</button><button class="btn g" id="libStartSearch" type="button">Tìm kiếm phim</button></div></div></div>`;
+  root.innerHTML=`<div class="lib-layout"><aside class="lib-sidebar"><section><div class="lib-block-title"><span>✦ Tổng quan</span><small>COLLECTION</small></div><div class="lib-stat-grid"><div class="lib-stat"><b>${all.length}</b><span>Phim đã lưu</span></div><div class="lib-stat"><b>${watching}</b><span>Đang xem</span></div><div class="lib-stat"><b>${watched}</b><span>Đã xem</span></div><div class="lib-stat"><b>${favs}</b><span>Yêu thích</span></div></div></section><section><div class="lib-block-title"><span>◷ Xem gần đây</span><small>${recent.length} PHIM</small></div><div class="lib-recent-list">${recentHTML}</div></section><section><div class="lib-block-title"><span>⌁ Dữ liệu cá nhân</span></div><div class="lib-muted">Bộ sưu tập lưu bằng LocalStorage trên trình duyệt này. Xuất JSON để sao lưu danh sách phim đã lưu và nhập lại khi cần.</div><div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap"><button class="btn g" id="libExport" type="button">Xuất JSON</button><button class="btn g" id="libImportBtn" type="button">Nhập JSON</button><input id="libImportFile" type="file" accept="application/json,.json" hidden></div></section></aside><main class="lib-main"><section>${heroHTML}</section><section class="lib-section lib-continue">${contRow()||'<div class="lib-empty">Chưa có tiến trình xem. Khi bắt đầu xem phim, cậu có thể tiếp tục ngay tại đây.</div>'}</section><section class="lib-section"><div class="lib-section-head"><div><h2>Bộ sưu tập của mình</h2><p>Những bộ phim cậu đã chủ động lưu lại</p></div><span class="lib-inline-count">${filtered.length} / ${all.length} phim</span></div><div class="lib-filter-row">${filters}</div><div class="lib-saved-grid">${grid}</div></section><section class="lib-section"><div class="lib-section-head"><div><h2>Có thể cậu sẽ thích</h2><p>Gợi ý dựa trên lịch sử khám phá</p></div></div><div id="libSuggestions" class="scroller"><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div></section><section class="lib-source-catalog"><div class="lib-section-head"><div><h2>Khám phá từ các nguồn</h2><p>Danh sách phim mới từ những nguồn dữ liệu đang cấu hình</p></div></div><div class="chips" id="libTabs"></div><div class="grid" id="libGrid"><div class="sp"><i></i></div></div></section></main></div>`;
+  root.querySelectorAll("[data-lib-filter]").forEach(b=>b.classList.toggle("on",b.dataset.libFilter===libStatusFilter));
+  const filterRow=root.querySelector(".lib-filter-row");if(filterRow)filterRow.onclick=e=>{const b=e.target.closest("[data-lib-filter]");if(!b)return;libStatusFilter=b.dataset.libFilter;renderPersonalLibrary()};
+  $("#libStartDiscover")?.addEventListener("click",()=>go("home"));
+  $("#libStartSearch")?.addEventListener("click",()=>go("search"));
+  $("#libExport")?.addEventListener("click",exportPersonalLibrary);
+  $("#libImportBtn")?.addEventListener("click",()=>$("#libImportFile")?.click());
+  $("#libImportFile")?.addEventListener("change",importPersonalLibrary);
+  if(LIB)renderLibrarySourceCatalog();
+  loadLibrarySuggestions();
+}
+function exportPersonalLibrary(){
+  const payload={app:"CineGlass",version:1,exportedAt:new Date().toISOString(),library:libraryEntries()};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="CineGlass_Library_Backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Đã xuất bản sao thư viện");
+}
+async function importPersonalLibrary(e){
+  const file=e.target.files?.[0];if(!file)return;
+  try{
+    const data=JSON.parse(await file.text()),incoming=Array.isArray(data)?data:data.library;
+    if(!Array.isArray(incoming))throw new Error("invalid");
+    const merged=new Map(libraryEntries().map(x=>[x.key,x]));
+    incoming.filter(x=>x&&x.key&&x.title).forEach(x=>merged.set(x.key,x));
+    store.set(LIBRARY_KEY,[...merged.values()]);
+    renderPersonalLibrary();toast(`Đã nhập ${incoming.length} mục vào thư viện`);
+  }catch{alert("File sao lưu không đúng định dạng CineGlass.")}
+  e.target.value="";
+}
+async function loadLibrarySuggestions(){
+  const host=$("#page #libSuggestions");if(!host||!cfg.tmdb)return;
+  try{
+    const recent=store.get("seen",[]),seed=recent[0];
+    let items=[];
+    if(seed){const d=await tmdb(`/${seed.type}/${seed.id}/recommendations`,{page:1});items=(d.results||[]).map(x=>({...x,media_type:seed.type}));}
+    if(!items.length){const d=await tmdb("/trending/movie/week",{page:1});items=d.results||[];}
+    if(tab!=="lib"||!$("#page #libSuggestions"))return;
+    const saved=new Set(libraryEntries().filter(x=>x.type!=="provider").map(x=>String(x.id)));
+    items=items.filter(x=>x.poster_path&&!saved.has(String(x.id))).slice(0,12);
+    host.innerHTML=items.length?items.map((x,i)=>cardHTML(x,i,false)).join(""):'<div class="lib-muted">Chưa có gợi ý phù hợp. Cậu có thể khám phá thêm ở trang chủ.</div>';
+    if(items.length)queueStreamCheck(host);
+  }catch{const host2=$("#page #libSuggestions");if(host2)host2.innerHTML='<div class="lib-muted">Không tải được gợi ý lúc này.</div>'}
+}
+function openLibraryEntry(entry){
+  if(!entry)return;
+  if(entry.type==="provider")openProviderDetail(entry.providerId,entry.slug,entry.title,entry.poster||entry.backdrop);
+  else openDetail(entry.type||"movie",entry.id,false);
 }
 async function pLib(){
-  $("#page").innerHTML=`<h1>Thư viện</h1><div class="note" style="margin-top:-8px">Kho phim đa nguồn tốc độ cao (KKPhim CDN, Phim Việt, Phim Bộ, Anime & NguonC) – Phát trực tiếp M3U8 sạch quảng cáo.</div>${contRow()}<div class="chips" id="libTabs"></div><div id="libWrap"><div class="sp"><i></i></div></div>`;
+  $("#page").innerHTML=`<div class="library-shell"><div class="lib-heading"><div><span class="lib-kicker">CINEGLASS · PRIVATE COLLECTION</span><h1>Thư viện</h1><p>Một góc phim của riêng cậu — lưu lại, sắp xếp và xem tiếp.</p></div><div class="lib-heading-actions"><button class="btn g" id="libHeaderSearch" type="button">⌕ Tìm phim</button></div></div><div id="personalLibrary"></div></div>`;
+  $("#libHeaderSearch")?.addEventListener("click",()=>go("search"));
+  renderPersonalLibrary();
   try{
-    await loadLib();if(tab!="lib")return;
-    const lt=$("#page #libTabs");
-    if(!lt)return;
-    lt.innerHTML=[["all","Tất cả"],...PROVIDERS.map(p=>[p.id,p.name])].map(([id,name])=>`<button class="chip ${libFilter===id?"on":""}" data-lf="${id}">${esc(name)}</button>`).join("");
-    lt.onclick=e=>{const b=e.target.closest("[data-lf]");if(!b)return;libFilter=b.dataset.lf;[...lt.children].forEach(c=>c.classList.toggle("on",c===b));renderLibGrid()};
-    $("#page #libWrap").innerHTML=`<h2>Tất cả phim</h2><div class="grid" id="libGrid"></div>`;
-    renderLibGrid();
-  }catch{const lw=$("#page #libWrap");if(lw)lw.innerHTML='<div class="empty">Không tải được thư viện</div>'}
+    await loadLib();if(tab!=="lib")return;
+    renderLibrarySourceCatalog();
+  }catch{const g=$("#page #libGrid");if(g)g.innerHTML='<div class="lib-muted">Không tải được danh sách nguồn phim.</div>'}
 }
 
 let st;
@@ -1522,9 +1707,11 @@ async function openProviderDetail(providerId,slug,fallbackTitle="",fallbackThumb
     <div class="dt"><h3>${esc(det.title)}</h3>
     <div class="meta"><span class="rate">⚡ ${esc((PROVIDERS.find(p=>p.id===providerId)||PROVIDERS[0]).name)}</span><span>${esc(det.originTitle)}</span><span>${esc(det.year)}</span></div>
     <div class="acts"><button class="btn" id="playStreamBtn">🎬 Xem phim</button></div>
+    <div id="libraryControls" class="lib-detail-controls"></div>
     <div id="streamBox"></div>
     <p>${esc((det.overview||"Phát trực tiếp tốc độ cao từ hệ thống CDN đa nguồn.").replace(/<[^>]*>/g,""))}</p>
     </div>`;
+    mountLibraryControls(providerLibraryMeta(det,providerId,slug));
     renderStreamBox(det,sIdx,eIdx);
   }catch{
     $("#sc").innerHTML=`<div class="empty">Không tải được chi tiết nguồn phim.</div>`;
@@ -1545,10 +1732,12 @@ async function openDetail(type,id,auto){
     $("#sc").innerHTML=`<div class="bk"><img src="${bdrop}" alt=""></div><div class="dt"><h3>${esc(ttl(m))}</h3>
     <div class="meta"><span class="rate">★ ${(m.vote_average||0).toFixed(1)} TMDB</span><span id="imdb"></span><span>${(m.release_date||m.first_air_date||"").slice(0,4)}</span><span>${rt}</span><span>${(m.genres||[]).map(g=>esc(g.name)).join(", ")}</span></div>
     <div class="acts" id="dtActs"><button class="btn" id="playStreamBtn">⏳ Đang dò nguồn…</button>${tr?`<button class="btn g" id="tb">▶ Xem trailer</button>`:""}</div>
+    <div id="libraryControls" class="lib-detail-controls"></div>
     <div id="trw"></div>
     <div id="streamBox"><div class="note" style="margin:0 0 8px">⚡ Đang nạp luồng M3U8 sạch quảng cáo...</div></div>
     <p>${esc(m.overview||"Chưa có mô tả tiếng Việt.")}</p>
     ${recs.length?`<div class="sec-hd" style="margin-left:0;margin-right:0"><h2>Tương tự</h2><button class="more-link" data-more="3">Xem thêm <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div><div class="scroller" style="margin:0 -20px" id="recScroller">${recs.slice(0,14).map(x=>cardHTML({...x,media_type:type})).join("")}${moreCardHTML(3)}</div>`:""}</div>`;
+    mountLibraryControls(tmdbLibraryMeta(m,type,id));
     const recSc=$("#recScroller");if(recSc)queueStreamCheck(recSc);
     const yk=type+":"+id,old=store.get("ytprog",{})[yk];
     if(old&&old.t>10&&old.t<old.d-15&&$("#tb"))$("#tb").textContent="▶ Xem tiếp trailer ("+fmt(old.t)+")";
@@ -1576,6 +1765,9 @@ async function openDetail(type,id,auto){
 }
 
 document.addEventListener("click",e=>{
+  const rm=e.target.closest("[data-library-remove]");if(rm){e.stopPropagation();removeLibraryEntry(rm.dataset.libraryRemove);renderPersonalLibrary();toast("Đã xoá khỏi thư viện");return}
+  const lib=e.target.closest("[data-library-open]");if(lib){const item=libraryEntries().find(x=>x.key===lib.dataset.libraryOpen);openLibraryEntry(item);return}
+  const recent=e.target.closest("[data-recent-open]");if(recent){const [type,id]=recent.dataset.recentOpen.split(":");openDetail(type,id,false);return}
   const mr=e.target.closest("[data-more]");if(mr){if(sheetEl.classList.contains("show"))closeSheet("down");openCategory(+mr.dataset.more);return}
   const pc=e.target.closest("[data-prov]");if(pc){openProviderDetail(pc.dataset.prov,pc.dataset.slug,pc.dataset.title,pc.dataset.thumb);return}
   const c=e.target.closest(".card[data-id],.hero[data-id]");if(c){openDetail(c.dataset.t,c.dataset.id);return}
@@ -1693,17 +1885,16 @@ async function loadItem(){
   $("#pt").textContent=`${it.title}${it.epName?" · Tập "+it.epName:""}`;
   toast("Đang nạp luồng siêu tốc…",4000);
   const pr=store.get("prog",{})[it.identifier];
-  const resumeSec=(pr&&pr.eIdx===it.eIdx&&pr.sIdx===it.sIdx&&pr.t>10)?pr.t:(it.resumeTime||0);
+  const resumeSec=it.resumeTime||((pr&&pr.eIdx===it.eIdx&&pr.sIdx===it.sIdx&&pr.t>10)?pr.t:0);
 
   if(list[idx+1]?.m3u8)setTimeout(()=>getCleanM3u8BlobUrl(list[idx+1].m3u8),2000);
 
-  if(!it.m3u8&&it.embed){
+  if(playerMode==="embed"||(!it.m3u8&&it.embed)){
     startEmbedInPlayer(it);
     save();
     return;
   }
 
-  playerMode="m3u8";
   P.classList.remove("embed-mode");
   EMB.src="about:blank";EMB.style.display="none";
   V.style.display="block";
@@ -2041,182 +2232,6 @@ addEventListener("orientationchange",applyRot);
 const closeOrig=closePlayer;
 closePlayer=function(dir="down"){exitFS();closeOrig(dir)};
 })();
-/* CineGlass Smart Player Controls styles */
-(()=>{const s=document.createElement("style");s.textContent=`
-/* Smart Player controls */
-#player .top{gap:10px}
-#player .top b{min-width:0}
-#player .ep-picker-btn{width:auto;min-width:68px;padding:0 10px;gap:6px;border-radius:22px;font-size:12px;font-weight:800}
-#player .ep-picker-btn svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
-#player .bot{display:flex;flex-direction:column;align-items:stretch;gap:9px;width:min(760px,100%);margin:0 auto;padding:10px 12px;border-radius:24px;background:rgba(28,28,32,.52);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.35),inset 0 -1px 1px rgba(255,255,255,.1),0 10px 30px rgba(0,0,0,.45)}
-#player .transport-row{display:flex;justify-content:center;align-items:center;gap:clamp(6px,2vw,14px)}
-#player .transport-row .pb{width:44px;height:44px}
-#player .transport-row #pp{width:50px;height:50px}
-#player .transport-row .skip-btn{width:54px;height:44px;position:relative;border-radius:15px}
-#player .skip-btn svg{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-#player .skip-btn .skip-ten{position:absolute;right:8px;top:7px;font-size:9px;font-weight:900;line-height:1;color:#fff;text-shadow:0 1px 3px #000}
-#player .episode-step svg{width:21px;height:21px}
-#player .timeline-row{display:flex;align-items:center;gap:8px;min-width:0}
-#player .timeline-row #seek{flex:1;min-width:40px}
-#player .timeline-row #fs{width:42px;height:42px;padding:0;border-radius:50%}
-#player .tm{min-width:38px;font-size:11px}
-#player .transport-row button:disabled,#player .ep-picker-btn:disabled{opacity:.32;cursor:not-allowed;transform:none}
-#player .episode-panel{position:absolute;z-index:18;right:20px;bottom:calc(var(--sab) + 142px);width:min(390px,calc(100vw - 32px));max-height:min(56vh,480px);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.22);border-radius:24px;background:rgba(25,23,31,.78);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);box-shadow:0 18px 54px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.22);opacity:0;visibility:hidden;transform:translateY(10px) scale(.98);pointer-events:none;transition:opacity .2s ease,transform .25s var(--spring),visibility .2s}
-#player .episode-panel.show{opacity:1;visibility:visible;transform:translateY(0) scale(1);pointer-events:auto}
-#player.idle .episode-panel{opacity:0;visibility:hidden;pointer-events:none}
-#player .episode-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.12);color:#fff}
-#player .episode-head b{display:block;font-size:14px}
-#player .episode-head small{display:block;margin-top:3px;max-width:290px;color:rgba(255,255,255,.62);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#player .episode-close{width:30px;height:30px;flex:none;border-radius:50%;background:rgba(255,255,255,.13);color:#fff}
-#player .episode-list{overflow:auto;padding:8px;overscroll-behavior:contain}
-#player .episode-option{width:100%;display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:13px;color:#fff;text-align:left;background:transparent;transition:background .16s ease,transform .2s var(--spring)}
-#player .episode-option:active{transform:scale(.98)}
-#player .episode-option.active{background:rgba(255,55,95,.22);box-shadow:inset 0 0 0 1px rgba(255,80,120,.36)}
-#player .episode-option-number{width:30px;height:30px;display:grid;place-items:center;flex:none;border-radius:9px;background:rgba(255,255,255,.1);font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
-#player .episode-option.active .episode-option-number{background:var(--accent-grad);color:#fff}
-#player .episode-option-name{flex:1;min-width:0;font-size:13px;font-weight:650}
-#player .episode-playing{font-size:10px;color:#ff9aae;font-weight:800;white-space:nowrap}
-#player .episode-empty{padding:22px 12px;text-align:center;color:rgba(255,255,255,.68);font-size:13px}
-@media(max-width:480px){
-  #player .ctl{padding-left:12px;padding-right:12px}
-  #player .transport-row{gap:6px}
-  #player .transport-row .pb{width:39px;height:39px}
-  #player .transport-row #pp{width:46px;height:46px}
-  #player .transport-row .skip-btn{width:47px;height:39px}
-  #player .skip-btn .skip-ten{right:6px;top:5px}
-  #player .bot{padding:8px;border-radius:20px}
-  #player .tm{min-width:34px;font-size:10px}
-  #player .episode-panel{right:12px;bottom:calc(var(--sab) + 132px);width:calc(100vw - 24px);max-height:52vh}
-}
-`;document.head.appendChild(s)})();
-
-
-/* ===== CineGlass Smart Player Controls: seek ±10s, prev/next episode, in-player episode picker ===== */
-(()=>{
-  const epPanel=$("#episodePanel"),epListEl=$("#episodeList"),epOpen=$("#episodePickerBtn"),epClose=$("#episodePanelClose");
-  const prevBtn=$("#prevEp"),nextBtn=$("#nextEp"),rewBtn=$("#rew10"),fwdBtn=$("#fwd10");
-  if(!epPanel||!epListEl||!epOpen||!prevBtn||!nextBtn||!rewBtn||!fwdBtn)return;
-
-  const canSeekCurrent=()=>{
-    const it=list[idx];
-    return !!(it&&it.m3u8&&playerMode==="m3u8");
-  };
-
-  function renderEpisodeList(){
-    const total=list.length;
-    const current=list[idx];
-    $("#episodeCount").textContent=total?`${idx+1}/${total}`:"0/0";
-    $("#episodeSubtitle").textContent=current?`${esc(current.title||"Phim")} · ${total} tập trong server này`:"Chưa có danh sách tập";
-    prevBtn.disabled=idx<=0;
-    nextBtn.disabled=idx>=total-1;
-    epOpen.disabled=total<=1;
-    rewBtn.disabled=!canSeekCurrent();
-    fwdBtn.disabled=!canSeekCurrent();
-    epListEl.innerHTML=total?list.map((it,i)=>{
-      const label=it.epName?`Tập ${it.epName}`:`Tập ${i+1}`;
-      return `<button class="episode-option${i===idx?" active":""}" data-episode-index="${i}" ${i===idx?'aria-current="true"':''}>
-        <span class="episode-option-number">${String(i+1).padStart(2,"0")}</span>
-        <span class="episode-option-name">${esc(label)}</span>
-        ${i===idx?'<span class="episode-playing">Đang phát</span>':''}
-      </button>`;
-    }).join(""):'<div class="episode-empty">Nguồn này chưa cung cấp danh sách tập.</div>';
-  }
-
-  function openEpisodePanel(){
-    if(list.length<=1){toast("Nguồn này chỉ có một tập khả dụng.");return}
-    renderEpisodeList();
-    epPanel.classList.add("show");
-    epPanel.setAttribute("aria-hidden","false");
-    wake();
-    requestAnimationFrame(()=>{
-      const active=epListEl.querySelector(".episode-option.active");
-      active?.scrollIntoView({block:"nearest"});
-    });
-  }
-
-  function closeEpisodePanel(){
-    epPanel.classList.remove("show");
-    epPanel.setAttribute("aria-hidden","true");
-  }
-
-  function switchEpisode(targetIndex){
-    if(!Number.isInteger(targetIndex)||targetIndex<0||targetIndex>=list.length||targetIndex===idx)return;
-    save();
-    idx=targetIndex;
-    closeEpisodePanel();
-    const seek=$("#seek");if(seek)seek.value="0";
-    const title=$("#pt");if(title&&list[idx])title.textContent=`${list[idx].title}${list[idx].epName?" · Tập "+list[idx].epName:""}`;
-    renderEpisodeList();
-    loadItem().catch(err=>{console.error(err);toast("Không thể tải tập này. Hãy thử lại.")});
-    wake();
-  }
-
-  function seekBy(delta){
-    if(!canSeekCurrent()){
-      toast("Nguồn nhúng không hỗ trợ tua từ CineGlass. Hãy dùng điều khiển của player nguồn.");
-      return;
-    }
-    const duration=V.duration;
-    if(!Number.isFinite(duration)||duration<=0){
-      toast("Video chưa sẵn sàng để tua.");
-      return;
-    }
-    const target=Math.max(0,Math.min(duration,(V.currentTime||0)+delta));
-    try{
-      V.currentTime=target;
-      toast(`${delta>0?"Tua tới":"Tua lùi"} ${Math.abs(delta)} giây · ${fmt(target)}`,1400);
-    }catch{
-      toast("Nguồn video hiện không cho phép tua.");
-    }
-    wake();
-  }
-
-  const originalLoadItem=loadItem;
-  loadItem=async function(){
-    renderEpisodeList();
-    await originalLoadItem();
-    renderEpisodeList();
-  };
-
-  const originalHideControls=hideControls;
-  hideControls=function(){closeEpisodePanel();originalHideControls()};
-
-  epOpen.addEventListener("click",e=>{e.stopPropagation();epPanel.classList.contains("show")?closeEpisodePanel():openEpisodePanel()});
-  epClose?.addEventListener("click",e=>{e.stopPropagation();closeEpisodePanel();wake()});
-  prevBtn.addEventListener("click",e=>{e.stopPropagation();switchEpisode(idx-1)});
-  nextBtn.addEventListener("click",e=>{e.stopPropagation();switchEpisode(idx+1)});
-  rewBtn.addEventListener("click",e=>{e.stopPropagation();seekBy(-10)});
-  fwdBtn.addEventListener("click",e=>{e.stopPropagation();seekBy(10)});
-  epListEl.addEventListener("click",e=>{
-    const button=e.target.closest("[data-episode-index]");
-    if(button)switchEpisode(Number(button.dataset.episodeIndex));
-  });
-
-  document.addEventListener("keydown",e=>{
-    if(!P.classList.contains("show"))return;
-    const target=e.target;
-    if(target&&target.closest&&target.closest("input,textarea,select,[contenteditable='true']"))return;
-    if(e.key==="ArrowLeft"){
-      if(canSeekCurrent()){e.preventDefault();seekBy(-10)}
-    }else if(e.key==="ArrowRight"){
-      if(canSeekCurrent()){e.preventDefault();seekBy(10)}
-    }else if(e.key.toLowerCase()==="n"){
-      e.preventDefault();switchEpisode(idx+1);
-    }else if(e.key.toLowerCase()==="p"){
-      e.preventDefault();switchEpisode(idx-1);
-    }
-  });
-
-  P.addEventListener("click",e=>{
-    if(!epPanel.classList.contains("show"))return;
-    if(e.target===P||e.target===V||e.target===EMB)closeEpisodePanel();
-  });
-
-  V.addEventListener("loadedmetadata",renderEpisodeList);
-  V.addEventListener("durationchange",renderEpisodeList);
-  renderEpisodeList();
-})();
-
 </script>
 </body>
 </html>
