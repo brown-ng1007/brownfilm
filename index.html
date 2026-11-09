@@ -349,8 +349,42 @@ h2{font-size:21px;letter-spacing:-.4px;margin:26px 20px 10px;font-weight:700}
   <video id="v" playsinline webkit-playsinline preload="auto"></video>
   <iframe id="emb" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>
   <div class="ctl" id="ctl">
-    <div class="top"><button class="rb" id="pc" aria-label="Đóng">✕</button><b id="pt"></b></div>
-    <div class="bot"><button class="btn" id="pp">Tạm dừng</button><input type="range" id="seek" min="0" max="1000" value="0"><button class="btn" id="fs">Toàn màn hình</button></div>
+    <div class="top">
+      <button class="rb" id="pc" aria-label="Đóng">✕</button>
+      <b id="pt"></b>
+      <button class="rb ep-picker-btn" id="episodePickerBtn" aria-label="Mở danh sách tập" title="Danh sách tập">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>
+        <span id="episodeCount">1/1</span>
+      </button>
+    </div>
+    <div class="bot">
+      <div class="transport-row" aria-label="Điều khiển phát">
+        <button class="pb episode-step" id="prevEp" aria-label="Tập trước" title="Tập trước">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h2v14H5zM20 5 9 12l11 7z"/></svg>
+        </button>
+        <button class="pb skip-btn" id="rew10" aria-label="Tua lùi 10 giây" title="Tua lùi 10 giây">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 5 11l4 4M5.5 11H13a6 6 0 1 1-5.7 6"/></svg><span class="skip-ten">10</span>
+        </button>
+        <button class="btn" id="pp">Tạm dừng</button>
+        <button class="pb skip-btn" id="fwd10" aria-label="Tua tới 10 giây" title="Tua tới 10 giây">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 7 4 4-4 4m3.5-4H11a6 6 0 1 0 5.7 6"/></svg><span class="skip-ten">10</span>
+        </button>
+        <button class="pb episode-step" id="nextEp" aria-label="Tập tiếp theo" title="Tập tiếp theo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 5h2v14h-2zM4 5l11 7-11 7z"/></svg>
+        </button>
+      </div>
+      <div class="timeline-row">
+        <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Thanh tiến trình">
+        <button class="btn" id="fs" aria-label="Toàn màn hình">Toàn màn hình</button>
+      </div>
+    </div>
+  </div>
+  <div class="episode-panel" id="episodePanel" aria-label="Danh sách tập" aria-hidden="true">
+    <div class="episode-head">
+      <div><b>Danh sách tập</b><small id="episodeSubtitle">Chọn tập muốn xem</small></div>
+      <button class="episode-close" id="episodePanelClose" aria-label="Đóng danh sách tập">✕</button>
+    </div>
+    <div class="episode-list" id="episodeList"></div>
   </div>
   <div class="toast" id="toast"></div>
 </div>
@@ -1659,16 +1693,17 @@ async function loadItem(){
   $("#pt").textContent=`${it.title}${it.epName?" · Tập "+it.epName:""}`;
   toast("Đang nạp luồng siêu tốc…",4000);
   const pr=store.get("prog",{})[it.identifier];
-  const resumeSec=it.resumeTime||((pr&&pr.eIdx===it.eIdx&&pr.sIdx===it.sIdx&&pr.t>10)?pr.t:0);
+  const resumeSec=(pr&&pr.eIdx===it.eIdx&&pr.sIdx===it.sIdx&&pr.t>10)?pr.t:(it.resumeTime||0);
 
   if(list[idx+1]?.m3u8)setTimeout(()=>getCleanM3u8BlobUrl(list[idx+1].m3u8),2000);
 
-  if(playerMode==="embed"||(!it.m3u8&&it.embed)){
+  if(!it.m3u8&&it.embed){
     startEmbedInPlayer(it);
     save();
     return;
   }
 
+  playerMode="m3u8";
   P.classList.remove("embed-mode");
   EMB.src="about:blank";EMB.style.display="none";
   V.style.display="block";
@@ -2006,6 +2041,182 @@ addEventListener("orientationchange",applyRot);
 const closeOrig=closePlayer;
 closePlayer=function(dir="down"){exitFS();closeOrig(dir)};
 })();
+/* CineGlass Smart Player Controls styles */
+(()=>{const s=document.createElement("style");s.textContent=`
+/* Smart Player controls */
+#player .top{gap:10px}
+#player .top b{min-width:0}
+#player .ep-picker-btn{width:auto;min-width:68px;padding:0 10px;gap:6px;border-radius:22px;font-size:12px;font-weight:800}
+#player .ep-picker-btn svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
+#player .bot{display:flex;flex-direction:column;align-items:stretch;gap:9px;width:min(760px,100%);margin:0 auto;padding:10px 12px;border-radius:24px;background:rgba(28,28,32,.52);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:inset 0 1.5px 1px rgba(255,255,255,.35),inset 0 -1px 1px rgba(255,255,255,.1),0 10px 30px rgba(0,0,0,.45)}
+#player .transport-row{display:flex;justify-content:center;align-items:center;gap:clamp(6px,2vw,14px)}
+#player .transport-row .pb{width:44px;height:44px}
+#player .transport-row #pp{width:50px;height:50px}
+#player .transport-row .skip-btn{width:54px;height:44px;position:relative;border-radius:15px}
+#player .skip-btn svg{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#player .skip-btn .skip-ten{position:absolute;right:8px;top:7px;font-size:9px;font-weight:900;line-height:1;color:#fff;text-shadow:0 1px 3px #000}
+#player .episode-step svg{width:21px;height:21px}
+#player .timeline-row{display:flex;align-items:center;gap:8px;min-width:0}
+#player .timeline-row #seek{flex:1;min-width:40px}
+#player .timeline-row #fs{width:42px;height:42px;padding:0;border-radius:50%}
+#player .tm{min-width:38px;font-size:11px}
+#player .transport-row button:disabled,#player .ep-picker-btn:disabled{opacity:.32;cursor:not-allowed;transform:none}
+#player .episode-panel{position:absolute;z-index:18;right:20px;bottom:calc(var(--sab) + 142px);width:min(390px,calc(100vw - 32px));max-height:min(56vh,480px);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.22);border-radius:24px;background:rgba(25,23,31,.78);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);box-shadow:0 18px 54px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.22);opacity:0;visibility:hidden;transform:translateY(10px) scale(.98);pointer-events:none;transition:opacity .2s ease,transform .25s var(--spring),visibility .2s}
+#player .episode-panel.show{opacity:1;visibility:visible;transform:translateY(0) scale(1);pointer-events:auto}
+#player.idle .episode-panel{opacity:0;visibility:hidden;pointer-events:none}
+#player .episode-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.12);color:#fff}
+#player .episode-head b{display:block;font-size:14px}
+#player .episode-head small{display:block;margin-top:3px;max-width:290px;color:rgba(255,255,255,.62);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#player .episode-close{width:30px;height:30px;flex:none;border-radius:50%;background:rgba(255,255,255,.13);color:#fff}
+#player .episode-list{overflow:auto;padding:8px;overscroll-behavior:contain}
+#player .episode-option{width:100%;display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:13px;color:#fff;text-align:left;background:transparent;transition:background .16s ease,transform .2s var(--spring)}
+#player .episode-option:active{transform:scale(.98)}
+#player .episode-option.active{background:rgba(255,55,95,.22);box-shadow:inset 0 0 0 1px rgba(255,80,120,.36)}
+#player .episode-option-number{width:30px;height:30px;display:grid;place-items:center;flex:none;border-radius:9px;background:rgba(255,255,255,.1);font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+#player .episode-option.active .episode-option-number{background:var(--accent-grad);color:#fff}
+#player .episode-option-name{flex:1;min-width:0;font-size:13px;font-weight:650}
+#player .episode-playing{font-size:10px;color:#ff9aae;font-weight:800;white-space:nowrap}
+#player .episode-empty{padding:22px 12px;text-align:center;color:rgba(255,255,255,.68);font-size:13px}
+@media(max-width:480px){
+  #player .ctl{padding-left:12px;padding-right:12px}
+  #player .transport-row{gap:6px}
+  #player .transport-row .pb{width:39px;height:39px}
+  #player .transport-row #pp{width:46px;height:46px}
+  #player .transport-row .skip-btn{width:47px;height:39px}
+  #player .skip-btn .skip-ten{right:6px;top:5px}
+  #player .bot{padding:8px;border-radius:20px}
+  #player .tm{min-width:34px;font-size:10px}
+  #player .episode-panel{right:12px;bottom:calc(var(--sab) + 132px);width:calc(100vw - 24px);max-height:52vh}
+}
+`;document.head.appendChild(s)})();
+
+
+/* ===== CineGlass Smart Player Controls: seek ±10s, prev/next episode, in-player episode picker ===== */
+(()=>{
+  const epPanel=$("#episodePanel"),epListEl=$("#episodeList"),epOpen=$("#episodePickerBtn"),epClose=$("#episodePanelClose");
+  const prevBtn=$("#prevEp"),nextBtn=$("#nextEp"),rewBtn=$("#rew10"),fwdBtn=$("#fwd10");
+  if(!epPanel||!epListEl||!epOpen||!prevBtn||!nextBtn||!rewBtn||!fwdBtn)return;
+
+  const canSeekCurrent=()=>{
+    const it=list[idx];
+    return !!(it&&it.m3u8&&playerMode==="m3u8");
+  };
+
+  function renderEpisodeList(){
+    const total=list.length;
+    const current=list[idx];
+    $("#episodeCount").textContent=total?`${idx+1}/${total}`:"0/0";
+    $("#episodeSubtitle").textContent=current?`${esc(current.title||"Phim")} · ${total} tập trong server này`:"Chưa có danh sách tập";
+    prevBtn.disabled=idx<=0;
+    nextBtn.disabled=idx>=total-1;
+    epOpen.disabled=total<=1;
+    rewBtn.disabled=!canSeekCurrent();
+    fwdBtn.disabled=!canSeekCurrent();
+    epListEl.innerHTML=total?list.map((it,i)=>{
+      const label=it.epName?`Tập ${it.epName}`:`Tập ${i+1}`;
+      return `<button class="episode-option${i===idx?" active":""}" data-episode-index="${i}" ${i===idx?'aria-current="true"':''}>
+        <span class="episode-option-number">${String(i+1).padStart(2,"0")}</span>
+        <span class="episode-option-name">${esc(label)}</span>
+        ${i===idx?'<span class="episode-playing">Đang phát</span>':''}
+      </button>`;
+    }).join(""):'<div class="episode-empty">Nguồn này chưa cung cấp danh sách tập.</div>';
+  }
+
+  function openEpisodePanel(){
+    if(list.length<=1){toast("Nguồn này chỉ có một tập khả dụng.");return}
+    renderEpisodeList();
+    epPanel.classList.add("show");
+    epPanel.setAttribute("aria-hidden","false");
+    wake();
+    requestAnimationFrame(()=>{
+      const active=epListEl.querySelector(".episode-option.active");
+      active?.scrollIntoView({block:"nearest"});
+    });
+  }
+
+  function closeEpisodePanel(){
+    epPanel.classList.remove("show");
+    epPanel.setAttribute("aria-hidden","true");
+  }
+
+  function switchEpisode(targetIndex){
+    if(!Number.isInteger(targetIndex)||targetIndex<0||targetIndex>=list.length||targetIndex===idx)return;
+    save();
+    idx=targetIndex;
+    closeEpisodePanel();
+    const seek=$("#seek");if(seek)seek.value="0";
+    const title=$("#pt");if(title&&list[idx])title.textContent=`${list[idx].title}${list[idx].epName?" · Tập "+list[idx].epName:""}`;
+    renderEpisodeList();
+    loadItem().catch(err=>{console.error(err);toast("Không thể tải tập này. Hãy thử lại.")});
+    wake();
+  }
+
+  function seekBy(delta){
+    if(!canSeekCurrent()){
+      toast("Nguồn nhúng không hỗ trợ tua từ CineGlass. Hãy dùng điều khiển của player nguồn.");
+      return;
+    }
+    const duration=V.duration;
+    if(!Number.isFinite(duration)||duration<=0){
+      toast("Video chưa sẵn sàng để tua.");
+      return;
+    }
+    const target=Math.max(0,Math.min(duration,(V.currentTime||0)+delta));
+    try{
+      V.currentTime=target;
+      toast(`${delta>0?"Tua tới":"Tua lùi"} ${Math.abs(delta)} giây · ${fmt(target)}`,1400);
+    }catch{
+      toast("Nguồn video hiện không cho phép tua.");
+    }
+    wake();
+  }
+
+  const originalLoadItem=loadItem;
+  loadItem=async function(){
+    renderEpisodeList();
+    await originalLoadItem();
+    renderEpisodeList();
+  };
+
+  const originalHideControls=hideControls;
+  hideControls=function(){closeEpisodePanel();originalHideControls()};
+
+  epOpen.addEventListener("click",e=>{e.stopPropagation();epPanel.classList.contains("show")?closeEpisodePanel():openEpisodePanel()});
+  epClose?.addEventListener("click",e=>{e.stopPropagation();closeEpisodePanel();wake()});
+  prevBtn.addEventListener("click",e=>{e.stopPropagation();switchEpisode(idx-1)});
+  nextBtn.addEventListener("click",e=>{e.stopPropagation();switchEpisode(idx+1)});
+  rewBtn.addEventListener("click",e=>{e.stopPropagation();seekBy(-10)});
+  fwdBtn.addEventListener("click",e=>{e.stopPropagation();seekBy(10)});
+  epListEl.addEventListener("click",e=>{
+    const button=e.target.closest("[data-episode-index]");
+    if(button)switchEpisode(Number(button.dataset.episodeIndex));
+  });
+
+  document.addEventListener("keydown",e=>{
+    if(!P.classList.contains("show"))return;
+    const target=e.target;
+    if(target&&target.closest&&target.closest("input,textarea,select,[contenteditable='true']"))return;
+    if(e.key==="ArrowLeft"){
+      if(canSeekCurrent()){e.preventDefault();seekBy(-10)}
+    }else if(e.key==="ArrowRight"){
+      if(canSeekCurrent()){e.preventDefault();seekBy(10)}
+    }else if(e.key.toLowerCase()==="n"){
+      e.preventDefault();switchEpisode(idx+1);
+    }else if(e.key.toLowerCase()==="p"){
+      e.preventDefault();switchEpisode(idx-1);
+    }
+  });
+
+  P.addEventListener("click",e=>{
+    if(!epPanel.classList.contains("show"))return;
+    if(e.target===P||e.target===V||e.target===EMB)closeEpisodePanel();
+  });
+
+  V.addEventListener("loadedmetadata",renderEpisodeList);
+  V.addEventListener("durationchange",renderEpisodeList);
+  renderEpisodeList();
+})();
+
 </script>
 </body>
 </html>
