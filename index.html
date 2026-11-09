@@ -1355,6 +1355,68 @@ body{height:100dvh;min-height:100dvh;overflow:hidden;padding:18px 0;}
   #page{padding-left:5px!important;padding-right:5px!important;}
 }
 
+
+
+/* =====================================================================
+   CineGlass 2.7 · Flush-bottom mobile dock
+   Fix: the previous body bottom padding created a gray chin below the dock.
+   The app window now reaches the viewport bottom; safe-area space is absorbed
+   INSIDE the frosted dock so it remains touch-safe without leaving an outer gap.
+   ===================================================================== */
+@media (max-width:760px){
+  html,body{
+    width:100%!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:100dvh!important;
+    overflow:hidden!important;
+  }
+  body{
+    /* Keep only the status-bar inset above the app; remove the bottom chin. */
+    padding:calc(var(--sat) + 4px) 0 0!important;
+    margin:0!important;
+    background:transparent!important;
+  }
+  .cg-app-window{
+    width:calc(100vw - 10px)!important;
+    height:calc(100dvh - var(--sat) - 4px)!important;
+    max-height:calc(100dvh - var(--sat) - 4px)!important;
+    min-height:0!important;
+    margin:0 auto!important;
+    padding:5px 5px 0!important;
+    border-radius:20px 20px 0 0!important;
+    overflow:hidden!important;
+  }
+  /* Dock is flush to the physical viewport edge. Its safe-area padding is
+     part of the glass surface rather than an empty gray strip below it. */
+  .cg-app-window > .cg-topbar{
+    left:5px!important;
+    right:5px!important;
+    bottom:0!important;
+    margin:0 auto!important;
+    padding:7px 8px calc(7px + var(--sab))!important;
+    border-radius:19px 19px 0 0!important;
+    box-shadow:0 -5px 22px rgba(64,79,101,.10),
+               0 0 0 1px rgba(255,255,255,.24),
+               inset 0 1px 0 rgba(255,255,255,.98)!important;
+  }
+  :root[data-theme=dark] .cg-app-window > .cg-topbar{
+    border-radius:19px 19px 0 0!important;
+    box-shadow:0 -5px 22px rgba(0,0,0,.22),
+               inset 0 1px 0 rgba(255,255,255,.18)!important;
+  }
+  #page{
+    height:auto!important;
+    flex:1 1 auto!important;
+    min-height:0!important;
+    padding-bottom:calc(104px + var(--sab))!important;
+    scroll-padding-bottom:calc(112px + var(--sab))!important;
+  }
+  #catOverlay{
+    bottom:calc(98px + var(--sab))!important;
+  }
+}
+
 </style>
 </head>
 <body>
