@@ -3394,13 +3394,14 @@ function pMe(){
   <div class="list"><div><span>TMDB key</span><input type="password" id="k1" placeholder="Dán khoá API" value="${esc(cfg.tmdb)}"></div><div><span>OMDb key</span><input type="password" id="k2" placeholder="Tuỳ chọn – điểm IMDb" value="${esc(cfg.omdb)}"></div></div>
   <p class="note">Lấy khoá miễn phí tại themoviedb.org/settings/api (TMDB) và omdbapi.com (điểm IMDb). Khoá chỉ lưu trên máy bạn.</p>
   <h2 style="font-size:14px;color:var(--sub);text-transform:uppercase;margin-bottom:6px">Đồng bộ iPhone & iPad</h2>
-  <p class="note">CineGlass đã tích hợp sẵn cấu hình Supabase của cậu. Không cần nhập URL hoặc key trên từng thiết bị. Dữ liệu được lưu cục bộ trước, sau đó đồng bộ qua cloud khi đăng nhập cùng một tài khoản.</p>
+  <p class="note">CineGlass đã tích hợp sẵn cấu hình Supabase của cậu. Không cần nhập URL hoặc key trên từng thiết bị. Dữ liệu được lưu cục bộ trước, sau đó đồng bộ qua cloud khi đăng nhập cùng một tài khoản. Cậu có thể tạo ID bằng username thay vì email.</p>
   <div class="list" id="cgCloudConfig">
     <div><span>Project</span><b style="font-size:12px;color:var(--sub)">oqwrwwsucgdpbvqnavbt</b></div>
     <div><span>Trạng thái cấu hình</span><b style="font-size:12px;color:#16a36a">Đã ghim sẵn · Publishable key</b></div>
-    <div><span>Email</span><input type="email" id="cgSbEmail" placeholder="Email tài khoản đồng bộ" autocomplete="username"></div>
-    <div><span>Mật khẩu</span><input type="password" id="cgSbPassword" placeholder="Mật khẩu Supabase Auth" autocomplete="current-password"></div>
+    <div><span>Username</span><input type="text" id="cgSbEmail" placeholder="Ví dụ: brownfilm" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="24" inputmode="text" aria-describedby="cgUsernameHint"></div>
+    <div><span>Mật khẩu</span><input type="password" id="cgSbPassword" placeholder="Mật khẩu tài khoản CineGlass" autocomplete="current-password"></div>
   </div>
+  <p class="note" id="cgUsernameHint">Username 3–24 ký tự, dùng chữ không dấu, số, dấu chấm, gạch dưới hoặc gạch ngang. Không cần nhập email; tên đăng nhập không phân biệt chữ hoa/thường. Tài khoản username dùng email nội bộ nên không nhận thư đặt lại mật khẩu — hãy lưu mật khẩu cẩn thận.</p>
   <div style="padding:0 20px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
     <button class="btn g" id="cgSbConnect" type="button">Kiểm tra kết nối</button>
     <button class="btn" id="cgSbLogin" type="button">Đăng nhập</button>
@@ -4681,27 +4682,54 @@ function cgScheduleCloudPush(){
   clearTimeout(cgSbPushTimer);
   cgSbPushTimer=setTimeout(()=>cgCloudSync(true),1600);
 }
+/* Username authentication adapter for Supabase email/password Auth.
+   New usernames map to a stable synthetic email. Existing email-based accounts
+   remain compatible: entering a full email keeps the legacy email login path.
+   The synthetic mailbox cannot receive recovery/confirmation emails. */
+function cgAuthIdentifierToEmail(raw){
+  const value=String(raw||"").trim();
+  if(!value)throw new Error("Nhập username và mật khẩu CineGlass.");
+  // Backward compatibility for accounts created with a real email address.
+  if(value.includes("@"))return value.toLowerCase();
+  const username=value.toLowerCase();
+  if(!/^[a-z0-9][a-z0-9._-]{2,23}$/.test(username)){
+    throw new Error("Username cần dài 3–24 ký tự, bắt đầu bằng chữ hoặc số; chỉ dùng a-z, 0-9, dấu chấm, gạch dưới hoặc gạch ngang.");
+  }
+  return `${username}@users.cineglass.app`;
+}
 async function cgCloudAuth(mode){
   try{
     // Project URL and publishable key are bundled in this single-file app.
     cfg.sbUrl=CG_SUPABASE_URL;cfg.sbKey=CG_SUPABASE_PUBLISHABLE_KEY;
     const client=await cgCloudConfigure();
-    const email=$("#page #cgSbEmail")?.value.trim()||"";
+    const identifier=$("#page #cgSbEmail")?.value.trim()||"";
+    const email=cgAuthIdentifierToEmail(identifier);
     const password=$("#page #cgSbPassword")?.value||"";
-    if(!email||!password)throw new Error("Nhập email và mật khẩu tài khoản CineGlass.");
+    if(!password)throw new Error("Nhập mật khẩu tài khoản CineGlass.");
+    if(password.length<6)throw new Error("Mật khẩu cần có ít nhất 6 ký tự.");
     cgCloudSetStatus(mode==="signup"?"Đang tạo tài khoản…":"Đang đăng nhập…");
+    const username=identifier.includes("@")?"":identifier.trim().toLowerCase();
     const result=mode==="signup"
-      ?await client.auth.signUp({email,password})
+      ?await client.auth.signUp({email,password,options:{data:{username,app:"cineglass"}}})
       :await client.auth.signInWithPassword({email,password});
-    if(result.error)throw result.error;
+    if(result.error){
+      const message=String(result.error.message||"");
+      if(mode==="signup"&&/already registered|already exists|user already/i.test(message)){
+        throw new Error("Username này đã được sử dụng. Cậu hãy chọn username khác.");
+      }
+      if(mode==="login"&&/invalid login credentials/i.test(message)){
+        throw new Error("Username hoặc mật khẩu chưa đúng.");
+      }
+      throw result.error;
+    }
     cgSbUser=result.data?.user||result.data?.session?.user||null;
     if(mode==="signup"&&!result.data?.session){
-      cgCloudSetStatus("Tài khoản đã được tạo. Hãy kiểm tra email xác nhận, sau đó đăng nhập trên cả hai thiết bị.");
+      cgCloudSetStatus("Tài khoản đã được tạo nhưng Supabase đang yêu cầu xác nhận email. Vì username dùng email nội bộ không nhận thư, hãy tắt Confirm email trong Supabase → Authentication → Providers → Email, rồi tạo lại tài khoản.",true);
       return;
     }
     if(cgSbUser){await cgCloudSync(true);if(!cgSbPollTimer)cgSbPollTimer=setInterval(()=>{if(!document.hidden)cgCloudSync(false)},25000);}
     cgCloudRefreshStatus();
-  }catch(e){cgCloudSetStatus("Lỗi đồng bộ: "+(e.message||e),true);}
+  }catch(e){cgCloudSetStatus("Lỗi tài khoản/đồng bộ: "+(e.message||e),true);}
 }
 async function cgCloudLogout(){
   try{if(cgSbClient){const {error}=await cgSbClient.auth.signOut();if(error)throw error;}cgSbUser=null;if(cgSbPollTimer){clearInterval(cgSbPollTimer);cgSbPollTimer=null;}cgCloudRefreshStatus();}
