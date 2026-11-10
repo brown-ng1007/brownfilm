@@ -16,6 +16,7 @@
 <link rel="dns-prefetch" href="https://phimimg.com">
 <link rel="dns-prefetch" href="https://image.tmdb.org">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --bg:#faf7fa;
@@ -1626,6 +1627,247 @@ body{height:100dvh;min-height:100dvh;overflow:hidden;padding:18px 0;}
   #page{padding-left:5px!important;padding-right:5px!important;}
 }
 
+
+
+/* =====================================================================
+   CineGlass 3.0 · Mobile dock detached from the glass app frame
+   The header is moved to body by the script below. This avoids every
+   transformed/filter/backdrop-filter ancestor and anchors to the viewport.
+   ===================================================================== */
+@media (max-width:760px){
+  html,body{
+    width:100%!important;height:100%!important;min-height:100%!important;
+    max-height:100%!important;margin:0!important;padding:0!important;
+    overflow:hidden!important;overscroll-behavior:none!important;
+  }
+  body{
+    position:relative!important;
+    height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;
+    background:var(--bg)!important;background-image:var(--bg-mesh)!important;
+  }
+  /* Keep only the scrolling app canvas inside the glass frame. */
+  #cgAppWindow{
+    position:relative!important;display:flex!important;flex-direction:column!important;
+    width:100vw!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;
+    margin:0!important;padding:calc(env(safe-area-inset-top,0px) + 4px) 5px 0!important;
+    border:0!important;border-radius:0!important;background:transparent!important;
+    box-shadow:none!important;overflow:hidden!important;
+    transform:none!important;filter:none!important;perspective:none!important;contain:none!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;will-change:auto!important;
+  }
+  #cgAppWindow > #page{
+    position:relative!important;flex:1 1 auto!important;width:100%!important;
+    height:0!important;min-height:0!important;margin:0!important;
+    padding:7px 7px calc(var(--cg-mobile-dock-height,144px) + 14px)!important;
+    overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+    border:0!important;border-radius:16px 16px 0 0!important;
+    scroll-padding-bottom:calc(var(--cg-mobile-dock-height,144px) + 18px)!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  #cgAppWindow > #catOverlay{
+    position:absolute!important;inset:5px 3px calc(var(--cg-mobile-dock-height,144px) + 4px)!important;
+    z-index:25!important;border-radius:18px!important;
+  }
+  /* This element is appended directly under body, never inside #cgAppWindow. */
+  body > .cg-topbar.cg-mobile-fixed-dock{
+    position:fixed!important;z-index:48!important;
+    inset:auto 0 var(--cg-visual-bottom-gap,0px) 0!important;
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    gap:5px!important;width:100vw!important;max-width:580px!important;min-width:0!important;
+    min-height:0!important;margin:0 auto!important;
+    padding:8px 10px max(9px,env(safe-area-inset-bottom,0px))!important;
+    box-sizing:border-box!important;overflow:hidden!important;
+    border:1px solid rgba(255,255,255,.94)!important;border-bottom:0!important;
+    border-radius:20px 20px 0 0!important;
+    background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(241,247,253,.76))!important;
+    color:#292e38!important;
+    -webkit-backdrop-filter:blur(23px) saturate(190%)!important;
+    backdrop-filter:blur(23px) saturate(190%)!important;
+    box-shadow:0 -7px 28px rgba(64,79,101,.13),inset 0 1px 0 rgba(255,255,255,.98)!important;
+    transform:none!important;filter:none!important;will-change:auto!important;
+  }
+  :root[data-theme=dark] body > .cg-topbar.cg-mobile-fixed-dock{
+    background:linear-gradient(145deg,rgba(39,43,56,.94),rgba(23,27,38,.94))!important;
+    color:#f3f4f8!important;border-color:rgba(255,255,255,.19)!important;
+    box-shadow:0 -7px 28px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.17)!important;
+  }
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-mobile-toolbar{
+    position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+    display:grid!important;grid-template-columns:minmax(78px,auto) minmax(0,1fr) auto!important;
+    grid-template-areas:"brand search actions"!important;align-items:center!important;
+    gap:6px!important;width:100%!important;max-width:none!important;min-height:38px!important;
+    margin:0!important;padding:0 1px!important;border:0!important;border-radius:0!important;
+    background:transparent!important;box-shadow:none!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  }
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-brand{grid-area:brand!important;display:flex!important;align-items:center!important;gap:5px!important;min-width:0!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-brand-mark{width:30px!important;height:30px!important;flex:none!important;border-radius:9px!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-brand-copy{min-width:0!important;white-space:nowrap!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-brand-copy b{font-size:11px!important;letter-spacing:-.25px!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-brand-copy small{display:none!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-global-search{
+    grid-area:search!important;display:flex!important;align-items:center!important;
+    width:100%!important;min-width:0!important;height:36px!important;padding:0 8px!important;gap:5px!important;
+    border:1px solid rgba(255,255,255,.90)!important;border-radius:12px!important;
+    background:rgba(255,255,255,.66)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.96)!important;
+  }
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-global-search input{min-width:0!important;font-size:11px!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-global-search kbd{display:none!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-top-actions{grid-area:actions!important;display:flex!important;align-items:center!important;gap:4px!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-icon-btn,
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-profile-btn{width:30px!important;height:30px!important;flex:none!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock #cgCategoryTabs{
+    position:relative!important;inset:auto!important;display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:stretch!important;
+    width:100%!important;height:48px!important;min-height:48px!important;margin:0!important;
+    padding:4px 1px 1px!important;gap:3px!important;overflow:visible!important;
+    border:0!important;border-top:1px solid rgba(112,126,145,.14)!important;
+    border-radius:0!important;background:transparent!important;box-shadow:none!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  }
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-category-btn{
+    display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+    width:100%!important;min-width:0!important;height:100%!important;gap:3px!important;padding:3px 1px!important;
+    border:1px solid transparent!important;border-radius:12px!important;background:transparent!important;box-shadow:none!important;
+    color:#657080!important;font-size:9px!important;line-height:1.05!important;font-weight:780!important;white-space:nowrap!important;
+    touch-action:manipulation!important;transition:background .16s ease,color .16s ease!important;
+  }
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-category-btn svg{width:17px!important;height:17px!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-category-btn span{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-category-btn.on{
+    color:#ef526f!important;background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(255,239,243,.82))!important;
+    border-color:rgba(255,255,255,.90)!important;box-shadow:0 3px 10px rgba(80,85,110,.10),inset 0 1px 0 #fff!important;
+  }
+  :root[data-theme=dark] body > .cg-topbar.cg-mobile-fixed-dock .cg-category-btn{color:#bdc4d0!important;}
+  :root[data-theme=dark] body > .cg-topbar.cg-mobile-fixed-dock .cg-category-btn.on{color:#ff8fa5!important;background:rgba(255,255,255,.14)!important;border-color:rgba(255,255,255,.13)!important;}
+  .cg-rail,.dock{display:none!important;}
+}
+@media(max-width:370px){
+  body > .cg-topbar.cg-mobile-fixed-dock{padding-left:7px!important;padding-right:7px!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-mobile-toolbar{grid-template-columns:minmax(70px,auto) minmax(0,1fr) auto!important;gap:5px!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-brand-copy b{font-size:10.5px!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-icon-btn,
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-profile-btn{width:27px!important;height:27px!important;}
+  body > .cg-topbar.cg-mobile-fixed-dock .cg-category-btn{font-size:8.5px!important;}
+}
+
+
+
+/* CineGlass 3.1 — iPad/tablet header: detach from clipped/transformed app frame. */
+@media (min-width:761px) and (max-width:1366px){
+  body.cg-touch-tablet{
+    width:100vw!important;height:100dvh!important;min-height:100dvh!important;
+    max-height:100dvh!important;margin:0!important;padding:0!important;
+    overflow:hidden!important;overscroll-behavior:none!important;
+  }
+  body.cg-touch-tablet .cg-app-window{
+    display:flex!important;flex-direction:column!important;position:relative!important;
+    width:100vw!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;
+    margin:0!important;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 10px!important;
+    border-radius:0!important;overflow:hidden!important;
+    transform:none!important;filter:none!important;perspective:none!important;contain:none!important;
+  }
+  body.cg-touch-tablet .cg-tablet-topbar-spacer{display:block!important;flex:none!important;height:var(--cg-tablet-header-space,106px)!important;min-height:var(--cg-tablet-header-space,106px)!important;}
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header{
+    position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 8px)!important;
+    left:50%!important;right:auto!important;bottom:auto!important;transform:translateX(-50%)!important;
+    z-index:200!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    gap:7px!important;width:calc(100vw - 32px)!important;max-width:1120px!important;min-width:0!important;
+    margin:0!important;padding:10px 14px 8px!important;border-radius:22px!important;
+    background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(244,248,253,.76))!important;
+    border:1px solid rgba(255,255,255,.92)!important;
+    -webkit-backdrop-filter:blur(24px) saturate(185%)!important;backdrop-filter:blur(24px) saturate(185%)!important;
+    box-shadow:0 10px 28px rgba(63,77,96,.13),inset 0 1px 0 rgba(255,255,255,.98)!important;
+    color:#292e38!important;overflow:visible!important;
+  }
+  :root[data-theme=dark] body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header{
+    background:linear-gradient(145deg,rgba(39,43,56,.94),rgba(23,27,38,.91))!important;
+    border-color:rgba(255,255,255,.18)!important;color:#f3f4f8!important;
+  }
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-mobile-toolbar{
+    display:grid!important;grid-template-columns:minmax(135px,auto) minmax(120px,1fr) auto!important;
+    grid-template-areas:"brand search actions"!important;align-items:center!important;gap:10px!important;
+    width:100%!important;min-width:0!important;margin:0!important;padding:0!important;
+    background:transparent!important;border:0!important;box-shadow:none!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  }
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-brand{grid-area:brand!important;display:flex!important;align-items:center!important;gap:8px!important;min-width:0!important;}
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-brand-mark{width:38px!important;height:38px!important;flex:none!important;}
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-global-search{grid-area:search!important;display:flex!important;min-width:0!important;width:100%!important;height:40px!important;}
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-top-actions{grid-area:actions!important;display:flex!important;align-items:center!important;gap:7px!important;}
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header #cgCategoryTabs{
+    display:flex!important;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;
+    min-height:42px!important;gap:8px!important;padding:6px 0 0!important;margin:0!important;
+    overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;
+    border:0!important;border-top:1px solid rgba(112,126,145,.15)!important;border-radius:0!important;
+    background:transparent!important;box-shadow:none!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  }
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-category-btn{
+    display:inline-flex!important;flex:1 0 auto!important;align-items:center!important;justify-content:center!important;
+    min-width:90px!important;min-height:36px!important;padding:8px 12px!important;border-radius:13px!important;
+    font-size:12px!important;white-space:nowrap!important;color:#657080!important;
+  }
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-category-btn.on{
+    color:#e94f70!important;background:rgba(255,255,255,.88)!important;border-color:rgba(255,255,255,.9)!important;
+    box-shadow:0 3px 10px rgba(75,88,110,.10),inset 0 1px 0 #fff!important;
+  }
+  body.cg-touch-tablet #cgAppWindow > #page{
+    flex:1 1 auto!important;width:100%!important;height:0!important;min-height:0!important;
+    margin:0!important;padding:14px 14px 24px!important;overflow-x:hidden!important;overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;
+  }
+  body.cg-touch-tablet #cgAppWindow > #catOverlay{
+    position:absolute!important;top:calc(var(--cg-tablet-header-space,106px) + env(safe-area-inset-top,0px) + 8px)!important;
+    right:12px!important;bottom:12px!important;left:12px!important;z-index:80!important;
+  }
+  body.cg-touch-tablet .cg-rail,body.cg-touch-tablet .dock{display:none!important;}
+}
+@media (min-width:761px) and (max-width:900px){
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-mobile-toolbar{
+    grid-template-columns:minmax(118px,auto) minmax(100px,1fr) auto!important;gap:7px!important;
+  }
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-brand-copy b{font-size:13px!important;}
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-brand-copy small{font-size:7px!important;}
+  body.cg-touch-tablet > .cg-topbar.cg-tablet-fixed-header .cg-category-btn{min-width:82px!important;padding:7px 9px!important;font-size:10px!important;}
+  body.cg-touch-tablet .cg-home-layout{grid-template-columns:minmax(0,1fr)!important;}
+  body.cg-touch-tablet .cg-home-sidebar{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+}
+
+
+/* ================= CineGlass 3.2 responsive layout correction ================= */
+@media (max-width:760px){
+  html,body{width:100%!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+  body{position:relative!important;overscroll-behavior:none!important;}
+  #cgAppWindow{position:relative!important;display:flex!important;flex-direction:column!important;width:100vw!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;margin:0!important;padding:calc(env(safe-area-inset-top,0px) + 4px) 5px 0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:hidden!important;transform:none!important;filter:none!important;perspective:none!important;contain:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;}
+  body>.cg-topbar.cg-mobile-fixed-dock{position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;inset:auto 0 0 0!important;z-index:9999!important;width:min(620px,100vw)!important;max-width:620px!important;margin:0 auto!important;box-sizing:border-box!important;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px))!important;border:1px solid rgba(255,255,255,.94)!important;border-bottom:0!important;border-radius:21px 21px 0 0!important;background:linear-gradient(145deg,rgba(255,255,255,.91),rgba(240,247,253,.79))!important;-webkit-backdrop-filter:blur(22px) saturate(185%)!important;backdrop-filter:blur(22px) saturate(185%)!important;box-shadow:0 -7px 28px rgba(64,79,101,.13),inset 0 1px 0 rgba(255,255,255,.98)!important;transform:none!important;filter:none!important;}
+  :root[data-theme=dark] body>.cg-topbar.cg-mobile-fixed-dock{background:linear-gradient(145deg,rgba(39,43,56,.95),rgba(23,27,38,.94))!important;border-color:rgba(255,255,255,.2)!important;}
+  #cgAppWindow>#page{position:relative!important;flex:1 1 auto!important;width:100%!important;height:0!important;min-height:0!important;margin:0!important;padding:7px 7px calc(var(--cg-mobile-dock-height,142px) + 16px + env(safe-area-inset-bottom,0px))!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;scroll-padding-bottom:calc(var(--cg-mobile-dock-height,142px) + 20px + env(safe-area-inset-bottom,0px))!important;}
+  #cgAppWindow>#catOverlay{position:absolute!important;inset:5px 3px calc(var(--cg-mobile-dock-height,142px) + 8px)!important;z-index:25!important;border-radius:18px!important;}
+  .cg-rail,.dock{display:none!important;}
+}
+@media(max-width:370px){
+  body>.cg-topbar.cg-mobile-fixed-dock{padding-left:7px!important;padding-right:7px!important;}
+  body>.cg-topbar.cg-mobile-fixed-dock .cg-mobile-toolbar{grid-template-columns:minmax(70px,auto) minmax(0,1fr) auto!important;gap:5px!important;}
+  body>.cg-topbar.cg-mobile-fixed-dock .cg-brand-copy b{font-size:10.5px!important;}
+  body>.cg-topbar.cg-mobile-fixed-dock .cg-icon-btn,body>.cg-topbar.cg-mobile-fixed-dock .cg-profile-btn{width:27px!important;height:27px!important;}
+  body>.cg-topbar.cg-mobile-fixed-dock .cg-category-btn{font-size:8.5px!important;}
+}
+/* iPad/tablet: header stays in the app's flex column, never detached or overlaid. */
+body.cg-touch-tablet{width:100vw!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;margin:0!important;padding:0!important;overflow:hidden!important;overscroll-behavior:none!important;}
+body.cg-touch-tablet #cgAppWindow{position:relative!important;display:flex!important;flex-direction:column!important;width:100vw!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;margin:0!important;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 12px!important;border:0!important;border-radius:0!important;overflow:hidden!important;transform:none!important;filter:none!important;perspective:none!important;contain:none!important;}
+body.cg-touch-tablet #cgAppWindow>.cg-topbar{position:relative!important;inset:auto!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;z-index:30!important;display:flex!important;flex:0 0 auto!important;flex-direction:column!important;width:100%!important;max-width:none!important;margin:0 0 10px!important;transform:none!important;}
+body.cg-touch-tablet #cgAppWindow>.cg-topbar .cg-mobile-toolbar{display:grid!important;grid-template-columns:minmax(138px,auto) minmax(120px,1fr) auto!important;grid-template-areas:"brand search actions"!important;gap:10px!important;align-items:center!important;width:100%!important;}
+body.cg-touch-tablet #cgAppWindow>.cg-topbar #cgCategoryTabs{display:flex!important;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;min-height:42px!important;margin:5px 0 0!important;padding:6px 0 0!important;gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;border-top:1px solid rgba(112,126,145,.15)!important;}
+body.cg-touch-tablet #cgAppWindow>.cg-topbar .cg-category-btn{display:inline-flex!important;flex:1 0 auto!important;align-items:center!important;justify-content:center!important;min-width:90px!important;min-height:36px!important;padding:8px 12px!important;border-radius:13px!important;font-size:12px!important;white-space:nowrap!important;}
+body.cg-touch-tablet #cgAppWindow>#page{position:relative!important;flex:1 1 auto!important;width:100%!important;height:0!important;min-height:0!important;margin:0!important;padding:12px 12px 28px!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;}
+body.cg-touch-tablet #cgAppWindow>#catOverlay{position:absolute!important;top:calc(var(--cg-tablet-header-height,116px) + 12px)!important;right:12px!important;bottom:12px!important;left:12px!important;z-index:80!important;}
+body.cg-touch-tablet .cg-rail,body.cg-touch-tablet .dock{display:none!important;}
+@media(prefers-reduced-motion:reduce){body>.cg-topbar.cg-mobile-fixed-dock{transition:none!important;}}
+
+
+/* Cloud form inputs should match the existing settings controls. */
+.list input[type=url],.list input[type=email]{background:none;border:0;outline:0;color:var(--text);text-align:right;flex:1;min-width:0;font-size:15px;}
 </style>
 </head>
 <body>
@@ -1778,7 +2020,14 @@ function markInteraction(ms=450){
 window.addEventListener("touchstart",()=>markInteraction(600),{passive:true});
 window.addEventListener("scroll",()=>markInteraction(350),{passive:true});
 
-let cfg=Object.assign({theme:"auto",tmdb:"3309069624518eb702e51e01c9ad58f8",omdb:"8299aee2",glass:0.02},store.get("cfg",{}));
+let cfg=Object.assign({theme:"auto",tmdb:"3309069624518eb702e51e01c9ad58f8",omdb:"8299aee2",glass:0.02,sbUrl:"",sbKey:""},store.get("cfg",{}));
+// CineGlass personal Supabase project: the publishable key is intended for browser use.
+// Access to user data is restricted by Supabase Auth + Row Level Security (RLS).
+const CG_SUPABASE_URL="https://oqwrwwsucgdpbvqnavbt.supabase.co";
+const CG_SUPABASE_PUBLISHABLE_KEY="sb_publishable_ADZEUa9j7nIWzUUBLDDu7g_-3dsdmVd";
+// Always use the bundled project configuration; users no longer need to paste it on every device.
+cfg.sbUrl=CG_SUPABASE_URL;
+cfg.sbKey=CG_SUPABASE_PUBLISHABLE_KEY;
 cfg.glass=Math.min(1,Math.max(0,Number(cfg.glass)||0));
 const root=document.documentElement,mq=matchMedia("(prefers-color-scheme:dark)");
 function applyCfg(){
@@ -2432,7 +2681,7 @@ const contRow=()=>{
   const a=[...Object.entries(p).map(([id,v])=>({k:"a",id,...v})),...Object.entries(y).map(([id,v])=>({k:"y",id,...v}))].filter(v=>v.t>5&&(!v.d||v.t<v.d-15)).sort((a,b)=>b.u-a.u);
   if(!a.length)return"";
   return`<h2>Xem tiếp</h2><div class="scroller">${a.map(v=>v.k=="a"
-   ?`<button class="card wide" data-play="${esc(v.id)}"><img class="p" src="${esc(v.img||cgFallbackImage(v.title,true))}" data-cg-fallback-title="${esc(v.title||"Xem tiếp")}" data-cg-fallback-wide="1" alt=""><b>${esc(v.title)}${v.epName?" · Tập "+esc(v.epName):""}</b><div class="bar"><i style="width:${v.d?Math.min(95,v.t/v.d*100):35}%"></i></div></button>`
+   ?`<button class="card wide" data-play="${esc(v.id)}"><img class="p" src="${esc(v.img||cgFallbackImage(v.title,true))}" data-cg-fallback-title="${esc(v.title||"Xem tiếp")}" data-cg-fallback-wide="1" alt=""><b>${esc(v.title)}${v.epName?" · Tập "+esc(v.epName):""}</b>${v.positionKnown===false?'<small>Tiếp tục từ tập đã chọn</small>':`<div class="bar"><i style="width:${v.d?Math.min(95,v.t/v.d*100):35}%"></i></div>`}</button>`
    :`<button class="card wide" data-resume="${v.type}:${v.id}"><img class="p" src="${esc(v.img||cgFallbackImage(v.title,true))}" data-cg-fallback-title="${esc(v.title||"Trailer")}" data-cg-fallback-wide="1" alt=""><b>Trailer · ${esc(v.title)}</b><div class="bar"><i style="width:${v.t/v.d*100}%"></i></div></button>`).join("")}</div>`};
 
 async function pHome(id){
@@ -2872,13 +3121,44 @@ function pMe(){
   <h2 style="font-size:14px;color:var(--sub);text-transform:uppercase;margin-bottom:6px">Nguồn dữ liệu</h2>
   <div class="list"><div><span>TMDB key</span><input type="password" id="k1" placeholder="Dán khoá API" value="${esc(cfg.tmdb)}"></div><div><span>OMDb key</span><input type="password" id="k2" placeholder="Tuỳ chọn – điểm IMDb" value="${esc(cfg.omdb)}"></div></div>
   <p class="note">Lấy khoá miễn phí tại themoviedb.org/settings/api (TMDB) và omdbapi.com (điểm IMDb). Khoá chỉ lưu trên máy bạn.</p>
+  <h2 style="font-size:14px;color:var(--sub);text-transform:uppercase;margin-bottom:6px">Đồng bộ iPhone & iPad</h2>
+  <p class="note">CineGlass đã tích hợp sẵn cấu hình Supabase của cậu. Không cần nhập URL hoặc key trên từng thiết bị. Dữ liệu được lưu cục bộ trước, sau đó đồng bộ qua cloud khi đăng nhập cùng một tài khoản.</p>
+  <div class="list" id="cgCloudConfig">
+    <div><span>Project</span><b style="font-size:12px;color:var(--sub)">oqwrwwsucgdpbvqnavbt</b></div>
+    <div><span>Trạng thái cấu hình</span><b style="font-size:12px;color:#16a36a">Đã ghim sẵn · Publishable key</b></div>
+    <div><span>Email</span><input type="email" id="cgSbEmail" placeholder="Email tài khoản đồng bộ" autocomplete="username"></div>
+    <div><span>Mật khẩu</span><input type="password" id="cgSbPassword" placeholder="Mật khẩu Supabase Auth" autocomplete="current-password"></div>
+  </div>
+  <div style="padding:0 20px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <button class="btn g" id="cgSbConnect" type="button">Kiểm tra kết nối</button>
+    <button class="btn" id="cgSbLogin" type="button">Đăng nhập</button>
+    <button class="btn g" id="cgSbSignup" type="button">Tạo tài khoản</button>
+  </div>
+  <div style="padding:0 20px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+    <button class="btn g" id="cgSbSyncNow" type="button">Đồng bộ ngay</button>
+    <button class="btn g" id="cgSbLogout" type="button">Đăng xuất</button>
+  </div>
+  <p class="note" id="cgCloudStatus" role="status" aria-live="polite">Chưa cấu hình Supabase. Dữ liệu vẫn được lưu trên thiết bị này.</p>
+  <div class="list"><div><span>Tiến trình cục bộ</span><b id="cgLocalProgressCount">—</b></div><div><span>Thư viện cá nhân</span><b id="cgLocalLibraryCount">—</b></div></div>
+  <h2 style="font-size:14px;color:var(--sub);text-transform:uppercase;margin-bottom:6px">Thiết lập database (một lần)</h2>
+  <p class="note">Trong Supabase → SQL Editor, chạy một lần SQL tạo bảng cineglass_user_state và bật RLS. Cấu hình project đã được tích hợp sẵn trong HTML.</p>
   <div style="padding:0 20px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="sv">Lưu & tải lại</button><button class="btn g" id="cl">Xoá tiến trình xem</button></div>
   <p class="note" style="margin-top:18px">Thêm vào màn hình chính: Safari → Chia sẻ → Thêm vào MH chính. Hiệu ứng vuốt ngang & vuốt dọc đồng bộ 120Hz CoreAnimation.</p>`;
 
   $("#page #th").onclick=e=>{const b=e.target.closest("button");if(!b)return;vt(()=>{cfg.theme=b.dataset.v;saveCfg();[...$("#page #th").children].forEach(x=>x.classList.toggle("on",x==b))})};
   $("#page #glRng").oninput=e=>{cfg.glass=Number(e.target.value);$("#page #gl").textContent=label();saveCfg()};
   $("#page #sv").onclick=()=>{cfg.tmdb=$("#page #k1").value.trim();cfg.omdb=$("#page #k2").value.trim();saveCfg();cache.clear();go("home")};
-  $("#page #cl").onclick=()=>{store.set("prog",{});store.set("ytprog",{});store.set("seen",[]);alert("Đã xoá")};
+  $("#page #cl").onclick=()=>{if(confirm("Xoá tiến trình trên thiết bị này? Bản cloud sẽ không bị xoá.")){store.set("prog",{});store.set("ytprog",{});store.set("seen",[]);cgUpdateLocalCounts();alert("Đã xoá tiến trình cục bộ")}};
+  $("#page #cgSbConnect").onclick=async()=>{
+    try{await cgCloudConfigure(true);cgCloudSetStatus("Đã kết nối Supabase project. Đăng nhập cùng tài khoản trên iPhone và iPad để đồng bộ.")}
+    catch(e){cgCloudSetStatus("Chưa kết nối được: "+(e.message||e),true)}
+  };
+  $("#page #cgSbLogin").onclick=()=>cgCloudAuth("login");
+  $("#page #cgSbSignup").onclick=()=>cgCloudAuth("signup");
+  $("#page #cgSbSyncNow").onclick=()=>cgCloudSync(true);
+  $("#page #cgSbLogout").onclick=()=>cgCloudLogout();
+  cgUpdateLocalCounts();
+  cgCloudRefreshStatus();
 }
 
 /* ============================================================================
@@ -3393,21 +3673,49 @@ async function loadItem(){
 
 function save(){
   const it=list[idx];if(!it)return;
-  const p=store.get("prog",{});
-  p[it.identifier]={
-    t:playerMode==="m3u8"?V.currentTime:(it.resumeTime||15),
-    d:playerMode==="m3u8"?(V.duration||0):0,
-    title:it.title,
-    epName:it.epName,
-    img:it.img,
-    providerId:it.providerId,
-    slug:it.slug,
-    sIdx:it.sIdx,
-    eIdx:it.eIdx,
-    u:Date.now()
-  };
+  const p=store.get("prog",{}),old=p[it.identifier]||{};
+  const nativeMode=playerMode==="m3u8"&&V;
+  const rawT=nativeMode?Number(V.currentTime||0):0;
+  const duration=nativeMode?Number(V.duration||0):0;
+  // Native HLS saves an actual timestamp. An iframe is cross-origin, so we can
+  // remember its selected episode but cannot inspect its internal playback time.
+  let t=nativeMode?rawT:Math.max(Number(it.resumeTime)||0,Number(old.t)||15);
+  if(nativeMode&&t<3&&old.eIdx===it.eIdx&&old.sIdx===it.sIdx&&Number(old.t)>10){
+    // Avoid replacing a valid checkpoint with 0 while Safari is restoring the media element.
+    t=Number(old.t);
+  }
+  if(nativeMode&&duration>0&&t>=duration-15){
+    delete p[it.identifier];
+  }else{
+    p[it.identifier]={
+      t:Number.isFinite(t)?Math.max(0,t):0,
+      d:Number.isFinite(duration)?Math.max(0,duration):0,
+      title:it.title,epName:it.epName,img:it.img,
+      providerId:it.providerId,slug:it.slug,sIdx:it.sIdx,eIdx:it.eIdx,
+      positionKnown:!!nativeMode,
+      u:Date.now()
+    };
+  }
   store.set("prog",p);
 }
+
+// Safari/iPadOS may suspend a tab without a reliable final unload callback.
+// Checkpoint periodically, and also on pause, seek completion and app backgrounding.
+let cgProgressLastSaved=0;
+function cgCheckpointProgress(force=false){
+  if(!P?.classList.contains("show")||!list[idx])return;
+  const now=Date.now();
+  if(!force&&now-cgProgressLastSaved<5000)return;
+  save();cgProgressLastSaved=now;
+}
+V.addEventListener("timeupdate",()=>cgCheckpointProgress(false),{passive:true});
+V.addEventListener("pause",()=>cgCheckpointProgress(true),{passive:true});
+V.addEventListener("seeked",()=>cgCheckpointProgress(true),{passive:true});
+V.addEventListener("ended",()=>cgCheckpointProgress(true),{passive:true});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)cgCheckpointProgress(true)});
+window.addEventListener("pagehide",()=>cgCheckpointProgress(true));
+window.addEventListener("freeze",()=>cgCheckpointProgress(true));
+setInterval(()=>cgCheckpointProgress(false),6000);
 
 /* Đóng Player theo hướng: "right" (thu nhỏ về góc phải) | "down" (thu nhỏ xuống góc dưới) */
 function closePlayer(dir="down"){
@@ -3928,6 +4236,246 @@ closePlayer=function(dir="down"){exitFS();closeOrig(dir)};
   });
   syncChrome();
 })();
+
+</script>
+<script>
+/* CineGlass 3.2 — responsive chrome: iPhone dock fixed to viewport, iPad header in normal app flow. */
+(()=>{
+  const dock=document.getElementById('cgTopbar');
+  const app=document.getElementById('cgAppWindow');
+  if(!dock||!app)return;
+  const mobileMQ=window.matchMedia('(max-width:760px)');
+  const root=document.documentElement;
+  let resizeObserver=null,currentMode='';
+  const isAppleTablet=()=>/iPad/.test(navigator.userAgent)||(
+    navigator.platform==='MacIntel'&&Number(navigator.maxTouchPoints||0)>1
+  );
+  const isWideTouch=()=>window.innerWidth>760&&window.innerWidth<=1440&&(
+    Number(navigator.maxTouchPoints||0)>0||window.matchMedia('(pointer:coarse)').matches||('ontouchstart' in window)
+  );
+  const measure=()=>{
+    const h=Math.ceil(dock.getBoundingClientRect().height||0);
+    if(currentMode==='mobile'&&h>0)root.style.setProperty('--cg-mobile-dock-height',`${h}px`);
+    if(currentMode==='tablet'&&h>0)root.style.setProperty('--cg-tablet-header-height',`${h}px`);
+  };
+  const moveIntoApp=()=>{
+    dock.classList.remove('cg-mobile-fixed-dock','cg-tablet-fixed-header');
+    if(dock.parentElement!==app)app.insertBefore(dock,app.firstChild);
+    root.style.removeProperty('--cg-mobile-dock-height');
+  };
+  const apply=()=>{
+    const mode=mobileMQ.matches?'mobile':((isAppleTablet()||isWideTouch())?'tablet':'desktop');
+    if(mode==='mobile'){
+      if(dock.parentElement!==document.body)document.body.appendChild(dock);
+      dock.classList.remove('cg-tablet-fixed-header');
+      dock.classList.add('cg-mobile-fixed-dock');
+      document.body.classList.remove('cg-touch-tablet');
+    }else{
+      moveIntoApp();
+      document.body.classList.toggle('cg-touch-tablet',mode==='tablet');
+    }
+    currentMode=mode;
+    requestAnimationFrame(measure);
+    if(resizeObserver){resizeObserver.disconnect();resizeObserver=null;}
+    if('ResizeObserver'in window){resizeObserver=new ResizeObserver(measure);resizeObserver.observe(dock);}
+  };
+  apply();
+  if(mobileMQ.addEventListener)mobileMQ.addEventListener('change',apply);else mobileMQ.addListener(apply);
+  window.addEventListener('resize',apply,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(apply,180),{passive:true});
+})();
+
+
+/* ================= CineGlass 3.2 · Supabase cross-device sync =================
+   Local-first. Only public publishable/anon key is used in the browser.
+   SQL table: public.cineglass_user_state (see setup SQL in delivery notes).
+*/
+let cgSbClient=null,cgSbUser=null,cgSbConfigFingerprint="",cgSbPushTimer=null,cgSbPollTimer=null,cgSbApplyingRemote=false,cgSbLastSync=0;
+const CG_SB_TABLE="cineglass_user_state";
+const CG_LIBRARY_KEY="cg_personal_library_v1";
+const CG_DELETE_KEY="cg_sync_deleted_v1";
+function cgCloudSetStatus(message,isError=false){
+  const el=$("#page #cgCloudStatus");
+  if(el){el.textContent=message;el.style.color=isError?"#d94b62":"var(--sub)";}
+}
+function cgUpdateLocalCounts(){
+  const p=store.get("prog",{}),y=store.get("ytprog",{}),lib=store.get(CG_LIBRARY_KEY,[]);
+  const count=Object.keys(p||{}).length+Object.keys(y||{}).length;
+  const pEl=$("#page #cgLocalProgressCount"),lEl=$("#page #cgLocalLibraryCount");
+  if(pEl)pEl.textContent=`${count} mục`;
+  if(lEl)lEl.textContent=`${Array.isArray(lib)?lib.length:0} phim`;
+}
+function cgCloudRefreshStatus(){
+  cgUpdateLocalCounts();
+  if(cgSbUser)cgCloudSetStatus(`Đã đăng nhập: ${cgSbUser.email||"tài khoản CineGlass"}. Đồng bộ tự động đang bật.`);
+  else if(cfg.sbUrl&&cfg.sbKey)cgCloudSetStatus("Cấu hình Supabase đã được tích hợp. Đăng nhập để bật đồng bộ.");
+  else cgCloudSetStatus("Chưa cấu hình Supabase. Tiến trình vẫn được lưu cục bộ trên thiết bị này.");
+}
+async function cgCloudConfigure(force=false){
+  const url=String(cfg.sbUrl||"").trim().replace(/\/$/,"");
+  const key=String(cfg.sbKey||"").trim();
+  if(!url||!key)throw new Error("CineGlass chưa nạp được cấu hình Supabase tích hợp sẵn.");
+  if(!/^https:\/\//i.test(url))throw new Error("Project URL phải bắt đầu bằng https://.");
+  if(!window.supabase||typeof window.supabase.createClient!=="function")throw new Error("Không tải được Supabase SDK. Kiểm tra kết nối CDN rồi tải lại trang.");
+  const fp=url+"|"+key;
+  if(cgSbClient&&cgSbConfigFingerprint===fp&&!force){
+    const {data}=await cgSbClient.auth.getSession();cgSbUser=data?.session?.user||null;return cgSbClient;
+  }
+  if(cgSbPollTimer){clearInterval(cgSbPollTimer);cgSbPollTimer=null;}
+  cgSbClient=window.supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"cineglass-supabase-auth"}});
+  cgSbConfigFingerprint=fp;
+  cgSbClient.auth.onAuthStateChange((event,session)=>{
+    cgSbUser=session?.user||null;
+    cgCloudRefreshStatus();
+    if(event==="SIGNED_IN"||event==="TOKEN_REFRESHED")setTimeout(()=>cgCloudSync(true),0);
+  });
+  const {data,error}=await cgSbClient.auth.getSession();
+  if(error)throw error;
+  cgSbUser=data?.session?.user||null;
+  if(cgSbUser){
+    setTimeout(()=>cgCloudSync(true),0);
+    cgSbPollTimer=setInterval(()=>{if(!document.hidden)cgCloudSync(false)},25000);
+  }
+  cgCloudRefreshStatus();
+  return cgSbClient;
+}
+function cgMergeTombstones(a,b){
+  const out={prog:{...(b?.prog||{}),...(a?.prog||{})},ytprog:{...(b?.ytprog||{}),...(a?.ytprog||{})},library:{...(b?.library||{}),...(a?.library||{})}};
+  for(const group of Object.keys(out))for(const key of new Set([...Object.keys(a?.[group]||{}),...Object.keys(b?.[group]||{})]))out[group][key]=Math.max(Number(a?.[group]?.[key]||0),Number(b?.[group]?.[key]||0));
+  return out;
+}
+function cgRecordTime(item){return Number(item?.u||item?.updatedAt||item?.createdAt||0)}
+function cgMergeMap(localMap,remoteMap,tombstones={}){
+  const out={...(remoteMap||{}),...(localMap||{})};
+  for(const k of new Set([...Object.keys(localMap||{}),...Object.keys(remoteMap||{})])){
+    const a=localMap?.[k],b=remoteMap?.[k];
+    if(!a){out[k]=b;continue}if(!b){out[k]=a;continue}
+    out[k]=cgRecordTime(b)>cgRecordTime(a)?b:a;
+  }
+  for(const [key,deletedAt] of Object.entries(tombstones||{}))if(Number(deletedAt)>=cgRecordTime(out[key]))delete out[key];
+  return out;
+}
+function cgBuildLocalSnapshot(){
+  return {
+    version:1,
+    prog:store.get("prog",{}),
+    ytprog:store.get("ytprog",{}),
+    library:store.get(CG_LIBRARY_KEY,[]),
+    seen:store.get("seen",[]),
+    deleted:store.get(CG_DELETE_KEY,{prog:{},ytprog:{},library:{}})
+  };
+}
+function cgMergeLibrary(a,b,tombstones={}){
+  const map=new Map();
+  [...(b||[]),...(a||[])].forEach(item=>{
+    if(!item?.key)return;
+    const old=map.get(item.key);
+    if(!old||cgRecordTime(item)>=cgRecordTime(old))map.set(item.key,item);
+  });
+  for(const [key,deletedAt] of Object.entries(tombstones||{}))if(Number(deletedAt)>=cgRecordTime(map.get(key)))map.delete(key);
+  return [...map.values()].sort((x,y)=>cgRecordTime(y)-cgRecordTime(x));
+}
+function cgMergeSeen(a,b){
+  const map=new Map();
+  [...(b||[]),...(a||[])].forEach((item,index)=>{
+    if(!item)return;const key=`${item.type||""}:${item.id||item.slug||item.title||index}`;
+    if(!map.has(key))map.set(key,item);
+  });
+  return [...map.values()].slice(0,40);
+}
+function cgMergeSnapshots(local,remote){
+  const deleted=cgMergeTombstones(local?.deleted,remote?.deleted);
+  return {
+    version:1,
+    prog:cgMergeMap(local?.prog,remote?.prog,deleted.prog),
+    ytprog:cgMergeMap(local?.ytprog,remote?.ytprog,deleted.ytprog),
+    library:cgMergeLibrary(local?.library,remote?.library,deleted.library),
+    seen:cgMergeSeen(local?.seen,remote?.seen),
+    deleted
+  };
+}
+function cgApplySnapshot(payload){
+  cgSbApplyingRemote=true;
+  try{
+    store.set(CG_DELETE_KEY,payload.deleted||{prog:{},ytprog:{},library:{}});
+    store.set("prog",payload.prog||{});
+    store.set("ytprog",payload.ytprog||{});
+    store.set(CG_LIBRARY_KEY,payload.library||[]);
+    store.set("seen",payload.seen||[]);
+  }finally{cgSbApplyingRemote=false;}
+  cgUpdateLocalCounts();
+}
+async function cgCloudSync(forcePush=false){
+  if(!cgSbClient||!cgSbUser)return;
+  try{
+    const local=cgBuildLocalSnapshot();
+    const {data,error}=await cgSbClient.from(CG_SB_TABLE).select("payload,updated_at").eq("user_id",cgSbUser.id).maybeSingle();
+    if(error)throw error;
+    const remote=data?.payload||{};
+    const merged=cgMergeSnapshots(local,remote);
+    cgApplySnapshot(merged);
+    const {error:upsertError}=await cgSbClient.from(CG_SB_TABLE).upsert({user_id:cgSbUser.id,payload:merged,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+    if(upsertError)throw upsertError;
+    cgSbLastSync=Date.now();
+    cgCloudSetStatus(`Đã đồng bộ lúc ${new Date(cgSbLastSync).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"})}. Dùng cùng tài khoản trên iPhone và iPad.`);
+  }catch(e){
+    console.warn("CineGlass cloud sync:",e);
+    cgCloudSetStatus("Chưa đồng bộ được: "+(e.message||"Kiểm tra bảng/RLS trong Supabase."),true);
+  }
+}
+function cgScheduleCloudPush(){
+  if(cgSbApplyingRemote||!cgSbClient||!cgSbUser)return;
+  clearTimeout(cgSbPushTimer);
+  cgSbPushTimer=setTimeout(()=>cgCloudSync(true),1600);
+}
+async function cgCloudAuth(mode){
+  try{
+    // Project URL and publishable key are bundled in this single-file app.
+    cfg.sbUrl=CG_SUPABASE_URL;cfg.sbKey=CG_SUPABASE_PUBLISHABLE_KEY;
+    const client=await cgCloudConfigure();
+    const email=$("#page #cgSbEmail")?.value.trim()||"";
+    const password=$("#page #cgSbPassword")?.value||"";
+    if(!email||!password)throw new Error("Nhập email và mật khẩu tài khoản CineGlass.");
+    cgCloudSetStatus(mode==="signup"?"Đang tạo tài khoản…":"Đang đăng nhập…");
+    const result=mode==="signup"
+      ?await client.auth.signUp({email,password})
+      :await client.auth.signInWithPassword({email,password});
+    if(result.error)throw result.error;
+    cgSbUser=result.data?.user||result.data?.session?.user||null;
+    if(mode==="signup"&&!result.data?.session){
+      cgCloudSetStatus("Tài khoản đã được tạo. Hãy kiểm tra email xác nhận, sau đó đăng nhập trên cả hai thiết bị.");
+      return;
+    }
+    if(cgSbUser){await cgCloudSync(true);if(!cgSbPollTimer)cgSbPollTimer=setInterval(()=>{if(!document.hidden)cgCloudSync(false)},25000);}
+    cgCloudRefreshStatus();
+  }catch(e){cgCloudSetStatus("Lỗi đồng bộ: "+(e.message||e),true);}
+}
+async function cgCloudLogout(){
+  try{if(cgSbClient){const {error}=await cgSbClient.auth.signOut();if(error)throw error;}cgSbUser=null;if(cgSbPollTimer){clearInterval(cgSbPollTimer);cgSbPollTimer=null;}cgCloudRefreshStatus();}
+  catch(e){cgCloudSetStatus("Không đăng xuất được: "+(e.message||e),true);}
+}
+// Wrap the existing local store once. Local writes remain immediate; cloud writes are debounced.
+if(!store.__cgCloudWrapped){
+  const originalSet=store.set.bind(store),originalGet=store.get.bind(store);
+  store.set=(k,v)=>{
+    if(!cgSbApplyingRemote&&["prog","ytprog",CG_LIBRARY_KEY].includes(k)){
+      const group=k===CG_LIBRARY_KEY?"library":k;
+      const before=originalGet(k,k===CG_LIBRARY_KEY?[]:{});
+      const asMap=value=>Array.isArray(value)?Object.fromEntries(value.filter(x=>x?.key).map(x=>[x.key,x])):(value||{});
+      const prev=asMap(before),next=asMap(v),deleted=originalGet(CG_DELETE_KEY,{prog:{},ytprog:{},library:{}});
+      deleted[group]=deleted[group]||{};
+      for(const key of Object.keys(prev))if(!(key in next))deleted[group][key]=Date.now();
+      for(const key of Object.keys(next))delete deleted[group][key];
+      originalSet(CG_DELETE_KEY,deleted);
+    }
+    originalSet(k,v);
+    if(["prog","ytprog","seen",CG_LIBRARY_KEY].includes(k))cgScheduleCloudPush();
+  };
+  store.__cgCloudWrapped=true;
+}
+window.addEventListener("online",()=>{if(cgSbUser)cgCloudSync(true)});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&cgSbUser)cgCloudSync(false)});
+setTimeout(()=>{if(cfg.sbUrl&&cfg.sbKey)cgCloudConfigure().catch(e=>cgCloudSetStatus("Supabase chưa sẵn sàng: "+(e.message||e),true));},900);
 
 </script>
 </body>
